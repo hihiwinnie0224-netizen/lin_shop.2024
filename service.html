@@ -5,71 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SERVICES | LINSHOP Select</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;500&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', 'Noto Serif TC', serif; background-color: #F9F8F6; color: #4A4A4A; line-height: 1.8; }
-        .nav-link { letter-spacing: 0.1em; transition: opacity 0.3s; }
-        .nav-link:hover { opacity: 0.6; }
-        .section-title { letter-spacing: 0.3em; color: #8C8C8C; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 2rem; }
-        .content-card { border-bottom: 1px solid #E5E4E2; padding-bottom: 3rem; margin-bottom: 3rem; }
-        .highlight-text { color: #2D2D2D; font-weight: 500; }
+        body { 
+            font-family: 'Montserrat', 'Noto Sans TC', sans-serif; 
+            background-color: #FDFDFB; 
+            color: #333333; 
+            line-height: 1.8; 
+        }
+        .nav-link { transition: all 0.3s; padding: 12px 16px; }
+        
+        /* 服務卡片設計：增加手機上的點擊視覺感 */
+        .service-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
+            border: 1px solid #F1F1F1;
+        }
+        
+        .section-tag {
+            display: inline-block;
+            background-color: #F3F4F6;
+            color: #6B7280;
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 50px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .highlight-title {
+            color: #1A1A1A;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
     </style>
 </head>
 <body>
 
-    <nav class="flex justify-between items-center px-10 py-8 border-b border-gray-100 bg-white">
-        <div class="text-2xl tracking-[0.3em] font-light">LINSHOP</div>
-        <div class="hidden md:flex space-x-12 text-xs uppercase tracking-widest">
-            <a href="index.html" class="nav-link text-gray-400">Home</a>
-            <a href="service.html" class="nav-link text-gray-800 border-b border-gray-400 pb-1">Service</a>
-            <a href="contact.html" class="nav-link text-gray-400">Contact</a>
+    <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="text-2xl font-bold tracking-[0.2em]">LINSHOP</div>
+        <div class="hidden md:flex items-center space-x-4 text-sm font-medium">
+            <a href="index.html" class="nav-link text-gray-400 hover:text-gray-900">首頁</a>
+            <a href="service.html" class="nav-link text-gray-900 border-b-2 border-gray-900">服務項目</a>
+            <a href="contact.html" class="nav-link text-gray-400 hover:text-gray-900">聯絡我們</a>
+        </div>
+        <div class="md:hidden text-gray-800">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
         </div>
     </nav>
 
-    <header class="pt-24 pb-16 text-center">
-        <h1 class="text-3xl font-light tracking-[0.2em]">SERVICE DETAILS</h1>
+    <header class="pt-20 pb-12 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">服務說明</h1>
+        <p class="text-gray-400 mt-4 text-sm tracking-widest">Service Details & Partnership</p>
     </header>
 
-    <main class="max-w-3xl mx-auto px-10 pb-32">
+    <main class="max-w-4xl mx-auto px-6 pb-24">
 
-        <section class="content-card">
-            <h2 class="section-title">Global Selection</h2>
-            <h3 class="text-xl mb-6 highlight-text">全球連線採購</h3>
-            <p class="text-sm text-gray-500 mb-4">
+        <section class="service-card">
+            <span class="section-tag">Global Selection</span>
+            <h3 class="highlight-title">全球連線採購</h3>
+            <p class="text-lg text-gray-600 mb-6">
                 LinShop 定期派駐團隊於日本、韓國及歐洲各國進行即時採購。我們追求的不僅是流行，更是品質與生活美感的體現。
             </p>
-            <ul class="text-xs space-y-3 text-gray-400 tracking-wide">
-                <li>/ 每週固定更新日韓連線商品</li>
-                <li>/ 100% 品牌官方管道採購</li>
-                <li>/ 嚴格品檢後進行國際配送</li>
-            </ul>
+            <div class="space-y-3">
+                <div class="flex items-center text-gray-500 font-medium">
+                    <span class="w-2 h-2 bg-gray-300 rounded-full mr-3"></span> 每週固定更新日韓連線商品
+                </div>
+                <div class="flex items-center text-gray-500 font-medium">
+                    <span class="w-2 h-2 bg-gray-300 rounded-full mr-3"></span> 100% 品牌官方管道採購
+                </div>
+                <div class="flex items-center text-gray-500 font-medium">
+                    <span class="w-2 h-2 bg-gray-300 rounded-full mr-3"></span> 嚴格品檢後進行國際配送
+                </div>
+            </div>
         </section>
 
-        <section class="content-card">
-            <h2 class="section-title">Wishlist System</h2>
-            <h3 class="text-xl mb-6 highlight-text">商品許願機制</h3>
-            <p class="text-sm text-gray-500 mb-6">
-                若您在海外網站或雜誌上尋獲心儀物件，LinShop 提供客製化找貨服務。請將商品名稱、型號或照片發送至官方帳號，我們將由各國採購專員為您確認庫存與報價。
+        <section class="service-card">
+            <span class="section-tag">Wishlist System</span>
+            <h3 class="highlight-title">商品許願機制</h3>
+            <p class="text-lg text-gray-600 mb-8">
+                若您在海外網站或雜誌上尋獲心儀物件，LinShop 提供客製化找貨服務。請將資訊發送至官方帳號，我們將為您確認。
             </p>
-            <a href="contact.html" class="inline-block text-[10px] tracking-[0.2em] border border-gray-400 px-6 py-2 hover:bg-gray-800 hover:text-white transition-all uppercase">
-                Submit a Request
+            <a href="contact.html" class="inline-flex items-center justify-center w-full md:w-auto bg-white border-2 border-gray-900 text-gray-900 font-bold px-8 py-4 rounded-xl hover:bg-gray-900 hover:text-white transition-all active:scale-95">
+                立即提交許願需求 →
             </a>
         </section>
 
-        <section class="content-card border-none">
-            <h2 class="section-title">Wholesale Partnership</h2>
-            <h3 class="text-xl mb-6 highlight-text">批發小幫手招募</h3>
-            <p class="text-sm text-gray-500 mb-6">
-                我們誠摯邀請對選物有高度熱忱、具備良好溝通能力的夥伴加入 LinShop。
+        <section class="service-card">
+            <span class="section-tag">Wholesale Partnership</span>
+            <h3 class="highlight-title">批發小幫手招募</h3>
+            <p class="text-lg text-gray-600 mb-8">
+                我們誠摯邀請對選物有高度熱忱、具備良好溝通能力的夥伴加入 LinShop 團隊。
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed text-gray-500">
-                <div>
-                    <h4 class="highlight-text mb-2 tracking-widest">我們提供</h4>
-                    <p>穩定的各國一線貨源<br>專業的物流倉儲支持<br>透明的批發價格體系</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base">
+                <div class="bg-gray-50 p-6 rounded-2xl">
+                    <h4 class="font-bold text-gray-900 mb-3">我們提供</h4>
+                    <ul class="text-gray-500 space-y-1">
+                        <li>• 穩定的各國一線貨源</li>
+                        <li>• 專業的物流倉儲支持</li>
+                        <li>• 透明的批發價格體系</li>
+                    </ul>
                 </div>
-                <div>
-                    <h4 class="highlight-text mb-2 tracking-widest">合作要求</h4>
-                    <p>具備基礎銷售管道<br>守時且具備責任感<br>對品牌風格有基礎認同</p>
+                <div class="bg-gray-50 p-6 rounded-2xl">
+                    <h4 class="font-bold text-gray-900 mb-3">合作要求</h4>
+                    <ul class="text-gray-500 space-y-1">
+                        <li>• 具備基礎銷售管道</li>
+                        <li>• 守時且具備責任感</li>
+                        <li>• 對品牌風格有基礎認同</li>
+                    </ul>
                 </div>
             </div>
         </section>
@@ -77,7 +129,7 @@
     </main>
 
     <footer class="py-12 border-t border-gray-100 text-center bg-white">
-        <p class="text-[10px] tracking-[0.3em] text-gray-300 uppercase">© LINSHOP Select. 2024</p>
+        <p class="text-xs tracking-[0.3em] text-gray-300 uppercase">© LINSHOP Select. 2026</p>
     </footer>
 
 </body>
