@@ -9,73 +9,98 @@
     <style>
         body { 
             font-family: 'Montserrat', 'Noto Sans TC', sans-serif; 
-            background-color: #FDFDFB; 
+            background-color: #F5F2ED; /* 改為溫潤的沙色 */
             color: #333333; 
             line-height: 1.8; 
         }
         .nav-link { transition: all 0.3s; }
         
-        /* 服務卡片設計 */
+        /* 服務卡片：在沙色背景上使用純白，會很有質感 */
         .service-card {
             background: white;
-            border-radius: 24px;
+            border-radius: 32px; /* 圓角加大更親切 */
             padding: 2.5rem 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            border: 1px solid #F1F1F1;
-            transition: transform 0.3s ease;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: all 0.4s ease;
         }
         @media (min-width: 768px) {
-            .service-card { padding: 3rem; }
-            .service-card:hover { transform: translateY(-5px); }
+            .service-card { padding: 4rem; }
+            .service-card:hover { 
+                transform: translateY(-8px); 
+                box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            }
         }
         
         .section-tag {
             display: inline-block;
-            background-color: #F3F4F6;
-            color: #6B7280;
-            font-size: 0.7rem;
-            padding: 4px 12px;
+            background-color: #EAE3D9; /* 稍微深一點的沙色標籤 */
+            color: #8C8375;
+            font-size: 0.75rem;
+            padding: 6px 16px;
             border-radius: 50px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            margin-bottom: 1.2rem;
-            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
         }
 
         .highlight-title {
             color: #1A1A1A;
-            font-size: 1.75rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.5rem;
             letter-spacing: 0.05em;
+        }
+
+        /* 手機選單動畫 */
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%);
+        }
+        #mobile-menu.active {
+            transform: translateX(0);
         }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <a href="index.html" class="text-2xl font-bold tracking-[0.2em] text-gray-800">LINSHOP</a>
         
         <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
             <a href="index.html" class="nav-link text-gray-400 hover:text-gray-900">首頁</a>
             <a href="products.html" class="nav-link text-gray-400 hover:text-gray-900">所有商品</a>
-            <a href="service.html" class="nav-link text-gray-900 border-b-2 border-gray-900">服務項目</a>
+            <a href="service.html" class="nav-link text-gray-900 border-b-2 border-gray-900 pb-1">服務項目</a>
             <a href="tutorial.html" class="nav-link text-gray-400 hover:text-gray-900">下單教學</a>
             <a href="contact.html" class="nav-link text-gray-400 hover:text-gray-900">聯絡我們</a>
         </div>
 
-        <div class="md:hidden text-gray-800 cursor-pointer p-2">
+        <button id="menu-btn" class="md:hidden text-gray-800 p-2 focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
-        </div>
+        </button>
     </nav>
 
-    <header class="pt-16 pb-10 text-center px-6">
-        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">服務說明</h1>
-        <div class="w-12 h-1 bg-gray-900 mx-auto mt-6"></div>
-        <p class="text-gray-400 mt-4 text-xs tracking-[0.2em] uppercase">Service Details & Partnership</p>
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-[#F5F2ED] flex flex-col p-10 space-y-8 text-xl font-medium md:hidden">
+        <button id="close-btn" class="self-end text-gray-800 p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <a href="index.html" class="border-b border-gray-200 pb-4">首頁</a>
+        <a href="products.html" class="border-b border-gray-200 pb-4">所有商品</a>
+        <a href="service.html" class="border-b border-gray-900 text-gray-900 pb-4">服務項目</a>
+        <a href="tutorial.html" class="border-b border-gray-200 pb-4">下單教學</a>
+        <a href="contact.html" class="border-b border-gray-200 pb-4">聯絡我們</a>
+    </div>
+
+    <header class="pt-24 pb-16 text-center px-6">
+        <span class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-bold mb-4 block">Our Commitment</span>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-gray-900">服務說明</h1>
+        <div class="w-12 h-1 bg-gray-900 mx-auto mt-8"></div>
     </header>
 
     <main class="max-w-4xl mx-auto px-6 pb-24">
@@ -83,57 +108,57 @@
         <section class="service-card">
             <span class="section-tag">Global Selection</span>
             <h3 class="highlight-title">全球連線採購</h3>
-            <p class="text-base md:text-lg text-gray-600 mb-8">
+            <p class="text-base md:text-lg text-gray-500 mb-8 leading-relaxed">
                 LinShop 定期派駐團隊於日本、韓國及歐洲各國進行即時採購。我們追求的不僅是流行，更是品質與生活美感的體現。
             </p>
-            <div class="grid grid-cols-1 gap-4">
-                <div class="flex items-start text-gray-500 font-medium text-sm md:text-base">
-                    <span class="mt-2 w-1.5 h-1.5 bg-gray-400 rounded-full mr-4 flex-shrink-0"></span> 
-                    <span>每週固定更新日韓連線商品，掌握第一手資訊</span>
+            <div class="space-y-5">
+                <div class="flex items-center p-4 bg-gray-50 rounded-2xl">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4 flex-shrink-0 text-lg">✈️</div>
+                    <span class="text-gray-600 font-medium">每週固定更新日韓連線商品</span>
                 </div>
-                <div class="flex items-start text-gray-500 font-medium text-sm md:text-base">
-                    <span class="mt-2 w-1.5 h-1.5 bg-gray-400 rounded-full mr-4 flex-shrink-0"></span> 
-                    <span>100% 品牌官方管道採購，確保正品來源</span>
+                <div class="flex items-center p-4 bg-gray-50 rounded-2xl">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4 flex-shrink-0 text-lg">🛡️</div>
+                    <span class="text-gray-600 font-medium">100% 品牌官方管道，確保正品</span>
                 </div>
-                <div class="flex items-start text-gray-500 font-medium text-sm md:text-base">
-                    <span class="mt-2 w-1.5 h-1.5 bg-gray-400 rounded-full mr-4 flex-shrink-0"></span> 
-                    <span>嚴格品檢後進行國際配送，為您的選品把關</span>
+                <div class="flex items-center p-4 bg-gray-50 rounded-2xl">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm mr-4 flex-shrink-0 text-lg">🔍</div>
+                    <span class="text-gray-600 font-medium">嚴格品檢後進行國際配送</span>
                 </div>
             </div>
         </section>
 
-        <section class="service-card">
+        <section class="service-card text-center md:text-left">
             <span class="section-tag">Wishlist System</span>
             <h3 class="highlight-title">商品許願機制</h3>
-            <p class="text-base md:text-lg text-gray-600 mb-10">
-                若您在海外網站或雜誌上尋獲心儀物件，LinShop 提供客製化找貨服務。請將資訊發送至官方帳號，我們將為您確認。
+            <p class="text-base md:text-lg text-gray-500 mb-10">
+                若您在海外網站或雜誌上尋獲心儀物件，LinShop 提供客製化找貨服務。
             </p>
-            <a href="contact.html" class="inline-flex items-center justify-center w-full md:w-auto bg-gray-900 text-white font-bold px-10 py-4 rounded-full hover:bg-gray-700 transition-all active:scale-95 shadow-md">
-                立即提交許願需求 →
+            <a href="https://line.me/ti/p/@532lxhxc" class="inline-flex items-center justify-center w-full md:w-auto bg-[#1A1A1A] text-white font-bold px-12 py-5 rounded-full hover:bg-black transition-all active:scale-95 shadow-xl">
+                立即透過 Line 許願 →
             </a>
         </section>
 
-        <section class="service-card">
-            <span class="section-tag">Wholesale Partnership</span>
-            <h3 class="highlight-title">批發小幫手招募</h3>
-            <p class="text-base md:text-lg text-gray-600 mb-8">
-                我們誠摯邀請對選物有高度熱忱、具備良好溝通能力的夥伴加入 LinShop 團隊，共享全球優質貨源。
+        <section class="service-card bg-gray-900 !text-white">
+            <span class="section-tag !bg-gray-800 !text-gray-400">Wholesale</span>
+            <h3 class="highlight-title !text-white">批發小幫手招募</h3>
+            <p class="text-base md:text-lg text-gray-400 mb-10">
+                邀請對選物有熱忱的夥伴加入，共享全球優質貨源。
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
-                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <h4 class="font-bold text-gray-900 mb-3 border-b border-gray-200 pb-2 text-sm uppercase tracking-widest">我們提供</h4>
-                    <ul class="text-gray-500 space-y-2 text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base text-left">
+                <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                    <h4 class="font-bold text-white mb-4 border-b border-white/10 pb-2 text-sm uppercase tracking-widest">我們提供</h4>
+                    <ul class="text-gray-400 space-y-3 text-sm font-light">
                         <li>• 穩定的各國一線貨源</li>
                         <li>• 專業的物流倉儲支持</li>
-                        <li>• 透明且具競爭力的批發體系</li>
+                        <li>• 透明競爭力的批發體系</li>
                     </ul>
                 </div>
-                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <h4 class="font-bold text-gray-900 mb-3 border-b border-gray-200 pb-2 text-sm uppercase tracking-widest">合作要求</h4>
-                    <ul class="text-gray-500 space-y-2 text-sm">
+                <div class="bg-white/5 p-8 rounded-3xl border border-white/10">
+                    <h4 class="font-bold text-white mb-4 border-b border-white/10 pb-2 text-sm uppercase tracking-widest">合作要求</h4>
+                    <ul class="text-gray-400 space-y-3 text-sm font-light">
                         <li>• 具備基礎社群銷售管道</li>
                         <li>• 守時且具備高度責任感</li>
-                        <li>• 認同 LinShop 的選物品味</li>
+                        <li>• 認同 LinShop 選物品味</li>
                     </ul>
                 </div>
             </div>
@@ -141,35 +166,45 @@
 
     </main>
 
-    <footer class="bg-white border-t border-gray-100 pt-16 pb-8 px-6">
+    <footer class="bg-white py-20 px-6">
         <div class="max-w-6xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 text-center md:text-left">
                 <div>
-                    <h4 class="font-bold text-lg mb-6 tracking-widest text-gray-800">LINSHOP</h4>
-                    <p class="text-gray-400 text-sm">跨越國界的選物美學，從日韓到全球的即時連線。</p>
+                    <h4 class="font-bold text-xl mb-6 tracking-widest">LINSHOP</h4>
+                    <p class="text-gray-400 text-sm font-light">讓美好的事物跨越國界，來到您的日常。LinShop 專注於質感選品與全球連線。</p>
                 </div>
-                <div>
+                <div class="text-center md:text-left">
                     <h4 class="text-[10px] font-bold text-gray-900 mb-6 uppercase tracking-[0.2em]">快速連結</h4>
-                    <ul class="text-gray-500 text-sm space-y-3">
+                    <ul class="text-gray-500 text-sm space-y-4 font-light">
                         <li><a href="index.html" class="hover:text-black transition">首頁</a></li>
                         <li><a href="products.html" class="hover:text-black transition">所有商品</a></li>
                         <li><a href="tutorial.html" class="hover:text-black transition">下單教學</a></li>
                         <li><a href="contact.html" class="hover:text-black transition">聯絡我們</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-[10px] font-bold text-gray-900 mb-6 uppercase tracking-[0.2em]">追蹤我們</h4>
-                    <div class="flex justify-center md:justify-start space-x-6 text-sm text-gray-500">
-                        <a href="#" class="hover:text-black transition">Instagram</a>
-                        <a href="https://line.me/ti/p/@532lxhxc" class="hover:text-black transition">Line 客服</a>
-                    </div>
+                <div class="text-center md:text-left">
+                    <h4 class="text-[10px] font-bold text-gray-900 mb-6 uppercase tracking-[0.2em]">Contact</h4>
+                    <p class="text-gray-500 text-sm mb-4">有任何問題？</p>
+                    <a href="https://line.me/ti/p/@532lxhxc" class="inline-block bg-[#06C755] text-white px-6 py-2 rounded-full text-xs">LINE 客服連線</a>
                 </div>
-            </div>
-            <div class="border-t border-gray-50 pt-8 text-center text-[10px] tracking-[0.3em] text-gray-300 uppercase">
-                © 2026 LINSHOP Select. All Rights Reserved.
             </div>
         </div>
     </footer>
+
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('active');
+            // 防止開啟選單時底層頁面捲動
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        closeBtn.addEventListener('click', toggleMenu);
+    </script>
 
 </body>
 </html>
