@@ -7,112 +7,158 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        html { scroll-behavior: smooth; } /* 讓點擊連結捲動時更平滑 */
+        html { scroll-behavior: smooth; }
         body { 
             font-family: 'Montserrat', 'Noto Sans TC', sans-serif; 
-            background-color: #FDFDFB; 
+            background-color: #f8f8f6; /* 改用微米色，減少純白的刺眼感 */
             color: #333333; 
         }
-        .product-card:hover img {
-            transform: scale(1.05);
+        .product-card {
+            transition: transform 0.3s ease;
         }
-        .nav-link { transition: all 0.3s; }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        /* 側邊選單動畫 */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <a href="index.html" class="text-2xl font-bold tracking-[0.2em] text-gray-800">LINSHOP</a>
         
-        <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <a href="index.html" class="nav-link text-gray-900 border-b-2 border-gray-900">首頁</a>
-            <a href="#products" class="nav-link text-gray-400 hover:text-gray-900">所有商品</a>
-            <a href="service.html" class="nav-link text-gray-400 hover:text-gray-900">服務項目</a>
-            <a href="tutorial.html" class="nav-link text-gray-400 hover:text-gray-900">下單教學</a>
-            <a href="contact.html" class="nav-link text-gray-400 hover:text-gray-900">聯絡我們</a>
+        <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
+            <a href="index.html" class="text-gray-900 border-b-2 border-gray-900 pb-1">首頁</a>
+            <a href="#products" class="text-gray-500 hover:text-gray-900 transition">所有商品</a>
+            <a href="service.html" class="text-gray-500 hover:text-gray-900 transition">服務項目</a>
+            <a href="tutorial.html" class="text-gray-500 hover:text-gray-900 transition">下單教學</a>
+            <a href="contact.html" class="text-gray-500 hover:text-gray-900 transition">聯絡我們</a>
         </div>
 
-        <div class="md:hidden text-gray-800">
+        <button id="menu-btn" class="md:hidden text-gray-800 focus:outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
-        </div>
+        </button>
     </nav>
 
-    <header class="min-h-[60vh] flex items-center justify-center px-6 py-12 text-center">
-        <div>
-            <span class="block text-xs md:text-sm tracking-[0.3em] text-gray-400 mb-4 uppercase font-medium">Global Select Shop</span>
-            <h1 class="text-3xl md:text-5xl font-bold mb-6 text-gray-900 leading-tight">
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-white flex flex-col p-10 space-y-8 text-xl font-medium md:hidden">
+        <button id="close-btn" class="self-end text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <a href="index.html" class="border-b border-gray-100 pb-4">首頁</a>
+        <a href="#products" class="border-b border-gray-100 pb-4" onclick="toggleMenu()">所有商品</a>
+        <a href="service.html" class="border-b border-gray-100 pb-4">服務項目</a>
+        <a href="tutorial.html" class="border-b border-gray-100 pb-4">下單教學</a>
+        <a href="contact.html" class="border-b border-gray-100 pb-4">聯絡我們</a>
+    </div>
+
+    <header class="relative min-h-[70vh] flex items-center justify-center px-6 py-20 text-center overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#fdfcfb] to-[#e2d1c3]/20 -z-10"></div>
+        <div class="max-w-4xl">
+            <span class="block text-xs md:text-sm tracking-[0.4em] text-gray-400 mb-6 uppercase font-semibold">Global Select Shop</span>
+            <h1 class="text-4xl md:text-6xl font-bold mb-8 text-gray-900 leading-tight">
                 跨越國界的選物美學<br>
-                <span class="text-gray-400 font-medium text-2xl md:text-4xl">從日韓到全球的即時連線</span>
+                <span class="text-gray-400 font-light text-2xl md:text-4xl">從日韓到全球的即時連線</span>
             </h1>
-            <div class="flex flex-col md:flex-row items-center justify-center gap-4">
-                <a href="#products" class="inline-block bg-gray-900 text-white px-10 py-3 rounded-full text-sm tracking-widest hover:bg-gray-700 transition-all active:scale-95 shadow-lg">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <a href="#products" class="w-full sm:w-auto bg-gray-900 text-white px-12 py-4 rounded-full text-sm tracking-widest hover:bg-gray-800 transition-all shadow-xl hover:shadow-2xl">
                     瀏覽最新商品
                 </a>
-                <a href="tutorial.html" class="inline-block border border-gray-300 bg-white text-gray-600 px-10 py-3 rounded-full text-sm tracking-widest hover:bg-gray-50 transition-all active:scale-95">
+                <a href="tutorial.html" class="w-full sm:w-auto border border-gray-200 bg-white/50 backdrop-blur-sm text-gray-600 px-12 py-4 rounded-full text-sm tracking-widest hover:bg-white transition-all">
                     第一次購買？
                 </a>
             </div>
         </div>
     </header>
 
-    <section id="products" class="py-16 px-6 max-w-7xl mx-auto">
-        <h2 class="text-2xl font-bold mb-10 text-center tracking-widest text-gray-800">NEW ARRIVALS</h2>
+    <section id="products" class="py-24 px-6 max-w-7xl mx-auto bg-white rounded-[2rem] shadow-sm my-10">
+        <div class="flex flex-col items-center mb-16">
+            <h2 class="text-3xl font-bold tracking-widest text-gray-800 mb-2">NEW ARRIVALS</h2>
+            <div class="h-1 w-12 bg-gray-900"></div>
+        </div>
         
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10">
-            
-            <div class="product-card group">
-                <div class="relative aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-4">
-                    <div class="absolute inset-0 flex items-center justify-center text-gray-300 italic">Product Image</div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
+            <div class="product-card">
+                <div class="relative aspect-[3/4] bg-gray-50 rounded-2xl overflow-hidden mb-6 group">
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-300 italic group-hover:scale-110 transition duration-500">
+                        <div class="w-full h-full bg-[#f3f3f1] flex items-center justify-center">Image</div>
                     </div>
-                <h3 class="text-sm font-medium text-gray-800 mb-1 truncate">日系質感手提袋</h3>
-                <p class="text-sm text-gray-500 mb-3 tracking-wide">NT$ 1,280</p>
-                <a href="你的好賣家自填單連結" target="_blank" class="block text-center border border-gray-900 text-gray-900 py-2 rounded-lg text-xs font-bold hover:bg-gray-900 hover:text-white transition active:scale-95">
-                    立即下單
-                </a>
-            </div>
-
-            <div class="product-card group">
-                <div class="relative aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-4">
-                    <div class="absolute inset-0 flex items-center justify-center text-gray-300 italic">Product Image</div>
                 </div>
-                <h3 class="text-sm font-medium text-gray-800 mb-1 truncate">韓系簡約針織衫</h3>
-                <p class="text-sm text-gray-500 mb-3 tracking-wide">NT$ 980</p>
-                <a href="你的好賣家自填單連結" target="_blank" class="block text-center border border-gray-900 text-gray-900 py-2 rounded-lg text-xs font-bold hover:bg-gray-900 hover:text-white transition active:scale-95">
+                <h3 class="text-base font-medium text-gray-800 mb-1">日系質感手提袋</h3>
+                <p class="text-sm text-gray-400 mb-4 tracking-wide font-light">NT$ 1,280</p>
+                <a href="#" class="block text-center bg-white border border-gray-900 text-gray-900 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-900 hover:text-white transition duration-300">
                     立即下單
                 </a>
             </div>
 
+            <div class="product-card">
+                <div class="relative aspect-[3/4] bg-gray-50 rounded-2xl overflow-hidden mb-6 group">
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-300 italic group-hover:scale-110 transition duration-500">
+                         <div class="w-full h-full bg-[#f3f3f1] flex items-center justify-center">Image</div>
+                    </div>
+                </div>
+                <h3 class="text-base font-medium text-gray-800 mb-1">韓系簡約針織衫</h3>
+                <p class="text-sm text-gray-400 mb-4 tracking-wide font-light">NT$ 980</p>
+                <a href="#" class="block text-center bg-white border border-gray-900 text-gray-900 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-900 hover:text-white transition duration-300">
+                    立即下單
+                </a>
+            </div>
         </div>
     </section>
 
-    <footer class="py-16 border-t border-gray-100 text-center bg-white mt-20">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+    <footer class="bg-[#1a1a1a] text-white py-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20 text-center md:text-left">
                 <div>
-                    <h4 class="text-xs font-bold text-gray-900 mb-4 uppercase tracking-widest">關於我們</h4>
-                    <p class="text-xs text-gray-400 leading-loose">跨越國界的選物美學，致力於尋找世界各地具有質感的物件。</p>
+                    <h4 class="text-lg font-bold mb-6 tracking-widest">LINSHOP</h4>
+                    <p class="text-sm text-gray-400 leading-relaxed font-light">跨越國界的選物美學，我們親自在日本、韓國挑選高品質物件，將生活質感帶入您的日常。</p>
                 </div>
                 <div>
-                    <h4 class="text-xs font-bold text-gray-900 mb-4 uppercase tracking-widest">快速連結</h4>
-                    <ul class="text-xs text-gray-500 space-y-2">
-                        <li><a href="service.html" class="hover:text-black transition">服務項目</a></li>
-                        <li><a href="tutorial.html" class="hover:text-black transition">下單教學</a></li>
-                        <li><a href="contact.html" class="hover:text-black transition">聯絡我們</a></li>
+                    <h4 class="text-xs font-bold text-gray-500 mb-6 uppercase tracking-[0.2em]">Explore</h4>
+                    <ul class="text-sm space-y-4 font-light">
+                        <li><a href="service.html" class="hover:text-gray-400 transition">服務項目</a></li>
+                        <li><a href="tutorial.html" class="hover:text-gray-400 transition">下單教學</a></li>
+                        <li><a href="contact.html" class="hover:text-gray-400 transition">聯絡我們</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-xs font-bold text-gray-900 mb-4 uppercase tracking-widest">追蹤我們</h4>
-                    <div class="flex justify-center space-x-6 text-gray-500">
-                        <a href="#" class="hover:text-black transition">Instagram</a>
-                        <a href="https://line.me/ti/p/@532lxhxc" class="hover:text-black transition">Line 客服</a>
+                    <h4 class="text-xs font-bold text-gray-500 mb-6 uppercase tracking-[0.2em]">Follow Us</h4>
+                    <div class="flex justify-center md:justify-start space-x-8">
+                        <a href="#" class="text-sm hover:text-gray-400 transition">Instagram</a>
+                        <a href="#" class="text-sm hover:text-gray-400 transition">Line 客服</a>
                     </div>
                 </div>
             </div>
-            <p class="text-[10px] tracking-widest text-gray-300 uppercase">© 2026 LINSHOP SELECT. All Rights Reserved.</p>
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-[10px] tracking-[0.3em] text-gray-500 uppercase">© 2026 LINSHOP SELECT. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
+
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const closeBtn = document.getElementById('close-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('active');
+            // 防止開啟選單時底層頁面捲動
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        closeBtn.addEventListener('click', toggleMenu);
+    </script>
 
 </body>
 </html>
