@@ -13,22 +13,23 @@
             color: #333333; 
             line-height: 1.8;
         }
-        .nav-link { transition: all 0.3s; padding: 12px 16px; }
+        .nav-link { transition: all 0.3s; }
         
-        /* 聯絡區塊圓潤化與陰影 */
+        /* 聯絡區塊 */
         .contact-card {
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: 32px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+            border: 1px solid #F1F1F1;
         }
 
         /* 強化 ID 顯示 */
         .id-display {
             background-color: #F8F9FA;
             border: 2px dashed #E5E5E5;
-            padding: 20px;
-            border-radius: 16px;
-            font-size: 1.5rem;
+            padding: 16px;
+            border-radius: 20px;
+            font-size: 1.25rem;
             font-weight: 700;
             letter-spacing: 0.1em;
             color: #1A1A1A;
@@ -40,77 +41,115 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             background: #333;
             color: white;
             border-radius: 50%;
-            font-size: 14px;
-            margin-right: 10px;
+            font-size: 12px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
     <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div class="text-2xl font-bold tracking-[0.2em]">LINSHOP</div>
-        <div class="hidden md:flex items-center space-x-4 text-sm font-medium">
+        <a href="index.html" class="text-2xl font-bold tracking-[0.2em] text-gray-800">LINSHOP</a>
+        
+        <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
             <a href="index.html" class="nav-link text-gray-400 hover:text-gray-900">首頁</a>
             <a href="service.html" class="nav-link text-gray-400 hover:text-gray-900">服務項目</a>
             <a href="contact.html" class="nav-link text-gray-900 border-b-2 border-gray-900">聯絡我們</a>
         </div>
+
         <div class="md:hidden text-gray-800">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
             </svg>
         </div>
     </nav>
 
-    <main class="max-w-xl mx-auto px-6 py-16 md:py-24">
+    <main class="max-w-xl mx-auto px-6 py-12 md:py-20">
         
-        <header class="text-center mb-16">
-            <span class="text-xs tracking-[0.4em] text-gray-400 uppercase font-bold block mb-4">Connect With Us</span>
-            <h1 class="text-3xl font-bold text-gray-900">加入連線與群組</h1>
+        <header class="text-center mb-12">
+            <span class="text-xs tracking-[0.4em] text-gray-400 uppercase font-bold block mb-3">Connect With Us</span>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-wider">加入連線與群組</h1>
+            <div class="w-8 h-1 bg-gray-900 mx-auto mt-6"></div>
         </header>
 
-        <section class="contact-card p-8 md:p-12 text-center mb-12">
-            <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+        <section class="contact-card p-8 md:p-12 text-center mb-10">
+            <p class="text-base md:text-lg text-gray-600 mb-8 leading-relaxed">
                 所有訂單詢問、各國商品許願<br>
                 請統一透過官方帳號聯繫。
             </p>
             
-            <div class="text-xs font-bold tracking-widest text-green-600 mb-2">LINE OFFICIAL ACCOUNT</div>
-            <div class="id-display">@532lxhxc</div>
+            <div class="text-[10px] font-bold tracking-[0.2em] text-green-600 mb-2 uppercase">Line Official Account</div>
+            <div class="id-display md:text-2xl">@532lxhxc</div>
 
-            <div class="mt-10">
-                <a href="https://line.me/ti/p/@532lxhxc" class="block w-full bg-[#06C755] text-white text-lg font-bold py-5 rounded-2xl hover:bg-[#05b34c] transition-all shadow-lg active:scale-[0.98]">
+            <div class="mt-8">
+                <a href="https://line.me/ti/p/@532lxhxc" target="_blank" class="block w-full bg-[#06C755] text-white text-lg font-bold py-4 rounded-2xl hover:bg-[#05b34c] transition-all shadow-lg active:scale-[0.96]">
                     立即點擊加入 LINE
                 </a>
             </div>
         </section>
 
-        <section class="bg-gray-50 rounded-3xl p-8 md:p-10">
-            <h3 class="text-lg font-bold mb-8 text-center border-b border-gray-200 pb-4">私密連線群組加入方式</h3>
+        <section class="bg-gray-50 rounded-[32px] p-8 md:p-10 border border-gray-100">
+            <h3 class="text-base font-bold mb-8 text-center text-gray-800 border-b border-gray-200 pb-4 tracking-widest">私密連線群組加入方式</h3>
             <div class="space-y-6 text-gray-700">
                 <div class="flex items-start">
                     <span class="step-num">1</span>
-                    <p class="font-medium">搜尋並添加上方官方帳號</p>
+                    <p class="text-sm md:text-base font-medium">搜尋並添加上方官方帳號</p>
                 </div>
                 <div class="flex items-start">
                     <span class="step-num">2</span>
-                    <p class="font-medium">私訊告知您感興趣的項目<br><span class="text-sm text-gray-400 font-normal">( 零售購物 / 商品許願 / 批發合作 )</span></p>
+                    <p class="text-sm md:text-base font-medium">
+                        私訊告知您感興趣的項目<br>
+                        <span class="text-xs text-gray-400 font-normal mt-1 block">( 零售購物 / 商品許願 / 批發合作 )</span>
+                    </p>
                 </div>
                 <div class="flex items-start">
                     <span class="step-num">3</span>
-                    <p class="font-medium">管理員將於 24 小時內發送專屬邀請連結</p>
+                    <p class="text-sm md:text-base font-medium">管理員將於 24 小時內發送專屬邀請連結</p>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <footer class="py-12 border-t border-gray-100 text-center bg-white mt-12">
-        <p class="text-xs tracking-[0.3em] text-gray-300 uppercase">© LINSHOP Select. 2026</p>
+    <footer class="bg-white border-t border-gray-100 pt-16 pb-8 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-center md:text-left mb-10">
+                <div>
+                    <h4 class="font-bold text-lg mb-4 tracking-[0.2em]">LINSHOP</h4>
+                    <p class="text-gray-400 text-xs leading-loose">
+                        我們致力於尋找世界各地具有質感的物件。<br>
+                        不只是買賣，更是一種對生活的挑選。
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-[10px] font-bold text-gray-900 mb-4 uppercase tracking-widest">網站選單</h4>
+                        <ul class="text-gray-500 text-xs space-y-2">
+                            <li><a href="index.html" class="hover:text-black transition">首頁</a></li>
+                            <li><a href="service.html" class="hover:text-black transition">服務項目</a></li>
+                            <li><a href="contact.html" class="hover:text-black transition">聯絡我們</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-[10px] font-bold text-gray-900 mb-4 uppercase tracking-widest">社群媒體</h4>
+                        <ul class="text-gray-500 text-xs space-y-2">
+                            <li><a href="#" class="hover:text-black transition">Instagram</a></li>
+                            <li><a href="#" class="hover:text-black transition">Facebook 群組</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-50 pt-8 text-center">
+                <p class="text-[10px] tracking-[0.3em] text-gray-300 uppercase">© 2026 LINSHOP Select. All Rights Reserved.</p>
+            </div>
+        </div>
     </footer>
 
 </body>
