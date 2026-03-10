@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>◌ LENSES | LINSHOP Select ◌</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', 'Noto Sans TC', sans-serif; background-color: #FDFCFB; color: #666; }
+        
+        /* 分類標籤樣式 */
+        .filter-btn {
+            padding: 8px 20px; border-radius: 20px; font-size: 12px;
+            border: 1px solid #EEE; transition: all 0.3s; cursor: pointer;
+            letter-spacing: 0.1em; background: white;
+        }
+        .filter-btn.active { background: #555; color: white; border-color: #555; }
+
+        /* 商品卡片 */
+        .lens-card {
+            background: white; border-radius: 24px; overflow: hidden;
+            transition: all 0.4s ease; border: 1px solid #F5F2ED;
+        }
+        .lens-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .lens-image { width: 100%; aspect-ratio: 1/1; background: #F9F9F9; object-fit: cover; }
+
+        /* 規格彈窗 */
+        .modal { 
+            transition: all 0.4s ease; opacity: 0; visibility: hidden; 
+            position: fixed; inset: 0; z-index: 100; 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 20px; background: rgba(0,0,0,0.2); backdrop-filter: blur(8px); 
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content { 
+            background: white; width: 100%; max-width: 500px; 
+            padding: 40px; border-radius: 40px; position: relative;
+        }
+
+        .spec-tag {
+            display: inline-block; padding: 4px 12px; background: #F5F2ED;
+            border-radius: 8px; font-size: 11px; color: #999; margin: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="p-8 flex justify-between items-center">
+        <a href="products.html" class="text-sm tracking-widest text-gray-400">← BACK</a>
+        <h1 class="text-lg font-light tracking-[0.4em]">◌ LENSES ◌</h1>
+        <div class="w-10"></div>
+    </nav>
+
+    <div class="flex justify-center space-x-3 mb-12 px-6 overflow-x-auto whitespace-nowrap">
+        <button class="filter-btn active">ALL</button>
+        <button class="filter-btn">日拋</button>
+        <button class="filter-btn">月拋</button>
+        <button class="filter-btn">半年拋</button>
+        <button class="filter-btn">年拋</button>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        
+        <div class="lens-card" onclick="openLensModal('晨霧棕', '年拋', '450', '0-800度')">
+            <img src="https://via.placeholder.com/400x400/F9F9F9/CCC?text=Lens+Image" class="lens-image" alt="lens">
+            <div class="p-5 text-center">
+                <p class="text-[10px] text-gray-300 tracking-widest uppercase mb-1">Yearly</p>
+                <h3 class="text-sm font-medium text-gray-700 mb-2">◌ 晨霧棕 Mist Brown</h3>
+                <p class="text-xs text-gray-400 tracking-wider">$450</p>
+            </div>
+        </div>
+
+        <div class="lens-card" onclick="openLensModal('星河灰', '日拋(10片裝)', '380', '0-800度')">
+            <img src="https://via.placeholder.com/400x400/F9F9F9/CCC?text=Lens+Image" class="lens-image" alt="lens">
+            <div class="p-5 text-center">
+                <p class="text-[10px] text-gray-300 tracking-widest uppercase mb-1">Daily</p>
+                <h3 class="text-sm font-medium text-gray-700 mb-2">◌ 星河灰 Starry Gray</h3>
+                <p class="text-xs text-gray-400 tracking-wider">$380</p>
+            </div>
+        </div>
+
+        </main>
+
+    <div id="lens-modal" class="modal" onclick="checkClose(event)">
+        <div class="modal-content">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-gray-300">✕</button>
+            <div class="text-center">
+                <h2 id="modal-name" class="text-xl font-medium text-gray-700 mb-2">款式名稱</h2>
+                <p id="modal-price" class="text-sm text-gray-400 tracking-widest mb-6">$0.00</p>
+                
+                <div class="text-left space-y-6">
+                    <div>
+                        <p class="text-[10px] tracking-[0.2em] text-gray-300 uppercase mb-3">⊹ 週期規格 / Period</p>
+                        <span id="modal-period" class="spec-tag">年拋</span>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[10px] tracking-[0.2em] text-gray-300 uppercase mb-3">⊹ 度數範圍 / Degree</p>
+                        <div class="flex flex-wrap">
+                            <span class="spec-tag">0.00 (平光)</span>
+                            <span class="spec-tag">1.00 - 5.00 (25度一級)</span>
+                            <span class="spec-tag">5.00 - 8.00 (50度一級)</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <a href="你的賣貨便美瞳連結" target="_blank" class="block w-full py-4 bg-gray-800 text-white text-center rounded-2xl text-xs font-bold tracking-[0.2em] hover:bg-black transition">前往賣場下單</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openLensModal(name, period, price, degree) {
+            document.getElementById('modal-name').innerText = '◌ ' + name;
+            document.getElementById('modal-period').innerText = period;
+            document.getElementById('modal-price').innerText = '$' + price;
+            document.getElementById('lens-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('lens-modal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function checkClose(e) {
+            if (e.target.classList.contains('modal')) closeModal();
+        }
+    </script>
+
+</body>
+</html>
