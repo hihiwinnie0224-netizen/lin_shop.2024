@@ -3,206 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALL PRODUCTS | LINSHOP Select</title>
+    <title>◌ CATEGORY | LINSHOP Select ◌</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Montserrat', 'Noto Sans TC', sans-serif; 
-            background-color: #F5F2ED; /* 統一暖沙色 */
-            color: #333333; 
+        body { font-family: 'Montserrat', 'Noto Sans TC', sans-serif; background-color: #F5F2ED; color: #555; }
+        
+        /* 卡片設計 */
+        .category-card { 
+            background: white; 
+            border-radius: 30px; 
+            padding: 30px; 
+            transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1); 
+            border: 1px solid rgba(255,255,255,0.8); 
+            cursor: pointer; 
+            position: relative;
+            overflow: hidden;
+        }
+        .category-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.03); 
+            border-color: #D4CABB;
         }
         
-        /* 隱藏滾動條但保持功能 */
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 彈窗背景 */
+        .modal { 
+            transition: all 0.4s ease; 
+            opacity: 0; visibility: hidden; 
+            position: fixed; inset: 0; z-index: 100; 
+            display: flex; items-center: center; justify-content: center; 
+            padding: 20px; background: rgba(245, 242, 237, 0.85); 
+            backdrop-filter: blur(8px); 
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        
+        /* 彈窗內容 */
+        .modal-content { 
+            background: white; width: 100%; max-width: 420px; 
+            padding: 40px 30px; position: relative; 
+            max-height: 80vh; overflow-y: auto; 
+            border-radius: 40px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+            transform: translateY(20px); transition: transform 0.4s ease;
+        }
+        .modal.active .modal-content { transform: translateY(0); }
 
-        /* 商品卡片：提升層次感 */
-        .product-card {
-            background: white;
-            border-radius: 24px;
-            padding: 12px;
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            border: 1px solid rgba(255,255,255,0.5);
+        /* 子連結樣式 */
+        .sub-link { 
+            display: block; padding: 14px 20px; 
+            background: #FDFCFB; border-radius: 18px; 
+            font-size: 13px; margin-bottom: 8px; 
+            transition: all 0.3s; color: #777; 
+            border: 1px solid #F5F2ED;
+            letter-spacing: 0.05em;
         }
-        .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        .sub-link:hover { background: #F5F2ED; color: #333; transform: scale(1.02); }
+
+        /* 標題裝飾 */
+        .section-divider { 
+            font-size: 10px; color: #C4B9AC; text-align: center; 
+            margin: 25px 0 15px; letter-spacing: 0.3em; font-weight: 300;
         }
-        .product-image-container {
-            border-radius: 18px;
-            overflow: hidden;
-            background-color: #F9F9F9;
-        }
-        .product-image {
-            transition: transform 0.6s ease;
-        }
-        .product-card:hover .product-image {
-            transform: scale(1.1);
+        
+        .card-decoration {
+            position: absolute; right: -10px; bottom: -10px;
+            font-size: 60px; color: #F5F2ED; opacity: 0.5; font-style: italic;
         }
 
-        /* 手機選單動畫 */
-        #mobile-menu {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(100%);
-        }
-        #mobile-menu.active {
-            transform: translateX(0);
-        }
+        /* 隱藏滾動條 */
+        .modal-content::-webkit-scrollbar { width: 4px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #E8E2D9; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <nav class="sticky top-0 z-50 flex justify-between items-center px-6 md:px-12 py-5 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <a href="index.html" class="text-2xl font-bold tracking-[0.2em] text-gray-800">LINSHOP</a>
-        
-        <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
-            <a href="index.html" class="nav-link text-gray-400 hover:text-gray-900 transition">首頁</a>
-            <a href="products.html" class="nav-link text-gray-900 border-b-2 border-gray-900 pb-1">所有商品</a>
-            <a href="service.html" class="nav-link text-gray-400 hover:text-gray-900 transition">服務項目</a>
-            <a href="tutorial.html" class="nav-link text-gray-400 hover:text-gray-900 transition">下單教學</a>
-            <a href="contact.html" class="nav-link text-gray-400 hover:text-gray-900 transition">聯絡我們</a>
-        </div>
-
-        <button id="menu-btn" class="md:hidden text-gray-800 p-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-        </button>
+    <nav class="sticky top-0 z-50 flex justify-between items-center px-10 py-6 bg-white/60 backdrop-blur-md">
+        <a href="index.html" class="text-xl font-light tracking-[0.4em] text-gray-800">LINSHOP</a>
+        <div class="text-[10px] tracking-widest text-gray-400 uppercase">Select Shop ˙⊹</div>
     </nav>
 
-    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-[#F5F2ED] flex flex-col p-10 space-y-8 text-xl font-medium md:hidden">
-        <button id="close-btn" class="self-end text-gray-800 p-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <a href="index.html" class="border-b border-gray-200 pb-4 text-gray-400">首頁</a>
-        <a href="products.html" class="border-b border-gray-900 text-gray-900 pb-4">所有商品</a>
-        <a href="service.html" class="border-b border-gray-200 pb-4 text-gray-400">服務項目</a>
-        <a href="tutorial.html" class="border-b border-gray-200 pb-4 text-gray-400">下單教學</a>
-        <a href="contact.html" class="border-b border-gray-200 pb-4 text-gray-400">聯絡我們</a>
-    </div>
+    <header class="py-16 px-6 text-center">
+        <span class="text-[10px] text-gray-400 tracking-[0.5em] uppercase mb-2 block">Archive</span>
+        <h1 class="text-2xl font-light tracking-[0.3em] text-gray-700">◌ 分類目錄 ◌</h1>
+        <p class="text-[11px] text-gray-400 mt-4 font-light italic">˗ˏˋ click the category to explore ˎˊ˗</p>
+    </header>
 
-    <div class="flex overflow-x-auto whitespace-nowrap px-6 py-6 space-x-3 md:justify-center bg-white border-b border-gray-50 scrollbar-hide">
-        <button class="px-6 py-2 rounded-full bg-gray-900 text-white text-[10px] font-bold tracking-[0.2em]">ALL</button>
-        <button class="px-6 py-2 rounded-full bg-gray-50 text-gray-400 text-[10px] font-bold tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition">JAPAN</button>
-        <button class="px-6 py-2 rounded-full bg-gray-50 text-gray-400 text-[10px] font-bold tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition">KOREA</button>
-        <button class="px-6 py-2 rounded-full bg-gray-50 text-gray-400 text-[10px] font-bold tracking-[0.2em] hover:bg-gray-100 hover:text-gray-900 transition">ACCESSORIES</button>
-    </div>
-
-    <main class="max-w-7xl mx-auto px-4 md:px-8 py-12">
+    <main class="max-w-6xl mx-auto px-6 pb-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-16">
-            
-            <div class="product-card group">
-                <div class="product-image-container relative aspect-[3/4] mb-4">
-                    <div class="product-image absolute inset-0 flex items-center justify-center text-gray-300 italic text-sm bg-gray-100">Product Photo</div>
-                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[9px] font-bold tracking-widest text-gray-800">NEW</div>
-                </div>
-                <div class="px-2 text-center">
-                    <h3 class="text-sm font-bold text-gray-800 mb-1 truncate">日系工裝束口包</h3>
-                    <p class="text-[13px] font-medium text-gray-400 mb-4 tracking-wider">NT$ 1,580</p>
-                    <a href="https://myship.7-11.com.tw/cart/easy/GM2603055114187" target="_blank" class="block w-full bg-[#1A1A1A] text-white py-3 rounded-xl text-[10px] font-bold tracking-[0.1em] hover:bg-black transition-all active:scale-95 shadow-sm">
-                        立即下單
-                    </a>
-                </div>
-            </div>
-
-            <div class="product-card group">
-                <div class="product-image-container relative aspect-[3/4] mb-4">
-                    <div class="product-image absolute inset-0 flex items-center justify-center text-gray-300 italic text-sm bg-gray-100">Product Photo</div>
-                    <div class="absolute top-3 left-3 bg-gray-900 text-white px-3 py-1 rounded-full text-[9px] font-bold tracking-widest">HOT</div>
-                </div>
-                <div class="px-2 text-center">
-                    <h3 class="text-sm font-bold text-gray-800 mb-1 truncate">韓系慵懶風針織衫</h3>
-                    <p class="text-[13px] font-medium text-gray-400 mb-4 tracking-wider">NT$ 890</p>
-                    <a href="#" target="_blank" class="block w-full bg-[#1A1A1A] text-white py-3 rounded-xl text-[10px] font-bold tracking-[0.1em] hover:bg-black transition-all active:scale-95 shadow-sm">
-                        立即下單
-                    </a>
-                </div>
-            </div>
-
-            <div class="product-card group">
-                <div class="product-image-container relative aspect-[3/4] mb-4">
-                    <div class="product-image absolute inset-0 flex items-center justify-center text-gray-300 italic text-sm bg-gray-100">Product Photo</div>
-                </div>
-                <div class="px-2 text-center">
-                    <h3 class="text-sm font-bold text-gray-800 mb-1 truncate">復古銀飾項鍊</h3>
-                    <p class="text-[13px] font-medium text-gray-400 mb-4 tracking-wider">NT$ 450</p>
-                    <a href="#" target="_blank" class="block w-full bg-[#1A1A1A] text-white py-3 rounded-xl text-[10px] font-bold tracking-[0.1em] hover:bg-black transition-all active:scale-95 shadow-sm">
-                        立即下單
-                    </a>
-                </div>
-            </div>
-
-            <div class="product-card group">
-                <div class="product-image-container relative aspect-[3/4] mb-4">
-                    <div class="product-image absolute inset-0 flex items-center justify-center text-gray-300 italic text-sm bg-gray-100">Product Photo</div>
-                </div>
-                <div class="px-2 text-center">
-                    <h3 class="text-sm font-bold text-gray-800 mb-1 truncate">極簡冷淡風耳環</h3>
-                    <p class="text-[13px] font-medium text-gray-400 mb-4 tracking-wider">NT$ 320</p>
-                    <a href="#" target="_blank" class="block w-full bg-[#1A1A1A] text-white py-3 rounded-xl text-[10px] font-bold tracking-[0.1em] hover:bg-black transition-all active:scale-95 shadow-sm">
-                        立即下單
-                    </a>
-                </div>
-            </div>
-
+        <div class="category-card" onclick="openModal('m1')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 現貨實拍 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">三麗鷗 ⊹ 迪士尼 ⊹ 熱門角色 ⊹ 實拍紀錄</p>
+            <div class="card-decoration">01</div>
         </div>
 
-        <div class="mt-24 flex justify-center items-center space-x-6 text-[11px] font-bold tracking-[0.3em] uppercase">
-            <span class="text-gray-900 border-b border-gray-900 cursor-default">01</span>
-            <a href="#" class="text-gray-300 hover:text-gray-900 transition">02</a>
-            <a href="#" class="text-gray-300 hover:text-gray-900 transition">03</a>
+        <div class="category-card" onclick="openModal('m2')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 兒童專區 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">服飾 ⊹ 鞋子 ⊹ 飾品 ⊹ (๑• . •๑)</p>
+            <div class="card-decoration">02</div>
         </div>
+
+        <div class="category-card" onclick="openModal('m3')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 女生衣櫥 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">Daily Look ⊹ 睡衣 ⊹ 內著 ⊹ 襯衫</p>
+            <div class="card-decoration">03</div>
+        </div>
+
+        <div class="category-card" onclick="openModal('m4')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 男生風格 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">套裝 ⊹ 外套 ⊹ 休閒服 ⊹ (•̀ᴗ•́)و </p>
+            <div class="card-decoration">04</div>
+        </div>
+
+        <div class="category-card" onclick="openModal('m5')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 配飾鞋包 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">包包 ⊹ 襪子 ⊹ 穿戴甲 ⊹ 飾品</p>
+            <div class="card-decoration">05</div>
+        </div>
+
+        <div class="category-card" onclick="openModal('m6')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 生活物件 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">居家 ⊹ 衛浴 ⊹ 餐具 ⊹ 小家電</p>
+            <div class="card-decoration">06</div>
+        </div>
+
+        <div class="category-card" onclick="openModal('m7')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 3C 配件 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">Phone Cases ⊹ 行充 ⊹ 藍芽耳機</p>
+            <div class="card-decoration">07</div>
+        </div>
+
+        <div class="category-card" onclick="openModal('m8')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 文具雜貨 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">辦公 ⊹ DIY ⊹ 手作材料 ⊹ 貼紙</p>
+            <div class="card-decoration">08</div>
+        </div>
+
+        <div class="category-card" onclick="openModal('m9')">
+            <h2 class="text-base font-medium tracking-widest text-gray-700 mb-2">˗ˏˋ 食品包材 ˎˊ˗</h2>
+            <p class="text-[11px] text-gray-400 font-light leading-relaxed">甜鹹零食 ⊹ 螺絲粉 ⊹ 賣家小禮</p>
+            <div class="card-decoration">09</div>
+        </div>
+
     </main>
 
-    <footer class="bg-white py-20 px-6 border-t border-gray-100">
-        <div class="max-w-6xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
-                <div class="md:col-span-2">
-                    <h4 class="font-bold text-xl mb-6 tracking-[0.2em]">LINSHOP</h4>
-                    <p class="text-gray-400 text-sm max-w-xs mx-auto md:mx-0 leading-loose font-light">
-                        Select shop from Tokyo, Seoul to your life. 
-                        致力於發掘世界各地的精緻物件。
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-[10px] font-bold text-gray-900 mb-6 uppercase tracking-[0.2em]">Shop Information</h4>
-                    <ul class="text-gray-400 text-xs space-y-4 font-light">
-                        <li><a href="tutorial.html" class="hover:text-black transition">下單教學</a></li>
-                        <li><a href="service.html" class="hover:text-black transition">服務說明</a></li>
-                        <li><a href="contact.html" class="hover:text-black transition">聯絡我們</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-[10px] font-bold text-gray-900 mb-6 uppercase tracking-[0.2em]">Social</h4>
-                    <ul class="text-gray-400 text-xs space-y-4 font-light">
-                        <li><a href="#" class="hover:text-black transition">Instagram</a></li>
-                        <li><a href="https://line.me/ti/p/@532lxhxc" class="hover:text-black transition text-green-600 font-medium">Line Customer Service</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="mt-20 pt-8 border-t border-gray-50 text-center text-[9px] tracking-[0.4em] text-gray-300 uppercase font-light">
-                © 2026 LINSHOP Select. All Rights Reserved.
-            </div>
+    <div id="m1" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 現貨與實拍 ◌</h3>
+            <div class="section-divider">⊹ 人氣角色專區 ⊹</div>
+            <a href="#" class="sub-link">三麗鷗 ✧ 迪士尼 ✧ 掌門狗</a>
+            <a href="#" class="sub-link">史努比 ✧ 小新 ✧ chiikawa</a>
+            <div class="section-divider">⊹ 即時庫存 ⊹</div>
+            <a href="#" class="sub-link">現貨商品 ⊹ 代售專區</a>
+            <a href="#" class="sub-link">貨到實拍 ⊹ 商品實拍紀錄</a>
+            <div class="section-divider">⊹ 結單日程 ⊹</div>
+            <a href="#" class="sub-link">每週六結單 ⊹ 每月開團商品</a>
         </div>
-    </footer>
+    </div>
+
+    <div id="m2" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 兒童專區 ◌</h3>
+            <div class="section-divider">⊹ 衣著鞋履 ⊹</div>
+            <a href="#" class="sub-link">女童裝 ⊹ 女童鞋 ⊹ (◍•ᴗ•◍)</a>
+            <a href="#" class="sub-link">男童裝 ⊹ 男童鞋 ⊹ (•̀ᴗ•́)</a>
+            <div class="section-divider">⊹ 萌寶配件 ⊹</div>
+            <a href="#" class="sub-link">兒童帽 ⊹ 兒童包 ⊹ 襪子系列</a>
+            <a href="#" class="sub-link">頭飾 ⊹ 髮夾 ⊹ 兒童生活用品</a>
+        </div>
+    </div>
+
+    <div id="m3" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 女生衣櫥 ◌</h3>
+            <div class="section-divider">⊹ Top & Set ⊹</div>
+            <a href="#" class="sub-link">女套裝 ⊹ 外套 ⊹ 睡衣系列</a>
+            <a href="#" class="sub-link">T-shirt ⊹ 大學T ⊹ 襯衫</a>
+            <a href="#" class="sub-link">罩衫 ⊹ 吊帶背心 ⊹ 抹胸</a>
+            <div class="section-divider">⊹ Bottom & Inner ⊹</div>
+            <a href="#" class="sub-link">女長褲 ⊹ 女短褲 ⊹ 連衣裙</a>
+            <a href="#" class="sub-link">長裙 ⊹ 短裙 ⊹ 內衣褲專區</a>
+        </div>
+    </div>
+
+    <div id="m5" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 配飾鞋包 ◌</h3>
+            <div class="section-divider">⊹ 鞋履襪子 ⊹</div>
+            <a href="#" class="sub-link">各式長短襪 ⊹ 拖鞋 ⊹ 休閒鞋</a>
+            <a href="#" class="sub-link">長短靴 ⊹ 皮鞋 ⊹ 高跟鞋</a>
+            <div class="section-divider">⊹ 飾品配件 ⊹</div>
+            <a href="#" class="sub-link">包包 ⊹ 錢包 ⊹ 痛包 ⊹ 娃包</a>
+            <a href="#" class="sub-link">鯊魚夾 ⊹ 髮簪 ⊹ 抓夾髮圈</a>
+            <a href="#" class="sub-link">項鍊 ✧ 戒指 ✧ 耳環 ✧ 腳鍊</a>
+            <a href="#" class="sub-link">手工穿戴甲 ⊹ 穿戴甲工具</a>
+        </div>
+    </div>
+
+    <div id="m6" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 生活物件 ◌</h3>
+            <div class="section-divider">⊹ 居家細節 ⊹</div>
+            <a href="#" class="sub-link">杯子 ⊹ 水壺 ⊹ 碗盤餐具</a>
+            <a href="#" class="sub-link">浴室系列 ⊹ 毛巾 ⊹ 洗臉巾</a>
+            <a href="#" class="sub-link">居家收納 ⊹ 鏡子 ⊹ 梳子</a>
+            <div class="section-divider">⊹ 小家電 ⊹</div>
+            <a href="#" class="sub-link">吹風機 ⊹ 電動牙刷 ⊹ 捲髮棒</a>
+            <a href="#" class="sub-link">生活家電 ⊹ 手機支架 ⊹ 支架</a>
+        </div>
+    </div>
+
+    <div id="m7" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 3C 配件 ◌</h3>
+            <div class="section-divider">⊹ 行動電源 ⊹</div>
+            <a href="#" class="sub-link">laPO 系列 ⊹ iXIN 系列</a>
+            <a href="#" class="sub-link">WINI 系列 ⊹ ManyWish</a>
+            <div class="section-divider">⊹ 手機配件 ⊹</div>
+            <a href="#" class="sub-link">蘋果殼 ⊹ 磁吸殼 ⊹ 耳機殼</a>
+            <a href="#" class="sub-link">副廠充電線 ⊹ 耳機線材</a>
+        </div>
+    </div>
+
+    <div id="m8" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 文具雜貨 ◌</h3>
+            <div class="section-divider">⊹ 辦公文具 ⊹</div>
+            <a href="#" class="sub-link">筆記本 ⊹ 夾子 ⊹ 筆類 ⊹ 卡冊</a>
+            <a href="#" class="sub-link">滑鼠墊 ⊹ 桌墊 ⊹ 文具配件</a>
+            <div class="section-divider">⊹ DIY材料 ⊹</div>
+            <a href="#" class="sub-link">客製化照片 ⊹ 小卡代印</a>
+            <a href="#" class="sub-link">手作材料包 ⊹ 貼紙 ⊹ 紙膠帶</a>
+        </div>
+    </div>
+
+    <div id="m9" class="modal" onclick="checkClose(event)">
+        <div class="modal-content text-center">
+            <h3 class="text-sm font-medium tracking-[0.3em] mb-8">◌ 食品包材 ◌</h3>
+            <div class="section-divider">⊹ 甜鹹零食 ⊹</div>
+            <a href="#" class="sub-link">餅乾 ✧ 糖果 ✧ 零食系列</a>
+            <a href="#" class="sub-link">螺絲粉 ⊹ 辣條 ⊹ 魔芋系列</a>
+            <div class="section-divider">⊹ 賣家專區 ⊹</div>
+            <a href="#" class="sub-link">飛機盒 ⊹ 破壞袋 ⊹ 氣泡袋</a>
+            <a href="#" class="sub-link">封口貼 ⊹ 雪梨紙 ⊹ 包裝用品</a>
+        </div>
+    </div>
 
     <script>
-        const menuBtn = document.getElementById('menu-btn');
-        const closeBtn = document.getElementById('close-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        function toggleMenu() {
-            mobileMenu.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
-
-        menuBtn.addEventListener('click', toggleMenu);
-        closeBtn.addEventListener('click', toggleMenu);
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        function checkClose(e) {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
+        }
     </script>
-
 </body>
 </html>
