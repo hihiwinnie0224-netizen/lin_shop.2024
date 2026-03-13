@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>財務管理系統 | LinShop 𖤣𖥧</title>
+    <title>雲端財務管理系統 | LinShop 𖤣𖥧</title>
     <style>
         :root {
             --bg-color: #f4f1ea;
@@ -35,6 +35,7 @@
 
         h2 { text-align: center; font-weight: 300; letter-spacing: 2px; margin-bottom: 20px; }
 
+        /* 頂部統計看板 */
         .total-summary {
             display: flex;
             justify-content: space-around;
@@ -49,6 +50,7 @@
         .summary-item span { font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 5px; }
         .summary-item b { font-size: 1.1rem; letter-spacing: 1px; }
 
+        /* 各帳戶餘額 */
         .account-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -67,6 +69,7 @@
         .acc-name { font-size: 0.65rem; color: #aaa; display: block; }
         .acc-val { font-size: 0.85rem; font-weight: bold; margin-top: 3px; }
 
+        /* 輸入區域 */
         .input-card {
             background: #fafafa;
             padding: 20px;
@@ -87,14 +90,19 @@
             outline: none;
         }
 
+        /* 快速類別按鈕 */
         .btn-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .cat-btn { padding: 5px 10px; background: white; border: 1px solid #eee; border-radius: 15px; font-size: 0.75rem; cursor: pointer; }
+        .cat-btn { padding: 5px 10px; background: white; border: 1px solid #eee; border-radius: 15px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
         .cat-btn:hover { background: var(--accent-blue); color: white; }
 
         .btn-submit { width: 100%; padding: 15px; background: var(--accent-green); color: white; border: none; border-radius: 12px; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        
+        /* 狀態提示 */
+        #sync-status { font-size: 0.75rem; text-align: center; color: var(--accent-blue); margin-top: 5px; display: none; }
 
         .list-header { font-size: 0.9rem; color: #999; margin: 20px 0 10px; padding-left: 5px; border-left: 3px solid var(--accent-blue); }
 
+        /* 明細項目 */
         .record-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f8f8f8; }
         .item-main { flex: 1; }
         .item-date { font-size: 0.7rem; color: #bbb; display: block; }
@@ -163,7 +171,8 @@
             <input type="number" id="amount" placeholder="金額">
         </div>
 
-        <button id="main-btn" class="btn-submit" onclick="processRecord()">確認新增紀錄</button>
+        <button id="main-btn" class="btn-submit" onclick="processRecord()">確認並上傳雲端</button>
+        <div id="sync-status">✨ 正在同步雲端表格...</div>
     </div>
 
     <div class="list-header">收支明細 (按日期自動排序)</div>
@@ -171,11 +180,12 @@
 </div>
 
 <script>
-    // 從 LocalStorage 讀取資料
+    // 你的 Google Apps Script 部署網址
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyZxedd--vJf40vY96TdC48-XeBxYecp5rtJ9sjD86p2yi3ykoW8nCOMwVi0uQiIKnx/exec";
+
     let records = JSON.parse(localStorage.getItem('linshop_ledger')) || [];
     let editingId = null;
 
-    // 預設日期為今天
     document.getElementById('date').valueAsDate = new Date();
 
     function quickSet(name, type) {
@@ -183,28 +193,52 @@
         document.getElementById('type').value = type;
     }
 
-    function processRecord() {
+    async function processRecord() {
         const date = document.getElementById('date').value;
         const acc = document.getElementById('account').value;
         const type = document.getElementById('type').value;
         const name = document.getElementById('name').value;
         const amt = parseFloat(document.getElementById('amount').value);
 
-        if (!date || !name || isNaN(amt)) return alert('請完整填寫日期、項目與金額 ‧ᴗ •');
+        if (!date || !name || isNaN(amt)) return alert('請完整填寫 ‧ᴗ •');
 
-        if (editingId) {
-            const idx = records.findIndex(r => r.id === editingId);
-            records[idx] = { ...records[idx], date, acc, type, name, amount: amt };
-            editingId = null;
-            document.getElementById('main-btn').innerText = '確認新增紀錄';
-            document.getElementById('main-btn').style.background = 'var(--accent-green)';
-        } else {
-            records.push({ id: Date.now(), date, acc, type, name, amount: amt });
+        const recordData = { date, acc: getAccName(acc), type, name, amount: amt };
+        const statusEl = document.getElementById('sync-status');
+        
+        statusEl.style.display = 'block';
+
+        try {
+            // 只有在「新增」時才上傳雲端（避免重複上傳舊資料）
+            if (!editingId) {
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    mode: "no-cors", // Google Script 限制需用 no-cors
+                    body: JSON.stringify(recordData),
+                    headers: { "Content-Type": "application/json" }
+                });
+            }
+
+            // 本地邏輯處理
+            if (editingId) {
+                const idx = records.findIndex(r => r.id === editingId);
+                records[idx] = { ...records[idx], date, acc, type, name, amount: amt };
+                editingId = null;
+                document.getElementById('main-btn').innerText = '確認並上傳雲端';
+                document.getElementById('main-btn').style.background = 'var(--accent-green)';
+            } else {
+                records.push({ id: Date.now(), date, acc, type, name, amount: amt });
+            }
+
+            saveAndRender();
+            document.getElementById('name').value = '';
+            document.getElementById('amount').value = '';
+            
+        } catch (e) {
+            console.error(e);
+            alert("雲端同步失敗，但已儲存在本機。");
+        } finally {
+            statusEl.style.display = 'none';
         }
-
-        saveAndRender();
-        document.getElementById('name').value = '';
-        document.getElementById('amount').value = '';
     }
 
     function editRecord(id) {
@@ -215,27 +249,23 @@
         document.getElementById('type').value = r.type;
         document.getElementById('name').value = r.name;
         document.getElementById('amount').value = r.amount;
-        document.getElementById('main-btn').innerText = '儲存修改內容';
+        document.getElementById('main-btn').innerText = '儲存修改內容 (僅本機)';
         document.getElementById('main-btn').style.background = 'var(--accent-blue)';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function deleteRecord(id) {
-        if (confirm('確定要刪除這筆紀錄嗎？')) {
+        if (confirm('確定要刪除這筆紀錄嗎？(僅刪除本機)')) {
             records = records.filter(r => r.id !== id);
             saveAndRender();
         }
     }
 
     function saveAndRender() {
-        // 排序：先比日期 (晚到早)，日期相同比 ID (晚到早)
         records.sort((a, b) => {
-            if (a.date !== b.date) {
-                return b.date.localeCompare(a.date);
-            }
+            if (a.date !== b.date) return b.date.localeCompare(a.date);
             return b.id - a.id;
         });
-
         localStorage.setItem('linshop_ledger', JSON.stringify(records));
         render();
     }
@@ -243,10 +273,8 @@
     function render() {
         const list = document.getElementById('record-list');
         list.innerHTML = '';
-        
         let bals = { fubon: 0, next: 0, feib: 0, cash: 0 };
-        let totalInc = 0;
-        let totalExp = 0;
+        let totalInc = 0, totalExp = 0;
 
         records.forEach(r => {
             const isInc = r.type === 'income';
@@ -258,7 +286,7 @@
             div.innerHTML = `
                 <div class="item-main">
                     <span class="item-date">${r.date}</span>
-                    <span class="item-tag">[${getAcc(r.acc)}]</span>
+                    <span class="item-tag">[${getAccName(r.acc)}]</span>
                     <span class="item-name">${r.name}</span>
                 </div>
                 <div class="item-price ${isInc ? 'income' : 'expense'}">
@@ -272,20 +300,20 @@
             list.appendChild(div);
         });
 
-        for (let key in bals) {
-            document.getElementById(`bal-${key}`).innerText = `$${bals[key].toLocaleString()}`;
-        }
+        document.getElementById('bal-fubon').innerText = `$${bals.fubon.toLocaleString()}`;
+        document.getElementById('bal-next').innerText = `$${bals.next.toLocaleString()}`;
+        document.getElementById('bal-feib').innerText = `$${bals.feib.toLocaleString()}`;
+        document.getElementById('bal-cash').innerText = `$${bals.cash.toLocaleString()}`;
         document.getElementById('grand-income').innerText = `$ ${totalInc.toLocaleString()}`;
         document.getElementById('grand-expense').innerText = `$ ${totalExp.toLocaleString()}`;
         document.getElementById('grand-balance').innerText = `$ ${(totalInc - totalExp).toLocaleString()}`;
     }
 
-    function getAcc(key) {
+    function getAccName(key) {
         const m = { fubon: '富邦', next: '將來', feib: '遠東', cash: '現金' };
-        return m[key];
+        return m[key] || key;
     }
 
-    // 初始渲染
     render();
 </script>
 
