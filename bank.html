@@ -5,40 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinShop Ledger ⟡</title>
     <style>
-        :root { --bg: #f7f7f5; --main: #b8c6db; --text: #5e5e5e; --accent: #d1a7a7; }
+        :root { --bg: #f7f7f5; --main: #b8c6db; --text: #5e5e5e; --accent: #d1a7a7; --income: #a7d1b8; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
         
-        /* 頂部儀表板 */
         .dashboard { background: #9fa9a3; color: white; padding: 20px; border-radius: 18px; text-align: center; margin-bottom: 20px; }
         .dash-label { font-size: 0.7rem; opacity: 0.8; letter-spacing: 1px; }
         .dash-val { font-size: 1.8rem; font-weight: 200; margin-top: 5px; }
 
-        /* 帳戶卡片滾動區 */
         .acc-row { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 20px; scrollbar-width: none; padding-bottom: 5px; }
         .acc-row::-webkit-scrollbar { display: none; }
         .acc-card { min-width: 80px; background: #fbfbfb; padding: 10px; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; flex-shrink: 0; }
         .acc-name { font-size: 0.65rem; color: #999; display: block; margin-bottom: 4px; }
         .acc-bal { font-size: 0.75rem; color: #777; font-weight: bold; }
 
-        /* 輸入區域 */
         .input-box { background: #fcfcfc; padding: 15px; border-radius: 18px; border: 1px solid #f0f0f0; margin-bottom: 20px; }
+        
+        /* 支出/收入切換鈕 */
+        .type-toggle { display: flex; background: #eee; border-radius: 10px; margin-bottom: 15px; padding: 2px; }
+        .type-toggle label { flex: 1; text-align: center; padding: 8px 0; font-size: 0.8rem; cursor: pointer; border-radius: 8px; margin: 0; transition: 0.3s; color: #aaa; }
+        .type-toggle input { display: none; }
+        .type-toggle input:checked + label { background: white; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
         .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .field { display: flex; flex-direction: column; }
         label { font-size: 0.6rem; color: #bbb; margin-bottom: 4px; padding-left: 5px; }
         input, select { height: 38px; border: 1px solid #eee; border-radius: 8px; padding: 0 10px; font-size: 0.85rem; outline: none; background: white; color: var(--text); }
         
-        .btn { width: 100%; height: 42px; background: var(--main); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; margin-top: 5px; transition: 0.2s; }
-        .btn:active { opacity: 0.7; transform: scale(0.98); }
-
-        /* 紀錄列表 */
-        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }
-        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f9f9f9; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .btn { width: 100%; height: 42px; background: var(--main); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; margin-top: 5px; }
         
-        .price { color: var(--accent); font-weight: 500; font-size: 0.95rem; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f9f9f9; }
+        .price { font-weight: 500; font-size: 0.95rem; }
+        .p-red { color: var(--accent); }
+        .p-green { color: var(--income); }
         
-        /* 提示框 */
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--main); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.8rem; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 100; }
         .toast.show { opacity: 1; top: 30px; }
     </style>
@@ -51,7 +52,7 @@
     <h2 style="text-align:center; font-weight:300; color:#ccc; letter-spacing:3px; font-size: 1rem; margin-bottom: 20px;">LINSHOP LEDGER ⟡</h2>
 
     <div class="dashboard">
-        <div class="dash-label">THIS MONTH EXPENSE</div>
+        <div class="dash-label">THIS MONTH BALANCE</div>
         <div id="m-total" class="dash-val">$ 0</div>
     </div>
 
@@ -63,6 +64,13 @@
     </div>
 
     <div class="input-box">
+        <div class="type-toggle">
+            <input type="radio" name="trType" id="typeExp" value="exp" checked>
+            <label for="typeExp">支出</label>
+            <input type="radio" name="trType" id="typeInc" value="inc">
+            <label for="typeInc">收入</label>
+        </div>
+
         <div class="field-grid">
             <div class="field"><label>日期</label><input type="date" id="date"></div>
             <div class="field"><label>帳戶</label>
@@ -74,7 +82,7 @@
         <div class="field-grid">
             <div class="field"><label>類別</label>
                 <select id="cat">
-                    <option>🍱 餐飲</option><option>📦 代購</option><option>🚗 交通</option><option>✨ 娛樂</option><option>🏠 固定</option><option>💰 薪資</option><option>🛒 雜項</option>
+                    <option>🍱 餐飲</option><option>📦 代購</option><option>🚗 交通</option><option>✨ 娛樂</option><option>💰 薪資</option><option>🛒 雜項</option>
                 </select>
             </div>
             <div class="field"><label>金額</label><input type="number" id="amt" placeholder="$"></div>
@@ -92,13 +100,9 @@
 </div>
 
 <script>
-    // 使用妳提供的最新 GAS 網址
     const API = 'https://script.google.com/macros/s/AKfycbzp0uI5lHJjZoevHdwDch_oKEtzilqOP82WO0C5JBvYjeUshGFE8f5A82AOR3w764RH/exec';
-    
-    // 使用本地緩存
     let records = JSON.parse(localStorage.getItem('ls_v8')) || [];
 
-    // 初始化頁面時間
     const today = new Date();
     document.getElementById('date').valueAsDate = today;
     document.getElementById('view-m').value = today.toISOString().slice(0, 7);
@@ -109,7 +113,6 @@
         setTimeout(() => t.classList.remove('show'), 3000); 
     }
 
-    // JSONP 同步函數
     function sync() {
         showMsg("正在同步雲端...");
         const old = document.getElementById('jsonp-script');
@@ -120,7 +123,6 @@
         document.body.appendChild(s);
     }
 
-    // JSONP 回傳處理
     function handleResponse(data) {
         if (Array.isArray(data)) {
             records = data;
@@ -135,35 +137,35 @@
         const viewMonth = document.getElementById('view-m').value;
         list.innerHTML = '';
         
-        let mTotal = 0;
+        let mTotal = 0; // 當月收支總和
         let bals = {'富邦銀行':0, '將來銀行':0, '遠東銀行':0, '手邊現金':0};
 
-        // 按日期降冪排序 (最新的在上面)
         records.sort((a,b) => new Date(b.date) - new Date(a.date));
 
         records.forEach(r => {
             const val = parseFloat(r.amt) || 0;
             
-            // 計算各帳戶餘額 (假設皆為支出)
+            // 計算各帳戶餘額 (收入為正, 支出為負)
             if (bals.hasOwnProperty(r.acc)) {
-                bals[r.acc] -= val;
+                bals[r.acc] += val;
             }
 
-            // 比對月份 (格式皆為 YYYY-MM)
             if (String(r.date).includes(viewMonth)) {
                 mTotal += val;
+                const isIncome = val >= 0;
                 list.innerHTML += `
                     <div class="record-item">
                         <div style="flex:1">
                             <div style="font-size:0.85rem; margin-bottom:2px;">${r.name || '未命名'}</div>
                             <div style="font-size:0.6rem; color:#ccc;">${r.acc} · ${String(r.date).slice(5)}</div>
                         </div>
-                        <div class="price">-${val.toLocaleString()}</div>
+                        <div class="price ${isIncome ? 'p-green' : 'p-red'}">
+                            ${isIncome ? '+' : ''}${val.toLocaleString()}
+                        </div>
                     </div>`;
             }
         });
 
-        // 更新介面
         document.getElementById('m-total').innerText = `$ ${mTotal.toLocaleString()}`;
         for (let key in bals) {
             const el = document.getElementById('b-' + key);
@@ -178,22 +180,26 @@
     function add() {
         const amtInput = document.getElementById('amt');
         const nameInput = document.getElementById('name');
+        const isExp = document.getElementById('typeExp').checked;
         
+        // 核心邏輯：如果是支出，金額自動轉為負數
+        let finalAmt = parseFloat(amtInput.value);
+        if (isExp) finalAmt = -Math.abs(finalAmt);
+        else finalAmt = Math.abs(finalAmt);
+
         const r = {
             date: document.getElementById('date').value,
             acc: document.getElementById('acc').value,
             cat: document.getElementById('cat').value,
-            name: nameInput.value || "無備註",
-            amt: amtInput.value
+            name: nameInput.value || (isExp ? "一般支出" : "一般收入"),
+            amt: finalAmt
         };
 
-        if (!r.amt) return alert("請輸入金額！");
+        if (!amtInput.value) return alert("請輸入金額！");
 
-        // 本地預先渲染 (提高順暢感)
         records.push(r);
         render();
 
-        // 傳送到雲端
         fetch(API, {
             method: 'POST',
             mode: 'no-cors',
@@ -202,10 +208,9 @@
             showMsg("已成功上傳雲端 ☁️");
             amtInput.value = '';
             nameInput.value = '';
-        }).catch(() => showMsg("本地儲存成功，雲端連線失敗"));
+        });
     }
 
-    // 初始執行一次同步
     window.onload = sync;
 </script>
 </body>
