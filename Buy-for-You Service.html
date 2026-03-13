@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    :root {
+        --bg-color: #fcf9f7;
+        --card-bg: #ffffff;
+        --accent-color: #b08968;
+        --text-main: #6d5d55;
+        --text-light: #a89a93;
+        --border-color: #eee1d7;
+        --price-wholesale: #d88a8a;
+    }
+
+    body { background-color: var(--bg-color); font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; color: var(--text-main); margin: 0; padding: 0; padding-bottom: 100px; display: flex; flex-direction: column; align-items: center; }
+
+    /* 頂部導航 */
+    .nav-bar { position: sticky; top: 0; z-index: 100; width: 100%; background: rgba(252, 249, 247, 0.95); display: flex; justify-content: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+    .nav-item { margin: 0 8px; font-size: 13px; cursor: pointer; padding: 6px 15px; border-radius: 20px; border: 1px solid var(--border-color); color: var(--text-light); text-decoration: none; }
+
+    /* 身份切換 (影響價格計算) */
+    .identity-selector { margin: 20px 0; font-size: 14px; background: #fff; padding: 10px; border-radius: 30px; border: 1px solid var(--border-color); }
+    .identity-selector label { cursor: pointer; padding: 5px 15px; border-radius: 20px; transition: 0.3s; }
+    input[type="radio"] { display: none; }
+    input[type="radio"]:checked + span { background: var(--accent-color); color: white; padding: 5px 15px; border-radius: 20px; }
+
+    .section-title { width: 90%; max-width: 1000px; margin: 30px 0 15px; padding-left: 12px; border-left: 3px solid var(--accent-color); font-size: 18px; font-weight: bold; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; width: 90%; max-width: 1000px; }
+
+    /* 商品卡片 */
+    .product-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); }
+    .img-container { width: 100%; aspect-ratio: 1/1; overflow: hidden; }
+    .img-container img { width: 100%; height: 100%; object-fit: cover; }
+    .card-content { padding: 15px; }
+    .card-title { font-size: 14px; font-weight: bold; height: 40px; margin-bottom: 10px; }
+    .price-display { font-size: 16px; color: var(--price-wholesale); font-weight: bold; margin-bottom: 10px; }
+
+    /* 下單按鈕區 */
+    .add-btn { width: 100%; background: var(--accent-color); color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+    .add-btn:active { transform: scale(0.95); }
+
+    /* 懸浮購物清單按鈕 */
+    .cart-float-btn { position: fixed; bottom: 20px; right: 20px; background: var(--accent-color); color: white; padding: 15px 20px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; font-weight: bold; }
+
+    /* 購物清單彈窗 */
+    #cart-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 0 100px rgba(0,0,0,0.3); z-index: 2000; }
+    .cart-header { font-weight: bold; font-size: 18px; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .cart-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
+    .cart-total { text-align: right; font-weight: bold; margin-top: 15px; color: var(--price-wholesale); }
+    .close-btn { width: 100%; background: #eee; border: none; padding: 10px; border-radius: 8px; margin-top: 15px; cursor: pointer; }
+    .screenshot-msg { font-size: 11px; color: #a89a93; text-align: center; margin-top: 10px; }
+
+    .timer-info { font-size: 11px; color: var(--text-light); margin: 5px 0; }
+</style>
+</head>
+<body>
+
+<div class="nav-bar">
+    <a href="#limit" class="nav-item">⋆ 限時收單</a>
+    <a href="#regular" class="nav-item">⋆ 長期供應</a>
+</div>
+
+<div class="identity-selector">
+    <label><input type="radio" name="role" value="retail" checked onchange="updatePrices()"> <span>一般零售</span></label>
+    <label><input type="radio" name="role" value="wholesale" onchange="updatePrices()"> <span>批發採購</span></label>
+</div>
+
+<div class="shop-header">
+    <div class="shop-title">‧✧̣̥̇‧ 𝔸𝕖𝕤𝕥𝕙𝕖𝕥𝕚𝕔 𝕊𝕖𝕝𝕖𝕔𝕥 ‧✧̣̥̇‧</div>
+</div>
+
+<div class="section-title" id="limit">ミ★ 熱門現貨/預購</div>
+<div class="product-grid" id="product-list">
+    </div>
+
+<div class="cart-float-btn" onclick="toggleCart()">
+    📋 查看明細 (<span id="cart-count">0</span>)
+</div>
+
+<div id="cart-modal">
+    <div class="cart-header">⸜❤︎⸝ 您的訂購明細</div>
+    <div id="cart-items-container">
+        </div>
+    <div class="cart-total">預估金額：$ <span id="cart-total-price">0</span></div>
+    <div class="screenshot-msg">📸 請截圖此明細傳送給我下單唷！</div>
+    <button class="close-btn" onclick="toggleCart()">返回購物</button>
+    <button class="close-btn" style="background: #fdf2f0; color: #d88a8a;" onclick="clearCart()">清空重選</button>
+</div>
+
+<script>
+    // --- 商品資料庫 ---
+    const products = [
+        {
+            id: 1, title: "Exoproxyl 積雪草外囊泡修護霜 30ml",
+            img: "https://img3.shop2000.com.tw/105667/p203/58640228-16o.jpg",
+            retail: 550, wholesale: 399, // 批發以最優惠計
+            timer: "March 14, 2026 23:59:59",
+            spec: "交期約4週 / 韓國博士研發"
+        },
+        {
+            id: 2, title: "M.A.C 口袋雙色濾鏡蜜粉餅 #紫白餅",
+            img: "https://img3.shop2000.com.tw/105667/p211/59173128-1o.jpg",
+            retail: 1620, wholesale: 850, 
+            timer: "March 16, 2026 23:59:59",
+            spec: "貨源：韓免 / 蔡依林同款"
+        },
+        {
+            id: 3, title: "ILLIGO SEOUL 129 LOGO T恤",
+            img: "https://img3.shop2000.com.tw/105667/p212/59262613-1o.jpg",
+            retail: 1100, wholesale: 880,
+            timer: "March 17, 2026 23:59:59",
+            spec: "顏色私訊 / 100%純棉"
+        },
+        {
+            id: 4, title: "COVERNAT 大C羊羔毛棒球帽",
+            img: "https://img3.shop2000.com.tw/105667/p212/59262602-1o.jpg",
+            retail: 980, wholesale: 750,
+            timer: "March 17, 2026 23:59:59",
+            spec: "米/深綠/淺綠"
+        },
+        {
+            id: 5, title: "CANMAKE 水光果凍打亮 04 冰透藍",
+            img: "https://img3.shop2000.com.tw/105667/p212/59244009-1o.jpg",
+            retail: 380, wholesale: 290,
+            timer: "March 16, 2026 23:59:59",
+            spec: "限定色 / 冰透水光肌"
+        },
+        {
+            id: 6, title: "GA 訂製奢光潤唇蜜 #01 晶透光",
+            img: "https://img3.shop2000.com.tw/105667/p212/59241428-11o.jpg",
+            retail: 1650, wholesale: 1250,
+            timer: "March 16, 2026 23:59:59",
+            spec: "韓免貨源 / 透明冰晶感"
+        }
+    ];
+
+    let cart = [];
+
+    // --- 初始化頁面 ---
+    function renderProducts() {
+        const role = document.querySelector('input[name="role"]:checked').value;
+        const container = document.getElementById('product-list');
+        container.innerHTML = products.map(p => `
+            <div class="product-card">
+                <div class="img-container"><img src="${p.img}"></div>
+                <div class="card-content">
+                    <div class="card-title">${p.title}</div>
+                    <div class="price-display">$ ${role === 'retail' ? p.retail : p.wholesale}</div>
+                    <div class="timer-info">⏳ <span class="timer" data-date="${p.timer}">計算中</span></div>
+                    <details><summary></summary><div style="font-size:12px; color:#999; padding:5px;">${p.spec}</div></details>
+                    <button class="add-btn" onclick="addToCart(${p.id})">⊹ 加入清單</button>
+                </div>
+            </div>
+        `).join('');
+        updateTimers();
+    }
+
+    // --- 購物車邏輯 ---
+    function addToCart(id) {
+        const product = products.find(p => p.id === id);
+        const role = document.querySelector('input[name="role"]:checked').value;
+        const price = role === 'retail' ? product.retail : product.wholesale;
+        
+        cart.push({ title: product.title, price: price });
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        document.getElementById('cart-count').innerText = cart.length;
+        const itemsContainer = document.getElementById('cart-items-container');
+        let total = 0;
+        
+        itemsContainer.innerHTML = cart.map((item, index) => {
+            total += item.price;
+            return `<div class="cart-item"><span>${item.title}</span> <span>$${item.price}</span></div>`;
+        }).join('');
+        
+        document.getElementById('cart-total-price').innerText = total;
+    }
+
+    function toggleCart() {
+        const modal = document.getElementById('cart-modal');
+        modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function clearCart() {
+        cart = [];
+        updateCartUI();
+        toggleCart();
+    }
+
+    function updatePrices() {
+        renderProducts();
+        cart = []; // 切換身份後重置購物車避免計算錯誤
+        updateCartUI();
+    }
+
+    // --- 倒數計時 ---
+    function updateTimers() {
+        document.querySelectorAll('.timer').forEach(el => {
+            const target = new Date(el.getAttribute('data-date')).getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
+            if (diff < 0) { el.innerHTML = "結束"; return; }
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            el.innerHTML = d + "天 " + h + "時 " + m + "分";
+        });
+    }
+
+    setInterval(updateTimers, 60000);
+    renderProducts();
+</script>
+
+</body>
+</html>
