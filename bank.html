@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinShop | 個人帳務管理 ✨</title>
+    <style>
+        :root {
+            --bg-color: #f4f1ea;
+            --card-bg: #ffffff;
+            --primary-text: #5d5d5d;
+            --accent-green: #a3b18a; /* 莫蘭迪綠 */
+            --accent-red: #e09f7d;   /* 莫蘭迪橙粉 */
+            --accent-blue: #9eb3c2;  /* 莫蘭迪藍 */
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        /* 總計區塊 */
+        .summary-card {
+            display: flex;
+            justify-content: space-around;
+            background: #fafaf9;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .summary-item span {
+            display: block;
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .summary-item b {
+            font-size: 1.1rem;
+        }
+
+        /* 輸入區塊 */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        /* 快速選項按鈕 */
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 20px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            background: #eee;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chip:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+
+        /* 列表區塊 */
+        .history-list {
+            margin-top: 30px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f9f9f9;
+            font-size: 0.95rem;
+        }
+
+        .type-income { color: var(--accent-green); }
+        .type-expense { color: var(--accent-red); }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn:hover { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Financial Ledger 𖤣𖥧</h2>
+
+    <div class="summary-card">
+        <div class="summary-item">
+            <span>收入</span>
+            <b id="total-income" class="type-income">$0</b>
+        </div>
+        <div class="summary-item">
+            <span>支出</span>
+            <b id="total-expense" class="type-expense">$0</b>
+        </div>
+        <div class="summary-item">
+            <span>結餘</span>
+            <b id="balance">$0</b>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>收支類別</label>
+        <select id="type">
+            <option value="expense">支出 (-)</option>
+            <option value="income">收入 (+)</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>項目名稱</label>
+        <input type="text" id="name" placeholder="例如：午餐、薪資...">
+        <div class="quick-options" id="quick-options">
+            <span class="chip" onclick="setQuickName('🍽️ 飲食')">飲食</span>
+            <span class="chip" onclick="setQuickName('🛍️ 購物')">購物</span>
+            <span class="chip" onclick="setQuickName('🚗 交通')">交通</span>
+            <span class="chip" onclick="setQuickName('🏠 房租')">房租</span>
+            <span class="chip" onclick="setQuickName('💰 薪資')">薪資</span>
+            <span class="chip" onclick="setQuickName('☕ 咖啡')">咖啡</span>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>金額</label>
+        <input type="number" id="amount" placeholder="0">
+    </div>
+
+    <button class="btn-add" onclick="addRecord()">新增紀錄 ＋</button>
+
+    <div class="history-list" id="history-list">
+        </div>
+</div>
+
+<script>
+    let records = [];
+
+    function setQuickName(val) {
+        document.getElementById('name').value = val;
+    }
+
+    function addRecord() {
+        const type = document.getElementById('type').value;
+        const name = document.getElementById('name').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+
+        if (!name || isNaN(amount)) {
+            alert('請輸入完整的項目名稱與金額內容 ‧ᴗ‧');
+            return;
+        }
+
+        const record = {
+            id: Date.now(),
+            type,
+            name,
+            amount
+        };
+
+        records.push(record);
+        updateUI();
+        
+        // 清空輸入框
+        document.getElementById('name').value = '';
+        document.getElementById('amount').value = '';
+    }
+
+    function deleteRecord(id) {
+        records = records.filter(r => r.id !== id);
+        updateUI();
+    }
+
+    function updateUI() {
+        const list = document.getElementById('history-list');
+        const incomeEl = document.getElementById('total-income');
+        const expenseEl = document.getElementById('total-expense');
+        const balanceEl = document.getElementById('balance');
+
+        list.innerHTML = '';
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        records.forEach(r => {
+            if (type === 'income') { /* 修正邏輯錯誤 */ }
+            
+            const isIncome = r.type === 'income';
+            if (isIncome) totalIncome += r.amount;
+            else totalExpense += r.amount;
+
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <span>${r.name}</span>
+                <div>
+                    <span class="${isIncome ? 'type-income' : 'type-expense'}">
+                        ${isIncome ? '+' : '-'}${r.amount}
+                    </span>
+                    <button class="delete-btn" onclick="deleteRecord(${r.id})">✕</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+
+        incomeEl.innerText = `$${totalIncome}`;
+        expenseEl.innerText = `$${totalExpense}`;
+        const balance = totalIncome - totalExpense;
+        balanceEl.innerText = `$${balance}`;
+        balanceEl.style.color = balance >= 0 ? '#5d5d5d' : '#e09f7d';
+    }
+</script>
+
+</body>
+</html>
