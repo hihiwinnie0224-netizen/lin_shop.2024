@@ -126,12 +126,13 @@
 </div>
 
 <script>
-    // --- 已更新為妳的第 6 版 GAS 網址 ---
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxT4XdP0bVft0Bcj0XzaHlZwFZchf3yXZWx0uDWLCUdJvNETPvoyLNQ9iQ_mQfN_pd6/exec';
+    // --- 已更新為妳的第 7 版 GAS 網址 ---
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQBBWLd6tnFFSUUIpRgjj3JwN8S_MCKkaoBVsxzh6Q4rf7MgFq2xgLJUjEcORJFcQ0/exec';
     
-    let records = JSON.parse(localStorage.getItem('linshop_v6')) || [];
+    // 使用新的版本標記以避免舊緩存干擾
+    let records = JSON.parse(localStorage.getItem('linshop_v7')) || [];
 
-    // 初始化日期
+    // 初始化日期與月份顯示
     const now = new Date();
     document.getElementById('date').valueAsDate = now;
     document.getElementById('month-view').value = now.toISOString().slice(0, 7);
@@ -142,24 +143,39 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // --- JSONP 同步邏輯 ---
+    // --- JSONP 讀取邏輯 (繞過 CORS) ---
     function fetchFromCloud() {
         showToast("同步中...");
+        
+        // 移除舊的 script 防止堆疊
         const oldScript = document.getElementById('jsonp-sync');
         if (oldScript) oldScript.remove();
 
         const script = document.createElement('script');
         script.id = 'jsonp-sync';
         script.src = `${GOOGLE_SCRIPT_URL}?callback=handleSyncResponse&t=${Date.now()}`;
+        
+        script.onerror = () => {
+            showToast("同步失敗，請檢查網路環境");
+        };
+
         document.body.appendChild(script);
     }
 
+    // 接收 GAS 傳回的資料
     function handleSyncResponse(data) {
+        console.log("收到資料:", data);
         if (Array.isArray(data)) {
             records = data;
-            localStorage.setItem('linshop_v6', JSON.stringify(records));
+            localStorage.setItem('linshop_v7', JSON.stringify(records));
             render();
-            showToast("同步成功 ⟡");
+            if (data.length > 0) {
+                showToast(`同步成功！共 ${data.length} 筆資料 ⟡`);
+            } else {
+                showToast("連線成功，雲端目前無資料");
+            }
+        } else {
+            alert("資料格式錯誤，請檢查試算表標題列");
         }
     }
 
@@ -171,19 +187,19 @@
         let mTotal = 0;
         let bals = { '富邦銀行':0, '將來銀行':0, '遠東銀行':0, '手邊現金':0 };
 
-        // 排序：日期由新到舊
+        // 依照日期從新到舊排序
         records.sort((a,b) => new Date(b.date) - new Date(a.date));
 
         records.forEach(r => {
             const amt = parseFloat(r.amt) || 0;
             const rDate = String(r.date);
 
-            // 計算帳戶餘額 (這裡假設都是支出)
+            // 計算帳戶餘額
             if (bals.hasOwnProperty(r.acc)) {
                 bals[r.acc] -= amt;
             }
 
-            // 月份過濾
+            // 月份過濾 (與 viewMonth YYYY-MM 比對)
             if (rDate.startsWith(viewMonth)) {
                 mTotal += amt;
                 const item = document.createElement('div');
@@ -192,7 +208,7 @@
                     <div style="flex:1">
                         <div style="font-size:0.85rem;">${r.name || '未命名'}</div>
                         <div style="font-size:0.6rem; color:#ccc; margin-top:2px;">
-                            ${r.acc} · ${r.cat} · ${rDate.slice(-2)}日
+                            ${r.acc} · ${r.cat} · ${rDate.split('-')[2]}日
                         </div>
                     </div>
                     <div class="price">-${amt.toLocaleString()}</div>
@@ -201,7 +217,7 @@
             }
         });
 
-        // 更新 UI
+        // 更新 UI 數據
         document.getElementById('month-total').innerText = `$ ${mTotal.toLocaleString()}`;
         document.getElementById('acc-fubon').innerText = `$${Math.round(bals['富邦銀行']).toLocaleString()}`;
         document.getElementById('acc-next').innerText = `$${Math.round(bals['將來銀行']).toLocaleString()}`;
@@ -221,29 +237,29 @@
             amt: amt
         };
 
-        // 先存本地
+        // 1. 先存入本地讓畫面立刻有反應
         records.push(r);
-        localStorage.setItem('linshop_v6', JSON.stringify(records));
+        localStorage.setItem('linshop_v7', JSON.stringify(records));
         render();
 
-        // 傳送雲端
+        // 2. 傳送到雲端
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify(r)
         }).then(() => {
-            showToast("已同步至雲端");
-            clearForm();
+            showToast("已成功同步至雲端 ☁️");
+            document.getElementById('amount').value = '';
+            document.getElementById('name').value = '';
+        }).catch(err => {
+            showToast("本地已儲存，但上傳失敗");
         });
     }
 
-    function clearForm() {
-        document.getElementById('amount').value = '';
-        document.getElementById('name').value = '';
-    }
-
-    // 自動執行一次同步
-    fetchFromCloud();
+    // 進入網頁自動執行同步
+    window.onload = () => {
+        fetchFromCloud();
+    };
 </script>
 </body>
 </html>
