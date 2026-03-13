@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>財務管理總覽 | LinShop 𖤣𖥧</title>
+    <title>財務管理系統 | LinShop 𖤣𖥧</title>
     <style>
         :root {
             --bg-color: #f4f1ea;
@@ -35,7 +35,6 @@
 
         h2 { text-align: center; font-weight: 300; letter-spacing: 2px; margin-bottom: 20px; }
 
-        /* 總計加總區塊 */
         .total-summary {
             display: flex;
             justify-content: space-around;
@@ -48,9 +47,8 @@
         }
 
         .summary-item span { font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 5px; }
-        .summary-item b { font-size: 1.2rem; letter-spacing: 1px; }
+        .summary-item b { font-size: 1.1rem; letter-spacing: 1px; }
 
-        /* 各銀行帳戶看板 */
         .account-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -67,9 +65,8 @@
         }
 
         .acc-name { font-size: 0.65rem; color: #aaa; display: block; }
-        .acc-val { font-size: 0.85rem; font-weight: bold; margin-top: 3px; display: block; }
+        .acc-val { font-size: 0.85rem; font-weight: bold; margin-top: 3px; }
 
-        /* 輸入區域 */
         .input-card {
             background: #fafafa;
             padding: 20px;
@@ -77,32 +74,33 @@
             margin-bottom: 20px;
         }
 
-        .form-row { margin-bottom: 15px; }
-        label { font-size: 0.85rem; color: #888; margin-bottom: 5px; display: block; }
+        .form-row { margin-bottom: 12px; }
+        label { font-size: 0.8rem; color: #888; margin-bottom: 4px; display: block; }
 
         select, input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             box-sizing: border-box;
+            outline: none;
         }
 
-        /* 類別快速按鈕區 */
-        .category-group { margin-bottom: 15px; }
-        .group-title { font-size: 0.75rem; color: #999; margin-bottom: 8px; border-left: 3px solid var(--accent-blue); padding-left: 8px; }
-        .btn-list { display: flex; flex-wrap: wrap; gap: 6px; }
-        .cat-btn { padding: 6px 12px; background: white; border: 1px solid #eee; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .btn-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .cat-btn { padding: 5px 10px; background: white; border: 1px solid #eee; border-radius: 15px; font-size: 0.75rem; cursor: pointer; }
         .cat-btn:hover { background: var(--accent-blue); color: white; }
 
         .btn-submit { width: 100%; padding: 15px; background: var(--accent-green); color: white; border: none; border-radius: 12px; font-size: 1rem; cursor: pointer; margin-top: 10px; }
 
-        /* 紀錄明細 */
-        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-bottom: 1px solid #f8f8f8; }
+        .list-header { font-size: 0.9rem; color: #999; margin: 20px 0 10px; padding-left: 5px; border-left: 3px solid var(--accent-blue); }
+
+        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f8f8f8; }
         .item-main { flex: 1; }
-        .item-tag { font-size: 0.7rem; color: #bbb; display: block; }
-        .item-price { font-weight: bold; margin-right: 15px; }
+        .item-date { font-size: 0.7rem; color: #bbb; display: block; }
+        .item-tag { font-size: 0.75rem; color: var(--accent-blue); font-weight: bold; }
+        .item-name { font-size: 0.95rem; margin-left: 5px; }
+        .item-price { font-weight: bold; margin-right: 12px; }
         .income { color: var(--accent-green); }
         .expense { color: var(--accent-orange); }
 
@@ -117,18 +115,9 @@
     <h2>Financial Ledger ⟡</h2>
 
     <div class="total-summary">
-        <div class="summary-item">
-            <span>總收入合計</span>
-            <b id="grand-income">$ 0</b>
-        </div>
-        <div class="summary-item">
-            <span>總支出合計</span>
-            <b id="grand-expense">$ 0</b>
-        </div>
-        <div class="summary-item">
-            <span>總結餘</span>
-            <b id="grand-balance">$ 0</b>
-        </div>
+        <div class="summary-item"><span>總收入</span><b id="grand-income">$ 0</b></div>
+        <div class="summary-item"><span>總支出</span><b id="grand-expense">$ 0</b></div>
+        <div class="summary-item"><span>結餘</span><b id="grand-balance">$ 0</b></div>
     </div>
 
     <div class="account-grid">
@@ -139,6 +128,10 @@
     </div>
 
     <div class="input-card">
+        <div class="form-row">
+            <label>日期</label>
+            <input type="date" id="date">
+        </div>
         <div class="form-row">
             <div style="display: flex; gap: 8px;">
                 <select id="account" style="flex: 2;">
@@ -155,25 +148,14 @@
         </div>
 
         <div class="form-row">
-            <input type="text" id="name" placeholder="項目名稱 (或從下方選取)">
-            <div style="margin-top: 10px;">
-                <div class="category-group">
-                    <div class="group-title">🏢 商業與收入</div>
-                    <div class="btn-list">
-                        <button class="cat-btn" onclick="quickSet('📦 代購採購', 'expense')">代購採購</button>
-                        <button class="cat-btn" onclick="quickSet('💰 薪資收入', 'income')">薪資收入</button>
-                    </div>
-                </div>
-                <div class="category-group">
-                    <div class="group-title">🛍️ 購物與生活</div>
-                    <div class="btn-list">
-                        <button class="cat-btn" onclick="quickSet('✨ 微風南山', 'expense')">微風南山</button>
-                        <button class="cat-btn" onclick="quickSet('🛋️ IKEA', 'expense')">IKEA</button>
-                        <button class="cat-btn" onclick="quickSet('🍱 午餐/晚餐', 'expense')">午/晚餐</button>
-                        <button class="cat-btn" onclick="quickSet('☕ 咖啡飲品', 'expense')">咖啡飲品</button>
-                        <button class="cat-btn" onclick="quickSet('🏧 ATM 提款', 'expense')">ATM 提款</button>
-                    </div>
-                </div>
+            <input type="text" id="name" placeholder="項目名稱">
+            <div class="btn-list">
+                <button class="cat-btn" onclick="quickSet('📦 代購採購', 'expense')">代購採購</button>
+                <button class="cat-btn" onclick="quickSet('💰 薪資收入', 'income')">薪資收入</button>
+                <button class="cat-btn" onclick="quickSet('✨ 微風南山', 'expense')">微風南山</button>
+                <button class="cat-btn" onclick="quickSet('🛋️ IKEA', 'expense')">IKEA</button>
+                <button class="cat-btn" onclick="quickSet('🍱 午餐/晚餐', 'expense')">午/晚餐</button>
+                <button class="cat-btn" onclick="quickSet('🏧 ATM 提款', 'expense')">ATM 提款</button>
             </div>
         </div>
 
@@ -184,12 +166,17 @@
         <button id="main-btn" class="btn-submit" onclick="processRecord()">確認新增紀錄</button>
     </div>
 
+    <div class="list-header">收支明細 (按日期自動排序)</div>
     <div id="record-list"></div>
 </div>
 
 <script>
-    let records = [];
+    // 從 LocalStorage 讀取資料
+    let records = JSON.parse(localStorage.getItem('linshop_ledger')) || [];
     let editingId = null;
+
+    // 預設日期為今天
+    document.getElementById('date').valueAsDate = new Date();
 
     function quickSet(name, type) {
         document.getElementById('name').value = name;
@@ -197,31 +184,33 @@
     }
 
     function processRecord() {
+        const date = document.getElementById('date').value;
         const acc = document.getElementById('account').value;
         const type = document.getElementById('type').value;
         const name = document.getElementById('name').value;
         const amt = parseFloat(document.getElementById('amount').value);
 
-        if (!name || isNaN(amt)) return alert('請完整填寫項目與金額 ‧ᴗ‧');
+        if (!date || !name || isNaN(amt)) return alert('請完整填寫日期、項目與金額 ‧ᴗ •');
 
         if (editingId) {
             const idx = records.findIndex(r => r.id === editingId);
-            records[idx] = { ...records[idx], acc, type, name, amount: amt };
+            records[idx] = { ...records[idx], date, acc, type, name, amount: amt };
             editingId = null;
             document.getElementById('main-btn').innerText = '確認新增紀錄';
             document.getElementById('main-btn').style.background = 'var(--accent-green)';
         } else {
-            records.push({ id: Date.now(), acc, type, name, amount: amt, date: new Date().toLocaleDateString() });
+            records.push({ id: Date.now(), date, acc, type, name, amount: amt });
         }
 
+        saveAndRender();
         document.getElementById('name').value = '';
         document.getElementById('amount').value = '';
-        render();
     }
 
     function editRecord(id) {
         const r = records.find(item => item.id === id);
         editingId = id;
+        document.getElementById('date').value = r.date;
         document.getElementById('account').value = r.acc;
         document.getElementById('type').value = r.type;
         document.getElementById('name').value = r.name;
@@ -234,8 +223,21 @@
     function deleteRecord(id) {
         if (confirm('確定要刪除這筆紀錄嗎？')) {
             records = records.filter(r => r.id !== id);
-            render();
+            saveAndRender();
         }
+    }
+
+    function saveAndRender() {
+        // 排序：先比日期 (晚到早)，日期相同比 ID (晚到早)
+        records.sort((a, b) => {
+            if (a.date !== b.date) {
+                return b.date.localeCompare(a.date);
+            }
+            return b.id - a.id;
+        });
+
+        localStorage.setItem('linshop_ledger', JSON.stringify(records));
+        render();
     }
 
     function render() {
@@ -246,26 +248,21 @@
         let totalInc = 0;
         let totalExp = 0;
 
-        records.sort((a,b) => b.id - a.id).forEach(r => {
+        records.forEach(r => {
             const isInc = r.type === 'income';
-            const val = r.amount;
-
-            // 銀行個別計算
-            bals[r.acc] += isInc ? val : -val;
-            
-            // 全域總計計算
-            if(isInc) totalInc += val;
-            else totalExp += val;
+            bals[r.acc] += isInc ? r.amount : -r.amount;
+            if(isInc) totalInc += r.amount; else totalExp += r.amount;
 
             const div = document.createElement('div');
             div.className = 'record-item';
             div.innerHTML = `
                 <div class="item-main">
-                    <span class="item-tag">${getAcc(r.acc)} | ${r.date}</span>
+                    <span class="item-date">${r.date}</span>
+                    <span class="item-tag">[${getAcc(r.acc)}]</span>
                     <span class="item-name">${r.name}</span>
                 </div>
                 <div class="item-price ${isInc ? 'income' : 'expense'}">
-                    ${isInc ? '+' : '-'}${val.toLocaleString()}
+                    ${isInc ? '+' : '-'}${r.amount.toLocaleString()}
                 </div>
                 <div class="action-btns">
                     <button class="edit" onclick="editRecord(${r.id})">✎</button>
@@ -275,12 +272,9 @@
             list.appendChild(div);
         });
 
-        // 更新銀行個別顯示
         for (let key in bals) {
             document.getElementById(`bal-${key}`).innerText = `$${bals[key].toLocaleString()}`;
         }
-
-        // 更新全域加總顯示
         document.getElementById('grand-income').innerText = `$ ${totalInc.toLocaleString()}`;
         document.getElementById('grand-expense').innerText = `$ ${totalExp.toLocaleString()}`;
         document.getElementById('grand-balance').innerText = `$ ${(totalInc - totalExp).toLocaleString()}`;
@@ -290,6 +284,9 @@
         const m = { fubon: '富邦', next: '將來', feib: '遠東', cash: '現金' };
         return m[key];
     }
+
+    // 初始渲染
+    render();
 </script>
 
 </body>
