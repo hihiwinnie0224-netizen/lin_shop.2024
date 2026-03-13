@@ -7,68 +7,73 @@
     <style>
         :root { 
             --bg: #f8f9fb; 
-            --main: #9cb1cc; /* 莫蘭迪藍 */
-            --sub: #b7a9c4;  /* 莫蘭迪紫 */
+            --main: #9cb1cc; 
+            --sub: #b7a9c4;  
             --text: #6b7280; 
             --accent: #d4a5a5; 
             --income: #9bbca9; 
         }
 
-        body { font-family: -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        body { font-family: -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
         
+        /* 稍微調寬容器，讓排版更有呼吸感 */
         .container { 
-            width: 100%; max-width: 400px; background: white; border-radius: 35px; padding: 25px; 
-            box-shadow: 0 20px 50px rgba(156, 177, 204, 0.12); 
+            width: 100%; max-width: 480px; background: white; border-radius: 40px; padding: 35px; 
+            box-shadow: 0 25px 60px rgba(156, 177, 204, 0.15); 
             position: relative; overflow: hidden;
         }
 
-        /* 右上角用純文字符號裝飾 */
         .deco-top {
-            position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--main);
-            opacity: 0.5; pointer-events: none; letter-spacing: -5px;
+            position: absolute; top: 20px; right: 25px; font-size: 1.5rem; color: var(--main);
+            opacity: 0.4; pointer-events: none; letter-spacing: -3px;
         }
 
-        h2 { text-align: center; font-weight: 300; color: var(--main); letter-spacing: 6px; font-size: 1.1rem; margin: 10px 0 25px; }
+        h2 { text-align: center; font-weight: 300; color: var(--main); letter-spacing: 8px; font-size: 1.2rem; margin: 15px 0 30px; }
 
         .dashboard { 
             background: linear-gradient(135deg, var(--main), var(--sub)); 
-            color: white; padding: 30px 20px; border-radius: 28px; text-align: center; margin-bottom: 25px; 
-            box-shadow: 0 10px 25px rgba(156, 177, 204, 0.2);
+            color: white; padding: 35px 25px; border-radius: 30px; text-align: center; margin-bottom: 30px; 
+            box-shadow: 0 12px 30px rgba(156, 177, 204, 0.25);
         }
-        .dash-label { font-size: 0.7rem; opacity: 0.9; letter-spacing: 2.5px; margin-bottom: 10px; }
-        .dash-val { font-size: 2.2rem; font-weight: 200; }
+        .dash-label { font-size: 0.75rem; opacity: 0.9; letter-spacing: 3px; margin-bottom: 12px; font-weight: bold; }
+        .dash-val { font-size: 2.5rem; font-weight: 200; }
 
-        .acc-row { display: flex; gap: 12px; overflow-x: auto; margin-bottom: 25px; scrollbar-width: none; padding: 5px 2px; }
-        .acc-card { min-width: 88px; background: #ffffff; padding: 15px 5px; border-radius: 20px; border: 1.5px solid #f1f3f6; text-align: center; flex-shrink: 0; transition: 0.3s; }
-        .acc-name { font-size: 0.65rem; color: #b2b9c4; display: block; margin-bottom: 6px; font-weight: bold; }
-        .acc-bal { font-size: 0.75rem; color: var(--sub); font-weight: 800; }
+        /* 帳戶資訊卡片調整 */
+        .acc-row { display: flex; gap: 15px; overflow-x: auto; margin-bottom: 30px; scrollbar-width: none; padding: 5px; }
+        .acc-card { flex: 1; min-width: 100px; background: #ffffff; padding: 18px 10px; border-radius: 22px; border: 1.8px solid #f1f4f8; text-align: center; transition: 0.3s; }
+        .acc-name { font-size: 0.7rem; color: #b2b9c4; display: block; margin-bottom: 8px; font-weight: bold; }
+        .acc-bal { font-size: 0.85rem; color: var(--sub); font-weight: 800; }
 
-        .input-box { background: #fcfdfe; padding: 22px; border-radius: 30px; border: 1.5px solid #f1f3f6; margin-bottom: 25px; }
+        /* 輸入區域寬度與對齊優化 */
+        .input-box { background: #fcfdfe; padding: 25px; border-radius: 32px; border: 1.8px solid #f1f4f8; margin-bottom: 30px; }
         
-        .type-toggle { display: flex; background: #ecedf2; border-radius: 16px; margin-bottom: 20px; padding: 4px; }
-        .type-toggle label { flex: 1; text-align: center; padding: 11px 0; font-size: 0.8rem; cursor: pointer; border-radius: 13px; transition: 0.3s; color: #a1a8b5; }
-        .type-toggle input:checked + label { background: white; color: var(--main); font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .type-toggle { display: flex; background: #ecedf2; border-radius: 18px; margin-bottom: 22px; padding: 5px; }
+        .type-toggle label { flex: 1; text-align: center; padding: 12px 0; font-size: 0.85rem; cursor: pointer; border-radius: 14px; transition: 0.3s; color: #a1a8b5; }
+        .type-toggle input:checked + label { background: white; color: var(--main); font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .type-toggle input { display: none; }
 
-        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        label { font-size: 0.6rem; color: #c0c5d0; margin-bottom: 6px; padding-left: 10px; font-weight: bold; letter-spacing: 1px; }
-        input, select { height: 46px; border: 1.8px solid #eff1f5; border-radius: 15px; padding: 0 15px; font-size: 0.85rem; outline: none; background: white; color: var(--text); }
-        input:focus { border-color: var(--main); }
+        /* 讓欄位看起來更整齊的 Grid 排版 */
+        .field-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 15px; margin-bottom: 18px; }
+        .field { display: flex; flex-direction: column; }
+        label { font-size: 0.65rem; color: #c0c5d0; margin-bottom: 8px; padding-left: 12px; font-weight: bold; letter-spacing: 1.5px; }
+        input, select { height: 48px; border: 2px solid #eff2f6; border-radius: 16px; padding: 0 18px; font-size: 0.9rem; outline: none; background: white; color: var(--text); transition: 0.2s; }
+        input:focus { border-color: var(--main); box-shadow: 0 0 0 4px rgba(156, 177, 204, 0.1); }
         
-        .btn { width: 100%; height: 52px; background: var(--main); color: white; border: none; border-radius: 18px; cursor: pointer; font-size: 0.95rem; margin-top: 10px; font-weight: bold; letter-spacing: 3px; box-shadow: 0 6px 20px rgba(156, 177, 204, 0.25); }
-        .btn:active { transform: scale(0.97); }
+        .btn { width: 100%; height: 56px; background: var(--main); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 1rem; margin-top: 12px; font-weight: bold; letter-spacing: 4px; box-shadow: 0 8px 25px rgba(156, 177, 204, 0.3); transition: 0.3s; }
+        .btn:active { transform: scale(0.98); background: var(--sub); }
         
-        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
-        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 10px; border-bottom: 1.5px solid #f9fafb; }
-        .price { font-weight: 600; font-size: 1.05rem; letter-spacing: 0.5px; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 0 12px; }
+        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 12px; border-bottom: 1.5px solid #f9fafb; transition: 0.2s; }
+        .record-item:hover { background-color: #fcfdfe; border-radius: 15px; }
+        .price { font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; }
         .p-red { color: var(--accent); }
         .p-green { color: var(--income); }
         
-        .toast { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background: var(--sub); color: white; padding: 12px 30px; border-radius: 50px; font-size: 0.85rem; opacity: 0; transition: 0.5s; z-index: 100; box-shadow: 0 10px 30px rgba(183, 169, 196, 0.3); }
-        .toast.show { opacity: 1; top: 45px; }
+        .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--sub); color: white; padding: 14px 35px; border-radius: 50px; font-size: 0.9rem; opacity: 0; transition: 0.5s; z-index: 100; box-shadow: 0 15px 35px rgba(183, 169, 196, 0.3); }
+        .toast.show { opacity: 1; top: 50px; }
 
-        .sync-btn { font-size: 0.75rem; color: var(--main); cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: bold; background: #f0f3f7; padding: 8px 15px; border-radius: 20px; transition: 0.2s; }
-        .sync-btn:active { background: #e2e8f0; }
+        .sync-btn { font-size: 0.8rem; color: var(--main); cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; background: #f0f4f8; padding: 10px 18px; border-radius: 22px; transition: 0.3s; }
+        .sync-btn:hover { background: #e6ecf3; }
     </style>
 </head>
 <body>
@@ -121,7 +126,7 @@
     </div>
 
     <div class="list-header">
-        <input type="month" id="view-m" onchange="render()" style="border:none; background:transparent; color:#b0b5c0; font-size: 0.9rem; outline: none; cursor: pointer; font-weight: bold;">
+        <input type="month" id="view-m" onchange="render()" style="border:none; background:transparent; color:#b0b5c0; font-size: 0.95rem; outline: none; cursor: pointer; font-weight: bold;">
         <div class="sync-btn" onclick="sync()">
             <span>🥣</span> 同步雲端
         </div>
@@ -183,8 +188,8 @@
                 list.innerHTML += `
                     <div class="record-item">
                         <div style="flex:1">
-                            <div style="font-size:0.92rem; margin-bottom:5px; color:#555; font-weight:500;">${r.name}</div>
-                            <div style="font-size:0.68rem; color:#b0b5c0; letter-spacing:0.5px;">${r.acc} · ${String(r.date).slice(5)}</div>
+                            <div style="font-size:0.95rem; margin-bottom:6px; color:#4a4a4a; font-weight:500;">${r.name}</div>
+                            <div style="font-size:0.7rem; color:#b0b5c0; letter-spacing:0.5px;">${r.acc} · ${String(r.date).slice(5)}</div>
                         </div>
                         <div class="price ${isInc ? 'p-green' : 'p-red'}">
                             ${isInc ? '+' : ''}${val.toLocaleString()}
