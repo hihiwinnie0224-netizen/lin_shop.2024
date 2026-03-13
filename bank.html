@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinShop | 雲端同步版 ⟡</title>
+    <title>LinShop | 雲端同步旗艦版 ⟡</title>
     <style>
         :root {
             --bg-color: #f7f7f5;
@@ -35,10 +35,7 @@
             position: relative;
         }
 
-        h2 { 
-            text-align: center; font-weight: 300; letter-spacing: 3px; 
-            margin: 10px 0 20px; color: #a5a5a5; font-size: 1rem;
-        }
+        h2 { text-align: center; font-weight: 300; letter-spacing: 3px; margin: 10px 0 20px; color: #a5a5a5; font-size: 1rem; }
 
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -52,78 +49,31 @@
         .toast.loading { background: var(--main-accent); }
 
         .dashboard {
-            background: #9fa9a3;
-            color: white; padding: 18px; border-radius: 18px;
+            background: #9fa9a3; color: white; padding: 18px; border-radius: 18px;
             margin-bottom: 20px; position: relative;
         }
-        .dashboard.budget-warning { background: #c2948a; }
-
-        .dash-label { font-size: 0.65rem; opacity: 0.8; letter-spacing: 0.5px; }
+        .dash-label { font-size: 0.65rem; opacity: 0.8; }
         .dash-main-val { font-size: 1.8rem; font-weight: 200; margin: 4px 0; }
-        
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; }
-        .stat-item b { font-size: 0.85rem; font-weight: 400; }
 
-        .account-scroll {
-            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px;
-            scrollbar-width: none;
-        }
-        .acc-card {
-            min-width: 82px; padding: 10px 6px; background: #fbfbfb; border-radius: 12px;
-            border: 1px solid #f0f0f0; text-align: center; flex-shrink: 0;
-        }
-        .acc-card i { font-size: 0.6rem; color: var(--text-light); font-style: normal; display: block; margin-bottom: 2px; }
+        .account-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px; scrollbar-width: none; }
+        .acc-card { min-width: 82px; padding: 10px 6px; background: #fbfbfb; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; flex-shrink: 0; }
         .acc-card b { font-size: 0.75rem; color: #777; }
 
         .input-group { background: #fcfcfc; padding: 15px; border-radius: 18px; border: 1px solid #f0f0f0; position: relative; }
-        .editing-mark { 
-            display: none; position: absolute; top: -10px; right: 15px; 
-            background: var(--edit-accent); color: white; font-size: 0.6rem; 
-            padding: 2px 10px; border-radius: 10px; 
-        }
         .field-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .field { display: flex; flex-direction: column; }
-        
+        .field { display: flex; flex-direction: column; flex: 1; }
         label { font-size: 0.6rem; color: var(--text-light); margin: 0 0 4px 4px; }
-        input, select {
-            height: 36px; padding: 0 10px; border: 1px solid #e8e8e8; border-radius: 8px;
-            background: white; font-size: 0.8rem; color: var(--text-dark); outline: none;
-        }
+        input, select { height: 36px; padding: 0 10px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 0.8rem; outline: none; }
 
-        .btn-submit {
-            width: 100%; height: 42px; background: var(--main-accent); color: white;
-            border: none; border-radius: 10px; font-size: 0.9rem; cursor: pointer;
-            margin-top: 5px; font-weight: 300; transition: 0.3s;
-        }
-        .btn-group { display: none; gap: 8px; margin-top: 5px; }
-        .btn-update { flex: 2; background: #9db2a2; border: none; border-radius: 10px; color: white; cursor: pointer; }
-        .btn-cancel { flex: 1; background: #eee; border: none; border-radius: 10px; color: #999; cursor: pointer; }
-
-        .record-item {
-            display: flex; align-items: center; padding: 12px 10px;
-            background: white; border-bottom: 1px solid #f9f9f9;
-            cursor: pointer; transition: 0.2s;
-        }
-        .record-item:hover { background: #fcfcfc; }
-        .icon-box {
-            width: 32px; height: 32px; border-radius: 8px; background: #f5f6f7;
-            display: flex; align-items: center; justify-content: center; margin-right: 10px;
-            font-size: 1rem;
-        }
-        .content h4 { margin: 0; font-size: 0.8rem; font-weight: 400; }
-        .content p { margin: 2px 0 0; font-size: 0.6rem; color: #ccc; }
+        .btn-submit { width: 100%; height: 42px; background: var(--main-accent); color: white; border: none; border-radius: 10px; cursor: pointer; }
+        .btn-group { display: none; gap: 8px; }
         
-        .price { font-size: 0.85rem; font-weight: 400; font-family: 'Helvetica', sans-serif; }
+        .record-item { display: flex; align-items: center; padding: 12px 10px; border-bottom: 1px solid #f9f9f9; cursor: pointer; }
         .price.income { color: var(--income-color); }
         .price.expense { color: var(--expense-color); }
 
-        #config-trigger { text-align: center; font-size: 0.6rem; color: #ddd; margin-top: 12px; cursor: pointer; }
-        
-        .sync-btn {
-            background: #f0f2f5; color: #888; padding: 4px 10px; 
-            border-radius: 20px; font-size: 0.6rem; cursor: pointer;
-            transition: 0.3s;
-        }
+        .sync-btn { background: #f0f2f5; color: #888; padding: 4px 12px; border-radius: 20px; font-size: 0.65rem; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -134,36 +84,27 @@
     <h2>LINSHOP LEDGER ⟡</h2>
 
     <div id="dash-box" class="dashboard">
-        <div style="position: absolute; right: 15px; top: 15px;">
-            <canvas id="miniChart" width="50" height="50"></canvas>
-        </div>
+        <div style="position: absolute; right: 15px; top: 15px;"><canvas id="miniChart" width="50" height="50"></canvas></div>
         <div class="dash-label">TOTAL BALANCE</div>
         <div class="dash-main-val" id="total-balance">$ 0</div>
-        
         <div class="dash-grid">
-            <div class="stat-item">
-                <div class="dash-label">INCOME</div>
-                <b id="total-income">$ 0</b>
-            </div>
-            <div class="stat-item">
-                <div class="dash-label">EXPENSE</div>
-                <b id="total-expense">$ 0</b>
-            </div>
+            <div class="stat-item"><div class="dash-label">INCOME</div><b id="total-income">$ 0</b></div>
+            <div class="stat-item"><div class="dash-label">EXPENSE</div><b id="total-expense">$ 0</b></div>
         </div>
     </div>
 
     <div class="account-scroll">
-        <div class="acc-card"><i>Fubon</i><b id="acc-fubon">$0</b></div>
-        <div class="acc-card"><i>Next</i><b id="acc-next">$0</b></div>
-        <div class="acc-card"><i>Feib</i><b id="acc-feib">$0</b></div>
-        <div class="acc-card"><i>Cash</i><b id="acc-cash">$0</b></div>
+        <div class="acc-card"><i>Fubon</i><br><b id="acc-fubon">$0</b></div>
+        <div class="acc-card"><i>Next</i><br><b id="acc-next">$0</b></div>
+        <div class="acc-card"><i>Feib</i><br><b id="acc-feib">$0</b></div>
+        <div class="acc-card"><i>Cash</i><br><b id="acc-cash">$0</b></div>
     </div>
 
     <div class="input-group">
-        <div id="editing-tag" class="editing-mark">EDITING MODE</div>
+        <div id="editing-tag" style="display:none; color:var(--edit-accent); font-size:0.6rem; text-align:right;">EDITING MODE</div>
         <div class="field-row">
-            <div class="field" style="flex:1.2"><label>DATE</label><input type="date" id="date"></div>
-            <div class="field" style="flex:1"><label>TYPE</label>
+            <div class="field"><label>DATE</label><input type="date" id="date"></div>
+            <div class="field"><label>TYPE</label>
                 <select id="type" onchange="uiSwitch()">
                     <option value="expense">支出 (-)</option>
                     <option value="income">收入 (+)</option>
@@ -171,10 +112,8 @@
                 </select>
             </div>
         </div>
-
         <div class="field-row">
-            <div class="field" style="flex:1">
-                <label id="acc-label">ACCOUNT</label>
+            <div class="field"><label id="acc-label">ACCOUNT</label>
                 <select id="account">
                     <option value="fubon">富邦銀行</option>
                     <option value="next">將來銀行</option>
@@ -182,8 +121,7 @@
                     <option value="cash">手邊現金</option>
                 </select>
             </div>
-            <div class="field" id="to-acc-col" style="display:none; flex:1">
-                <label>TO</label>
+            <div class="field" id="to-acc-col" style="display:none;"><label>TO</label>
                 <select id="to-account">
                     <option value="fubon">富邦銀行</option>
                     <option value="next">將來銀行</option>
@@ -192,9 +130,8 @@
                 </select>
             </div>
         </div>
-
         <div class="field-row">
-            <div class="field" style="flex:1"><label>CATEGORY</label>
+            <div class="field"><label>CATEGORY</label>
                 <select id="category">
                     <option value="🍱 餐飲">🍱 餐飲</option>
                     <option value="📦 代購">📦 代購</option>
@@ -205,89 +142,137 @@
                     <option value="🛒 雜項">🛒 雜項</option>
                 </select>
             </div>
-            <div class="field" style="flex:0.8"><label>AMOUNT</label><input type="number" id="amount" placeholder="$"></div>
+            <div class="field"><label>AMOUNT</label><input type="number" id="amount" placeholder="$"></div>
         </div>
-
-        <div class="field-row">
-            <div class="field" style="flex:1"><label>MEMO</label><input type="text" id="name" placeholder="Note something..."></div>
-        </div>
+        <div class="field-row"><div class="field"><label>MEMO</label><input type="text" id="name" placeholder="Note..."></div></div>
 
         <button id="btn-add" class="btn-submit" onclick="addRecord()">Add Record</button>
         <div id="btn-edit-group" class="btn-group">
-            <button class="btn-update" onclick="updateRecord()">Update Record</button>
-            <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
-        </div>
-
-        <div id="config-trigger" onclick="setBudget()">Budget Setting ⚙️</div>
-    </div>
-
-    <div class="list-header" style="display:flex; justify-content: space-between; margin: 20px 5px 5px; align-items:center;">
-        <input type="month" id="month-view" style="border:none; font-size:0.75rem; color:#999; background:transparent;" onchange="render()">
-        <div style="display:flex; gap:8px;">
-            <span class="sync-btn" onclick="fetchFromCloud()">☁️ 同步雲端</span>
-            <span style="font-size:0.6rem; color:#eee; cursor:pointer;" onclick="exportData()">EXPORT CSV</span>
+            <button style="flex:2; background:#9db2a2; color:white; border:none; border-radius:10px;" onclick="updateRecord()">Update</button>
+            <button style="flex:1; background:#eee; border:none; border-radius:10px;" onclick="cancelEdit()">Cancel</button>
         </div>
     </div>
 
-    <div id="list-container"></div>
+    <div style="display:flex; justify-content: space-between; margin-top:20px; align-items:center;">
+        <input type="month" id="month-view" onchange="render()" style="border:none; background:transparent; color:#999;">
+        <span class="sync-btn" onclick="fetchFromCloud()">☁️ 同步雲端</span>
+    </div>
+
+    <div id="list-container" style="margin-top:10px;"></div>
 </div>
 
 <script>
-    // --- 已更新為妳提供的最新網址 (第 3 版) ---
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqE8hbMytIcJr0AdqnQR-lATnd6DZQlqgHHQ3OoWt7-T8rzQW_EKa6ZO9W2cxCvtE8/exec';
+    // --- 已更新為妳的第 5 版 GAS 網址 ---
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbr-dWf052tUtrG1azGo9Spb96izrfkT0pIhKayWgJKjxF8dhihFGyxkIzJHnhCm8/exec';
     
     let records = JSON.parse(localStorage.getItem('linshop_v2')) || [];
-    let myBudget = localStorage.getItem('linshop_budget') || 20000;
-    let editId = null; 
-    
+
+    // 設定初始月份
     const now = new Date();
     document.getElementById('date').valueAsDate = now;
     document.getElementById('month-view').value = now.toISOString().slice(0, 7);
 
     function showToast(msg, type = 'success') {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.className = `toast show ${type}`;
-        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.className = `toast show ${type}`;
+        setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    async function fetchFromCloud() {
-        showToast("同步中...", "loading");
-        try {
-            // 使用 GET 請求抓取
-            const response = await fetch(GOOGLE_SCRIPT_URL);
-            const data = await response.json();
-            if (data && Array.isArray(data)) {
-                records = data;
-                saveLocally();
-                showToast("同步成功 ⟡");
-            } else {
-                showToast("雲端尚無資料", "error");
-            }
-        } catch (err) {
-            console.error("Fetch error:", err);
-            showToast("網路異常，請稍後再試", "error");
+    // --- JSONP 強制讀取邏輯 ---
+    function fetchFromCloud() {
+        showToast("雲端同步中...", "loading");
+        
+        // 移除舊的 script 標籤
+        const oldScript = document.getElementById('jsonp-sync');
+        if (oldScript) oldScript.remove();
+
+        // 建立新的 script 標籤 (JSONP)
+        const script = document.createElement('script');
+        script.id = 'jsonp-sync';
+        // 加上 callback 參數告訴 GAS 要呼叫哪個 function
+        script.src = `${GOOGLE_SCRIPT_URL}?callback=handleSyncResponse&t=${Date.now()}`;
+        
+        // 如果載入失敗的處理
+        script.onerror = () => {
+            showToast("同步失敗，請檢查網路", "error");
+        };
+
+        document.body.appendChild(script);
+    }
+
+    // JSONP 回傳後的處理對口
+    function handleSyncResponse(data) {
+        if (Array.isArray(data)) {
+            records = data;
+            localStorage.setItem('linshop_v2', JSON.stringify(records));
+            render();
+            showToast("同步成功 ⟡");
+        } else {
+            showToast("雲端資料異常", "error");
         }
     }
 
-    function uiSwitch() {
-        const type = document.getElementById('type').value;
-        const isTr = type === 'transfer';
-        document.getElementById('to-acc-col').style.display = isTr ? 'block' : 'none';
-        document.getElementById('category').disabled = isTr;
-        document.getElementById('acc-label').innerText = isTr ? 'FROM' : 'ACCOUNT';
-    }
+    function render() {
+        const container = document.getElementById('list-container');
+        const viewMonth = document.getElementById('month-view').value;
+        container.innerHTML = '';
+        
+        let bals = { fubon:0, next:0, feib:0, cash:0 }, mInc = 0, mExp = 0, catStats = {};
 
-    function setBudget() {
-        const b = prompt("Monthly Budget:", myBudget);
-        if (b) { myBudget = b; localStorage.setItem('linshop_budget', b); render(); }
+        // 日期由新到舊排序
+        records.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        records.forEach(r => {
+            const amt = parseFloat(r.amt) || 0;
+            const rDate = String(r.date);
+
+            if (r.type === 'income') bals[r.acc] += amt;
+            else if (r.type === 'expense') bals[r.acc] -= amt;
+            else if (r.type === 'transfer') { bals[r.acc] -= amt; if(r.toAcc) bals[r.toAcc] += amt; }
+
+            if (rDate.startsWith(viewMonth)) {
+                if (r.type === 'income') mInc += amt;
+                else if (r.type === 'expense') { 
+                    mExp += amt; 
+                    const catLabel = r.cat || "🛒 雜項";
+                    catStats[catLabel] = (catStats[catLabel]||0) + amt; 
+                }
+
+                const item = document.createElement('div');
+                item.className = 'record-item';
+                item.onclick = () => startEdit(r.id);
+                const emoji = r.type === 'transfer' ? '⇄' : (r.cat ? r.cat.split(' ')[0] : '❓');
+                
+                item.innerHTML = `
+                    <div style="flex:1">
+                        <div style="font-size:0.85rem; font-weight:400;">${r.name || '無標題'}</div>
+                        <div style="font-size:0.6rem; color:#ccc; margin-top:2px;">
+                            ${getAccName(r.acc)}${r.type === 'transfer' ? '→'+getAccName(r.toAcc) : ''} · ${rDate.slice(-2)}日
+                        </div>
+                    </div>
+                    <div class="price ${r.type}" style="font-size:0.9rem;">
+                        ${r.type==='income'?'+':(r.type==='transfer'?'':'-')}${amt.toLocaleString()}
+                    </div>
+                `;
+                container.appendChild(item);
+            }
+        });
+
+        document.getElementById('total-balance').innerText = `$ ${(mInc - mExp).toLocaleString()}`;
+        document.getElementById('total-income').innerText = `$ ${mInc.toLocaleString()}`;
+        document.getElementById('total-expense').innerText = `$ ${mExp.toLocaleString()}`;
+        ['fubon','next','feib','cash'].forEach(k => {
+            const el = document.getElementById(`acc-${k}`);
+            if(el) el.innerText = `$${Math.round(bals[k]).toLocaleString()}`;
+        });
+        drawChart(catStats);
     }
 
     function addRecord() {
         const amt = parseFloat(document.getElementById('amount').value);
-        if (isNaN(amt)) return alert("請輸入金額");
+        if (!amt) return alert("請輸入金額");
         const r = {
-            id: Date.now(),
+            id: Date.now().toString(),
             date: document.getElementById('date').value,
             type: document.getElementById('type').value,
             acc: document.getElementById('account').value,
@@ -297,21 +282,33 @@
             amt: amt
         };
         records.push(r);
-        saveAndSync(r); 
+        localStorage.setItem('linshop_v2', JSON.stringify(records));
+        render();
+        syncToCloud(r);
         clearForm();
+        showToast("已新增並傳送");
+    }
+
+    function syncToCloud(data) {
+        // 上傳依然使用 POST，因為 no-cors 模式在 POST 下通常沒問題
+        fetch(GOOGLE_SCRIPT_URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: JSON.stringify(data) 
+        });
     }
 
     function startEdit(id) {
-        const r = records.find(item => item.id === id);
+        const r = records.find(i => i.id.toString() === id.toString());
         if (!r) return;
-        editId = id;
+        window.editId = id;
         document.getElementById('date').value = r.date;
         document.getElementById('type').value = r.type;
         document.getElementById('account').value = r.acc;
         document.getElementById('to-account').value = r.toAcc || 'fubon';
         document.getElementById('category').value = r.cat;
-        document.getElementById('name').value = r.name === "無備註" ? "" : r.name;
         document.getElementById('amount').value = r.amt;
+        document.getElementById('name').value = r.name;
         uiSwitch();
         document.getElementById('btn-add').style.display = 'none';
         document.getElementById('btn-edit-group').style.display = 'flex';
@@ -320,10 +317,8 @@
     }
 
     function updateRecord() {
-        const idx = records.findIndex(r => r.id === editId);
-        if (idx === -1) return;
-        const amt = parseFloat(document.getElementById('amount').value);
-        if (isNaN(amt)) return alert("請輸入金額");
+        const idx = records.findIndex(i => i.id.toString() === window.editId.toString());
+        if(idx === -1) return;
         records[idx] = {
             ...records[idx],
             date: document.getElementById('date').value,
@@ -331,118 +326,53 @@
             acc: document.getElementById('account').value,
             toAcc: document.getElementById('to-account').value,
             cat: document.getElementById('category').value,
-            name: document.getElementById('name').value || "無備註",
-            amt: amt
+            amt: parseFloat(document.getElementById('amount').value),
+            name: document.getElementById('name').value
         };
-        saveAndSync(records[idx]);
+        localStorage.setItem('linshop_v2', JSON.stringify(records));
+        render();
+        syncToCloud(records[idx]);
         cancelEdit();
+        showToast("已更新");
     }
 
     function cancelEdit() {
-        editId = null;
+        window.editId = null; 
         clearForm();
         document.getElementById('btn-add').style.display = 'block';
         document.getElementById('btn-edit-group').style.display = 'none';
         document.getElementById('editing-tag').style.display = 'none';
     }
 
-    function clearForm() {
-        document.getElementById('name').value = '';
-        document.getElementById('amount').value = '';
+    function clearForm() { 
+        document.getElementById('amount').value = ''; 
+        document.getElementById('name').value = ''; 
         document.getElementById('date').valueAsDate = new Date();
     }
 
-    function saveLocally() {
-        records.sort((a,b) => b.date.localeCompare(a.date));
-        localStorage.setItem('linshop_v2', JSON.stringify(records));
-        render();
+    function uiSwitch() {
+        const isTr = document.getElementById('type').value === 'transfer';
+        document.getElementById('to-acc-col').style.display = isTr ? 'block' : 'none';
     }
 
-    function saveAndSync(data) {
-        saveLocally();
-        // 傳送 POST 到雲端
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-    }
-
-    function render() {
-        const container = document.getElementById('list-container');
-        const viewMonth = document.getElementById('month-view').value;
-        container.innerHTML = '';
-        let bals = { fubon:0, next:0, feib:0, cash:0 };
-        let mInc = 0, mExp = 0, catStats = {};
-        records.forEach(r => {
-            if (r.type === 'income') bals[r.acc] += r.amt;
-            else if (r.type === 'expense') bals[r.acc] -= r.amt;
-            else { bals[r.acc] -= r.amt; bals[r.toAcc] += r.amt; }
-            if (r.date.startsWith(viewMonth)) {
-                if (r.type === 'income') mInc += r.amt;
-                else if (r.type === 'expense') { 
-                    mExp += r.amt; 
-                    catStats[r.cat] = (catStats[r.cat] || 0) + r.amt; 
-                }
-                const item = document.createElement('div');
-                item.className = 'record-item';
-                item.onclick = () => startEdit(r.id);
-                const emoji = r.type === 'transfer' ? '⇄' : r.cat.split(' ')[0];
-                item.innerHTML = `
-                    <div class="icon-box">${emoji}</div>
-                    <div class="content" style="flex:1">
-                        <h4>${r.name}</h4>
-                        <p>${getAccName(r.acc)}${r.type === 'transfer' ? ' → ' + getAccName(r.toAcc) : ''} · ${r.date.slice(8)}日</p>
-                    </div>
-                    <div class="price ${r.type}">${r.type === 'income' ? '+' : (r.type === 'transfer' ? '' : '-')}${r.amt.toLocaleString()}</div>
-                `;
-                container.appendChild(item);
-            }
-        });
-        document.getElementById('total-balance').innerText = `$ ${(mInc - mExp).toLocaleString()}`;
-        document.getElementById('total-income').innerText = `$ ${mInc.toLocaleString()}`;
-        document.getElementById('total-expense').innerText = `$ ${mExp.toLocaleString()}`;
-        const budgetPercent = (mExp / myBudget) * 100;
-        document.getElementById('dash-box').className = budgetPercent >= 100 ? 'dashboard budget-warning' : 'dashboard';
-        ['fubon', 'next', 'feib', 'cash'].forEach(k => {
-            document.getElementById(`acc-${k}`).innerText = `$${bals[k].toLocaleString()}`;
-        });
-        drawChart(catStats);
-    }
-
-    function getAccName(k) { return { fubon: '富邦', next: '將來', feib: '遠東', cash: '現金' }[k]; }
-
+    function getAccName(k) { return { fubon:'富邦', next:'將來', feib:'遠東', cash:'現金' }[k]; }
+    
     function drawChart(stats) {
         const canvas = document.getElementById('miniChart');
-        if(!canvas) return;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, 50, 50);
-        let total = Object.values(stats).reduce((a,b) => a+b, 0);
-        if (total === 0) return;
-        let start = 0, colors = ['#eee', '#b8c6db', '#dcdcdc', '#e5e5e5', '#d1a7a7'];
-        Object.values(stats).forEach((v, i) => {
-            let slice = (v / total) * 2 * Math.PI;
-            ctx.beginPath(); ctx.fillStyle = colors[i % colors.length];
-            ctx.moveTo(25, 25); ctx.arc(25, 25, 24, start, start + slice); ctx.fill();
-            start += slice;
+        ctx.clearRect(0,0,50,50);
+        let total = Object.values(stats).reduce((a,b)=>a+b,0), start = 0;
+        if(!total) return;
+        Object.values(stats).forEach((v,i)=>{
+            let s = (v/total)*2*Math.PI;
+            ctx.beginPath(); ctx.fillStyle = ['#eee','#b8c6db','#dcdcdc','#e5e5e5','#d1a7a7'][i%5];
+            ctx.moveTo(25,25); ctx.arc(25,25,24,start,start+s); ctx.fill();
+            start+=s;
         });
-        const innerColor = document.getElementById('dash-box').classList.contains('budget-warning') ? "#c2948a" : "#9fa9a3";
-        ctx.beginPath(); ctx.fillStyle = innerColor;
-        ctx.arc(25, 25, 14, 0, 2 * Math.PI); ctx.fill();
+        ctx.beginPath(); ctx.fillStyle = "#9fa9a3"; ctx.arc(25,25,14,0,2*Math.PI); ctx.fill();
     }
 
-    function exportData() {
-        if(records.length === 0) return alert("尚無紀錄");
-        let csv = "\ufeffDATE,ITEM,CAT,AMT,ACC\n";
-        records.forEach(r => csv += `${r.date},${r.name},${r.cat},${r.amt},${getAccName(r.acc)}\n`);
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
-        a.download = `LinShop_Backup.csv`; 
-        a.click();
-    }
-    
-    // 網頁開啟自動同步
+    // 頁面加載自動同步
     fetchFromCloud();
 </script>
 </body>
