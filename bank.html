@@ -14,6 +14,8 @@
             --income-color: #9db2a2;
             --expense-color: #d1a7a7;
             --card-radius: 20px;
+            --success-color: #9db2a2;
+            --error-color: #c2948a;
         }
 
         body {
@@ -30,12 +32,25 @@
             border-radius: var(--card-radius);
             padding: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.02);
+            position: relative;
         }
 
         h2 { 
             text-align: center; font-weight: 300; letter-spacing: 3px; 
             margin: 10px 0 20px; color: #a5a5a5; font-size: 1rem;
         }
+
+        /* 提示視窗 */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 10px 20px; border-radius: 12px; color: white;
+            font-size: 0.8rem; z-index: 1000; transition: 0.3s;
+            opacity: 0; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .toast.show { opacity: 1; top: 30px; }
+        .toast.success { background: var(--success-color); }
+        .toast.error { background: var(--error-color); }
+        .toast.loading { background: var(--main-accent); }
 
         /* 儀表板 */
         .dashboard {
@@ -111,6 +126,8 @@
     </style>
 </head>
 <body>
+
+<div id="toast" class="toast"></div>
 
 <div class="container">
     <h2>LINSHOP LEDGER ⟡</h2>
@@ -215,12 +232,22 @@
     // --- 配置區 ---
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZxedd--vJf40vY96TdC48-XeBxYecp5rtJ9sjD86p2yi3ykoW8nCOMwVi0uQiIKnx/exec';
     
+    // 初始化資料
     let records = JSON.parse(localStorage.getItem('linshop_v2')) || [];
     let myBudget = localStorage.getItem('linshop_budget') || 20000;
     let editId = null; 
     
-    document.getElementById('date').valueAsDate = new Date();
-    document.getElementById('month-view').value = new Date().toISOString().slice(0, 7);
+    // 初始日期設定
+    const now = new Date();
+    document.getElementById('date').valueAsDate = now;
+    document.getElementById('month-view').value = now.toISOString().slice(0, 7);
+
+    function showToast(msg, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.innerText = msg;
+        toast.className = `toast show ${type}`;
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
 
     function uiSwitch() {
         const type = document.getElementById('type').value;
@@ -235,7 +262,6 @@
         if (b) { myBudget = b; localStorage.setItem('linshop_budget', b); render(); }
     }
 
-    // 新增資料
     function addRecord() {
         const amt = parseFloat(document.getElementById('amount').value);
         if (isNaN(amt)) return alert("請輸入金額");
@@ -248,19 +274,19 @@
             toAcc: document.getElementById('to-account').value,
             cat: document.getElementById('category').value,
             name: document.getElementById('name').value || "無備註",
-            amt: amt,
-            action: 'add' // 告訴 GAS 這是新增
+            amt: amt
         };
+        
+        // 更新本地端 records
         records.push(r);
-        save(r); 
+        save({ ...r, action: 'add' }); 
         clearForm();
+        showToast("已紀錄至清單");
     }
 
-    // 啟動編輯模式
     function startEdit(id) {
         const r = records.find(item => item.id === id);
         if (!r) return;
-
         editId = id;
         document.getElementById('date').value = r.date;
         document.getElementById('type').value = r.type;
@@ -269,20 +295,16 @@
         document.getElementById('category').value = r.cat;
         document.getElementById('name').value = r.name === "無備註" ? "" : r.name;
         document.getElementById('amount').value = r.amt;
-
         uiSwitch();
-        
         document.getElementById('btn-add').style.display = 'none';
         document.getElementById('btn-edit-group').style.display = 'flex';
         document.getElementById('editing-tag').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 更新資料
     function updateRecord() {
         const idx = records.findIndex(r => r.id === editId);
         if (idx === -1) return;
-
         const amt = parseFloat(document.getElementById('amount').value);
         if (isNaN(amt)) return alert("請輸入金額");
 
@@ -296,11 +318,10 @@
             name: document.getElementById('name').value || "無備註",
             amt: amt
         };
-
-        // 同步到 Google Sheets 時帶上 'update' 標記
-        const syncData = { ...records[idx], action: 'update' };
-        save(syncData);
+        
+        save({ ...records[idx], action: 'update' });
         cancelEdit();
+        showToast("紀錄已更新");
     }
 
     function cancelEdit() {
@@ -318,48 +339,58 @@
     }
 
     function save(syncData = null) {
+        // 排序：日期由新到舊
         records.sort((a,b) => b.date.localeCompare(a.date));
+        // 持久化到 localStorage
         localStorage.setItem('linshop_v2', JSON.stringify(records));
         render();
-
-        // 同步到 Google Sheets
+        // 同步到 Google
         if (syncData && GOOGLE_SCRIPT_URL) {
             syncToGoogleSheets(syncData);
         }
     }
 
-    function syncToGoogleSheets(data) {
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(() => console.log('Synced to Google Sheets'))
-        .catch(err => console.error('Sync failed:', err));
+    async function syncToGoogleSheets(data) {
+        // 同步狀態僅作為額外提示，不影響本地顯示
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            console.log("Cloud sync done.");
+        } catch (err) {
+            console.error('Sync failed:', err);
+        }
     }
 
     function render() {
         const container = document.getElementById('list-container');
         const viewMonth = document.getElementById('month-view').value;
         container.innerHTML = '';
-
+        
         let bals = { fubon:0, next:0, feib:0, cash:0 };
         let mInc = 0, mExp = 0, catStats = {};
 
+        // 遍歷所有紀錄計算總額，但只渲染符合月份的清單
         records.forEach(r => {
+            // 計算各個帳戶的「總餘額」（不受月份影響，這才是真正的錢）
             if (r.type === 'income') bals[r.acc] += r.amt;
             else if (r.type === 'expense') bals[r.acc] -= r.amt;
             else { bals[r.acc] -= r.amt; bals[r.toAcc] += r.amt; }
 
+            // 月份過濾：只顯示與統計當前選擇月份的資料
             if (r.date.startsWith(viewMonth)) {
                 if (r.type === 'income') mInc += r.amt;
-                else if (r.type === 'expense') { mExp += r.amt; catStats[r.cat] = (catStats[r.cat] || 0) + r.amt; }
+                else if (r.type === 'expense') { 
+                    mExp += r.amt; 
+                    catStats[r.cat] = (catStats[r.cat] || 0) + r.amt; 
+                }
 
                 const item = document.createElement('div');
                 item.className = 'record-item';
                 item.onclick = () => startEdit(r.id);
-                
                 const emoji = r.type === 'transfer' ? '⇄' : r.cat.split(' ')[0];
                 item.innerHTML = `
                     <div class="icon-box">${emoji}</div>
@@ -373,13 +404,20 @@
             }
         });
 
+        // 更新 UI 數據
         document.getElementById('total-balance').innerText = `$ ${(mInc - mExp).toLocaleString()}`;
         document.getElementById('total-income').innerText = `$ ${mInc.toLocaleString()}`;
         document.getElementById('total-expense').innerText = `$ ${mExp.toLocaleString()}`;
         
-        document.getElementById('dash-box').className = (mExp / myBudget) * 100 >= 100 ? 'dashboard budget-warning' : 'dashboard';
-        ['fubon', 'next', 'feib', 'cash'].forEach(k => document.getElementById(`acc-${k}`).innerText = `$${bals[k].toLocaleString()}`);
-
+        // 預算警告
+        const budgetPercent = (mExp / myBudget) * 100;
+        document.getElementById('dash-box').className = budgetPercent >= 100 ? 'dashboard budget-warning' : 'dashboard';
+        
+        // 更新帳戶卡片餘額
+        ['fubon', 'next', 'feib', 'cash'].forEach(k => {
+            document.getElementById(`acc-${k}`).innerText = `$${bals[k].toLocaleString()}`;
+        });
+        
         drawChart(catStats);
     }
 
@@ -387,6 +425,7 @@
 
     function drawChart(stats) {
         const canvas = document.getElementById('miniChart');
+        if(!canvas) return;
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, 50, 50);
         let total = Object.values(stats).reduce((a,b) => a+b, 0);
@@ -398,16 +437,22 @@
             ctx.moveTo(25, 25); ctx.arc(25, 25, 24, start, start + slice); ctx.fill();
             start += slice;
         });
-        ctx.beginPath(); ctx.fillStyle = document.getElementById('dash-box').classList.contains('budget-warning') ? "#c2948a" : "#9fa9a3";
+        const innerColor = document.getElementById('dash-box').classList.contains('budget-warning') ? "#c2948a" : "#9fa9a3";
+        ctx.beginPath(); ctx.fillStyle = innerColor;
         ctx.arc(25, 25, 14, 0, 2 * Math.PI); ctx.fill();
     }
 
     function exportData() {
+        if(records.length === 0) return alert("尚無紀錄可導出");
         let csv = "\ufeffDATE,ITEM,CAT,AMT,ACC\n";
         records.forEach(r => csv += `${r.date},${r.name},${r.cat},${r.amt},${getAccName(r.acc)}\n`);
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'LinShop.csv'; a.click();
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
+        a.download = `LinShop_${new Date().toISOString().slice(0,10)}.csv`; 
+        a.click();
     }
+    
+    // 首次進入載入渲染
     render();
 </script>
 </body>
