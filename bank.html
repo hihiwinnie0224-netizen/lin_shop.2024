@@ -5,261 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinShop Ledger ⟡</title>
     <style>
-        :root {
-            --bg-color: #f7f7f5;
-            --main-accent: #b8c6db;
-            --text-dark: #5e5e5e;
-            --text-light: #b0b0b0;
-            --expense-color: #d1a7a7;
-            --card-radius: 20px;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: var(--bg-color);
-            color: var(--text-dark);
-            margin: 0; padding: 15px;
-            display: flex; justify-content: center;
-        }
-
-        .container {
-            width: 100%; max-width: 400px;
-            background: white;
-            border-radius: var(--card-radius);
-            padding: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.02);
-        }
-
-        h2 { text-align: center; font-weight: 300; letter-spacing: 3px; margin: 10px 0 20px; color: #a5a5a5; font-size: 1rem; }
-
-        .dashboard {
-            background: #9fa9a3; color: white; padding: 18px; border-radius: 18px;
-            margin-bottom: 20px; text-align: center;
-        }
-        .dash-label { font-size: 0.65rem; opacity: 0.8; }
-        .dash-main-val { font-size: 1.8rem; font-weight: 200; margin: 4px 0; }
-
-        .account-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px; scrollbar-width: none; }
-        .acc-card { min-width: 82px; padding: 10px 6px; background: #fbfbfb; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; flex-shrink: 0; }
-        .acc-card i { font-style: normal; font-size: 0.75rem; color: #999; }
-        .acc-card b { font-size: 0.75rem; color: #777; }
-
-        .input-group { background: #fcfcfc; padding: 15px; border-radius: 18px; border: 1px solid #f0f0f0; }
-        .field-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .field { display: flex; flex-direction: column; flex: 1; }
-        label { font-size: 0.6rem; color: var(--text-light); margin: 0 0 4px 4px; }
-        input, select { height: 36px; padding: 0 10px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 0.8rem; outline: none; background: white; }
-
-        .btn-submit { width: 100%; height: 42px; background: var(--main-accent); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; }
+        :root { --bg: #f7f7f5; --main: #b8c6db; --text: #5e5e5e; --accent: #d1a7a7; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
         
-        .record-item { display: flex; align-items: center; padding: 12px 10px; border-bottom: 1px solid #f9f9f9; }
-        .price { font-weight: 500; color: var(--expense-color); }
+        /* 頂部儀表板 */
+        .dashboard { background: #9fa9a3; color: white; padding: 20px; border-radius: 18px; text-align: center; margin-bottom: 20px; }
+        .dash-label { font-size: 0.7rem; opacity: 0.8; letter-spacing: 1px; }
+        .dash-val { font-size: 1.8rem; font-weight: 200; margin-top: 5px; }
 
-        .sync-btn { background: #f0f2f5; color: #888; padding: 6px 15px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; border: none; }
+        /* 帳戶卡片滾動區 */
+        .acc-row { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 20px; scrollbar-width: none; padding-bottom: 5px; }
+        .acc-row::-webkit-scrollbar { display: none; }
+        .acc-card { min-width: 80px; background: #fbfbfb; padding: 10px; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; flex-shrink: 0; }
+        .acc-name { font-size: 0.65rem; color: #999; display: block; margin-bottom: 4px; }
+        .acc-bal { font-size: 0.75rem; color: #777; font-weight: bold; }
+
+        /* 輸入區域 */
+        .input-box { background: #fcfcfc; padding: 15px; border-radius: 18px; border: 1px solid #f0f0f0; margin-bottom: 20px; }
+        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .field { display: flex; flex-direction: column; }
+        label { font-size: 0.6rem; color: #bbb; margin-bottom: 4px; padding-left: 5px; }
+        input, select { height: 38px; border: 1px solid #eee; border-radius: 8px; padding: 0 10px; font-size: 0.85rem; outline: none; background: white; color: var(--text); }
         
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            padding: 10px 20px; border-radius: 12px; color: white;
-            font-size: 0.8rem; z-index: 1000; transition: 0.3s;
-            opacity: 0; pointer-events: none; background: var(--main-accent);
-        }
+        .btn { width: 100%; height: 42px; background: var(--main); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; margin-top: 5px; transition: 0.2s; }
+        .btn:active { opacity: 0.7; transform: scale(0.98); }
+
+        /* 紀錄列表 */
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }
+        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f9f9f9; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .price { color: var(--accent); font-weight: 500; font-size: 0.95rem; }
+        
+        /* 提示框 */
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--main); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.8rem; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 100; }
         .toast.show { opacity: 1; top: 30px; }
     </style>
 </head>
 <body>
 
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast">同步中...</div>
 
 <div class="container">
-    <h2>LINSHOP LEDGER ⟡</h2>
+    <h2 style="text-align:center; font-weight:300; color:#ccc; letter-spacing:3px; font-size: 1rem; margin-bottom: 20px;">LINSHOP LEDGER ⟡</h2>
 
     <div class="dashboard">
         <div class="dash-label">THIS MONTH EXPENSE</div>
-        <div class="dash-main-val" id="month-total">$ 0</div>
+        <div id="m-total" class="dash-val">$ 0</div>
     </div>
 
-    <div class="account-scroll">
-        <div class="acc-card"><i>富邦</i><br><b id="acc-fubon">$0</b></div>
-        <div class="acc-card"><i>將來</i><br><b id="acc-next">$0</b></div>
-        <div class="acc-card"><i>遠東</i><br><b id="acc-feib">$0</b></div>
-        <div class="acc-card"><i>現金</i><br><b id="acc-cash">$0</b></div>
+    <div class="acc-row">
+        <div class="acc-card"><span class="acc-name">富邦</span><span class="acc-bal" id="b-富邦銀行">$0</span></div>
+        <div class="acc-card"><span class="acc-name">將來</span><span class="acc-bal" id="b-將來銀行">$0</span></div>
+        <div class="acc-card"><span class="acc-name">遠東</span><span class="acc-bal" id="b-遠東銀行">$0</span></div>
+        <div class="acc-card"><span class="acc-name">現金</span><span class="acc-bal" id="b-手邊現金">$0</span></div>
     </div>
 
-    <div class="input-group">
-        <div class="field-row">
+    <div class="input-box">
+        <div class="field-grid">
             <div class="field"><label>日期</label><input type="date" id="date"></div>
             <div class="field"><label>帳戶</label>
-                <select id="account">
-                    <option value="富邦銀行">富邦銀行</option>
-                    <option value="將來銀行">將來銀行</option>
-                    <option value="遠東銀行">遠東銀行</option>
-                    <option value="手邊現金">手邊現金</option>
+                <select id="acc">
+                    <option>富邦銀行</option><option>將來銀行</option><option>遠東銀行</option><option>手邊現金</option>
                 </select>
             </div>
         </div>
-        <div class="field-row">
+        <div class="field-grid">
             <div class="field"><label>類別</label>
-                <select id="category">
-                    <option value="🍱 餐飲">🍱 餐飲</option>
-                    <option value="📦 代購">📦 代購</option>
-                    <option value="🚗 交通">🚗 交通</option>
-                    <option value="✨ 娛樂">✨ 娛樂</option>
-                    <option value="🏠 固定">🏠 固定</option>
-                    <option value="💰 薪資">💰 薪資</option>
-                    <option value="🛒 雜項">🛒 雜項</option>
+                <select id="cat">
+                    <option>🍱 餐飲</option><option>📦 代購</option><option>🚗 交通</option><option>✨ 娛樂</option><option>🏠 固定</option><option>💰 薪資</option><option>🛒 雜項</option>
                 </select>
             </div>
-            <div class="field"><label>金額</label><input type="number" id="amount" placeholder="$"></div>
+            <div class="field"><label>金額</label><input type="number" id="amt" placeholder="$"></div>
         </div>
-        <div class="field-row">
-            <div class="field"><label>項目名稱</label><input type="text" id="name" placeholder="備註..."></div>
-        </div>
-        <button class="btn-submit" onclick="addRecord()">新增帳目</button>
+        <div class="field" style="margin-top: 10px;"><label>項目名稱</label><input type="text" id="name" placeholder="備註..."></div>
+        <button class="btn" onclick="add()">新增帳目</button>
     </div>
 
-    <div style="display:flex; justify-content: space-between; margin-top:20px; align-items:center;">
-        <input type="month" id="month-view" onchange="render()" style="border:none; background:transparent; color:#999; font-size: 0.9rem;">
-        <button class="sync-btn" onclick="fetchFromCloud()">☁️ 同步雲端</button>
+    <div class="list-header">
+        <input type="month" id="view-m" onchange="render()" style="border:none; background:transparent; color:#999; font-size: 0.9rem; outline: none;">
+        <span onclick="sync()" style="font-size:0.7rem; color:var(--main); cursor:pointer; font-weight: bold;">☁️ 同步雲端</span>
     </div>
 
-    <div id="list-container" style="margin-top:10px;"></div>
+    <div id="list"></div>
 </div>
 
 <script>
-    // --- 已更新為妳的第 7 版 GAS 網址 ---
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQBBWLd6tnFFSUUIpRgjj3JwN8S_MCKkaoBVsxzh6Q4rf7MgFq2xgLJUjEcORJFcQ0/exec';
+    // 使用妳提供的最新 GAS 網址
+    const API = 'https://script.google.com/macros/s/AKfycbzp0uI5lHJjZoevHdwDch_oKEtzilqOP82WO0C5JBvYjeUshGFE8f5A82AOR3w764RH/exec';
     
-    // 使用新的版本標記以避免舊緩存干擾
-    let records = JSON.parse(localStorage.getItem('linshop_v7')) || [];
+    // 使用本地緩存
+    let records = JSON.parse(localStorage.getItem('ls_v8')) || [];
 
-    // 初始化日期與月份顯示
-    const now = new Date();
-    document.getElementById('date').valueAsDate = now;
-    document.getElementById('month-view').value = now.toISOString().slice(0, 7);
+    // 初始化頁面時間
+    const today = new Date();
+    document.getElementById('date').valueAsDate = today;
+    document.getElementById('view-m').value = today.toISOString().slice(0, 7);
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3000);
+    function showMsg(text) { 
+        const t = document.getElementById('toast'); 
+        t.innerText = text; t.classList.add('show'); 
+        setTimeout(() => t.classList.remove('show'), 3000); 
     }
 
-    // --- JSONP 讀取邏輯 (繞過 CORS) ---
-    function fetchFromCloud() {
-        showToast("同步中...");
-        
-        // 移除舊的 script 防止堆疊
-        const oldScript = document.getElementById('jsonp-sync');
-        if (oldScript) oldScript.remove();
-
-        const script = document.createElement('script');
-        script.id = 'jsonp-sync';
-        script.src = `${GOOGLE_SCRIPT_URL}?callback=handleSyncResponse&t=${Date.now()}`;
-        
-        script.onerror = () => {
-            showToast("同步失敗，請檢查網路環境");
-        };
-
-        document.body.appendChild(script);
+    // JSONP 同步函數
+    function sync() {
+        showMsg("正在同步雲端...");
+        const old = document.getElementById('jsonp-script');
+        if (old) old.remove();
+        const s = document.createElement('script');
+        s.id = 'jsonp-script';
+        s.src = `${API}?callback=handleResponse&t=${Date.now()}`;
+        document.body.appendChild(s);
     }
 
-    // 接收 GAS 傳回的資料
-    function handleSyncResponse(data) {
-        console.log("收到資料:", data);
+    // JSONP 回傳處理
+    function handleResponse(data) {
         if (Array.isArray(data)) {
             records = data;
-            localStorage.setItem('linshop_v7', JSON.stringify(records));
+            localStorage.setItem('ls_v8', JSON.stringify(records));
             render();
-            if (data.length > 0) {
-                showToast(`同步成功！共 ${data.length} 筆資料 ⟡`);
-            } else {
-                showToast("連線成功，雲端目前無資料");
-            }
-        } else {
-            alert("資料格式錯誤，請檢查試算表標題列");
+            showMsg(`同步成功！共 ${data.length} 筆資料`);
         }
     }
 
     function render() {
-        const container = document.getElementById('list-container');
-        const viewMonth = document.getElementById('month-view').value;
-        container.innerHTML = '';
+        const list = document.getElementById('list');
+        const viewMonth = document.getElementById('view-m').value;
+        list.innerHTML = '';
         
         let mTotal = 0;
-        let bals = { '富邦銀行':0, '將來銀行':0, '遠東銀行':0, '手邊現金':0 };
+        let bals = {'富邦銀行':0, '將來銀行':0, '遠東銀行':0, '手邊現金':0};
 
-        // 依照日期從新到舊排序
+        // 按日期降冪排序 (最新的在上面)
         records.sort((a,b) => new Date(b.date) - new Date(a.date));
 
         records.forEach(r => {
-            const amt = parseFloat(r.amt) || 0;
-            const rDate = String(r.date);
-
-            // 計算帳戶餘額
+            const val = parseFloat(r.amt) || 0;
+            
+            // 計算各帳戶餘額 (假設皆為支出)
             if (bals.hasOwnProperty(r.acc)) {
-                bals[r.acc] -= amt;
+                bals[r.acc] -= val;
             }
 
-            // 月份過濾 (與 viewMonth YYYY-MM 比對)
-            if (rDate.startsWith(viewMonth)) {
-                mTotal += amt;
-                const item = document.createElement('div');
-                item.className = 'record-item';
-                item.innerHTML = `
-                    <div style="flex:1">
-                        <div style="font-size:0.85rem;">${r.name || '未命名'}</div>
-                        <div style="font-size:0.6rem; color:#ccc; margin-top:2px;">
-                            ${r.acc} · ${r.cat} · ${rDate.split('-')[2]}日
+            // 比對月份 (格式皆為 YYYY-MM)
+            if (String(r.date).includes(viewMonth)) {
+                mTotal += val;
+                list.innerHTML += `
+                    <div class="record-item">
+                        <div style="flex:1">
+                            <div style="font-size:0.85rem; margin-bottom:2px;">${r.name || '未命名'}</div>
+                            <div style="font-size:0.6rem; color:#ccc;">${r.acc} · ${String(r.date).slice(5)}</div>
                         </div>
-                    </div>
-                    <div class="price">-${amt.toLocaleString()}</div>
-                `;
-                container.appendChild(item);
+                        <div class="price">-${val.toLocaleString()}</div>
+                    </div>`;
             }
         });
 
-        // 更新 UI 數據
-        document.getElementById('month-total').innerText = `$ ${mTotal.toLocaleString()}`;
-        document.getElementById('acc-fubon').innerText = `$${Math.round(bals['富邦銀行']).toLocaleString()}`;
-        document.getElementById('acc-next').innerText = `$${Math.round(bals['將來銀行']).toLocaleString()}`;
-        document.getElementById('acc-feib').innerText = `$${Math.round(bals['遠東銀行']).toLocaleString()}`;
-        document.getElementById('acc-cash').innerText = `$${Math.round(bals['手邊現金']).toLocaleString()}`;
+        // 更新介面
+        document.getElementById('m-total').innerText = `$ ${mTotal.toLocaleString()}`;
+        for (let key in bals) {
+            const el = document.getElementById('b-' + key);
+            if (el) el.innerText = `$${Math.round(bals[key]).toLocaleString()}`;
+        }
+
+        if (list.innerHTML === '') {
+            list.innerHTML = `<div style="text-align:center; color:#eee; font-size:0.8rem; margin-top:30px;">本月尚無紀錄</div>`;
+        }
     }
 
-    function addRecord() {
-        const amt = parseFloat(document.getElementById('amount').value);
-        if (!amt) return alert("請輸入金額");
-
+    function add() {
+        const amtInput = document.getElementById('amt');
+        const nameInput = document.getElementById('name');
+        
         const r = {
             date: document.getElementById('date').value,
-            acc: document.getElementById('account').value,
-            cat: document.getElementById('category').value,
-            name: document.getElementById('name').value || "無備註",
-            amt: amt
+            acc: document.getElementById('acc').value,
+            cat: document.getElementById('cat').value,
+            name: nameInput.value || "無備註",
+            amt: amtInput.value
         };
 
-        // 1. 先存入本地讓畫面立刻有反應
+        if (!r.amt) return alert("請輸入金額！");
+
+        // 本地預先渲染 (提高順暢感)
         records.push(r);
-        localStorage.setItem('linshop_v7', JSON.stringify(records));
         render();
 
-        // 2. 傳送到雲端
-        fetch(GOOGLE_SCRIPT_URL, {
+        // 傳送到雲端
+        fetch(API, {
             method: 'POST',
             mode: 'no-cors',
             body: JSON.stringify(r)
         }).then(() => {
-            showToast("已成功同步至雲端 ☁️");
-            document.getElementById('amount').value = '';
-            document.getElementById('name').value = '';
-        }).catch(err => {
-            showToast("本地已儲存，但上傳失敗");
-        });
+            showMsg("已成功上傳雲端 ☁️");
+            amtInput.value = '';
+            nameInput.value = '';
+        }).catch(() => showMsg("本地儲存成功，雲端連線失敗"));
     }
 
-    // 進入網頁自動執行同步
-    window.onload = () => {
-        fetchFromCloud();
-    };
+    // 初始執行一次同步
+    window.onload = sync;
 </script>
 </body>
 </html>
