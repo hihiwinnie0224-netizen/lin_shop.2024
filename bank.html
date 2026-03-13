@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinShop | 雲端同步旗艦版 ⟡</title>
+    <title>LinShop | 雲端同步版 ⟡</title>
     <style>
         :root {
             --bg-color: #f7f7f5;
-            --main-accent: #b8c6db; /* 霧霾藍 */
-            --edit-accent: #d1a7a7; /* 編輯模式色 */
+            --main-accent: #b8c6db;
+            --edit-accent: #d1a7a7;
             --text-dark: #5e5e5e;
             --text-light: #b0b0b0;
             --income-color: #9db2a2;
@@ -40,7 +40,6 @@
             margin: 10px 0 20px; color: #a5a5a5; font-size: 1rem;
         }
 
-        /* 提示視窗 */
         .toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             padding: 10px 20px; border-radius: 12px; color: white;
@@ -52,7 +51,6 @@
         .toast.error { background: var(--error-color); }
         .toast.loading { background: var(--main-accent); }
 
-        /* 儀表板 */
         .dashboard {
             background: #9fa9a3;
             color: white; padding: 18px; border-radius: 18px;
@@ -66,7 +64,6 @@
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; }
         .stat-item b { font-size: 0.85rem; font-weight: 400; }
 
-        /* 帳戶卡片 */
         .account-scroll {
             display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px;
             scrollbar-width: none;
@@ -78,7 +75,6 @@
         .acc-card i { font-size: 0.6rem; color: var(--text-light); font-style: normal; display: block; margin-bottom: 2px; }
         .acc-card b { font-size: 0.75rem; color: #777; }
 
-        /* 輸入群組 */
         .input-group { background: #fcfcfc; padding: 15px; border-radius: 18px; border: 1px solid #f0f0f0; position: relative; }
         .editing-mark { 
             display: none; position: absolute; top: -10px; right: 15px; 
@@ -103,7 +99,6 @@
         .btn-update { flex: 2; background: #9db2a2; border: none; border-radius: 10px; color: white; cursor: pointer; }
         .btn-cancel { flex: 1; background: #eee; border: none; border-radius: 10px; color: #999; cursor: pointer; }
 
-        /* 列表項目 */
         .record-item {
             display: flex; align-items: center; padding: 12px 10px;
             background: white; border-bottom: 1px solid #f9f9f9;
@@ -124,13 +119,11 @@
 
         #config-trigger { text-align: center; font-size: 0.6rem; color: #ddd; margin-top: 12px; cursor: pointer; }
         
-        /* 同步按鈕樣式 */
         .sync-btn {
             background: #f0f2f5; color: #888; padding: 4px 10px; 
             border-radius: 20px; font-size: 0.6rem; cursor: pointer;
             transition: 0.3s;
         }
-        .sync-btn:active { background: #e0e0e0; }
     </style>
 </head>
 <body>
@@ -240,14 +233,13 @@
 </div>
 
 <script>
-    // --- 妳提供的部署網址 ---
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZxedd--vJf40vY96TdC48-XeBxYecp5rtJ9sjD86p2yi3ykoW8nCOMwVi0uQiIKnx/exec';
+    // --- 已更新為妳提供的最新網址 (第 3 版) ---
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqE8hbMytIcJr0AdqnQR-lATnd6DZQlqgHHQ3OoWt7-T8rzQW_EKa6ZO9W2cxCvtE8/exec';
     
     let records = JSON.parse(localStorage.getItem('linshop_v2')) || [];
     let myBudget = localStorage.getItem('linshop_budget') || 20000;
     let editId = null; 
     
-    // 初始設定
     const now = new Date();
     document.getElementById('date').valueAsDate = now;
     document.getElementById('month-view').value = now.toISOString().slice(0, 7);
@@ -259,20 +251,22 @@
         setTimeout(() => { toast.classList.remove('show'); }, 3000);
     }
 
-    // 從雲端下載資料
     async function fetchFromCloud() {
-        showToast("雲端同步中...", "loading");
+        showToast("同步中...", "loading");
         try {
+            // 使用 GET 請求抓取
             const response = await fetch(GOOGLE_SCRIPT_URL);
             const data = await response.json();
             if (data && Array.isArray(data)) {
                 records = data;
                 saveLocally();
                 showToast("同步成功 ⟡");
+            } else {
+                showToast("雲端尚無資料", "error");
             }
         } catch (err) {
             console.error("Fetch error:", err);
-            showToast("同步失敗，請檢查網路", "error");
+            showToast("網路異常，請稍後再試", "error");
         }
     }
 
@@ -292,7 +286,6 @@
     function addRecord() {
         const amt = parseFloat(document.getElementById('amount').value);
         if (isNaN(amt)) return alert("請輸入金額");
-        
         const r = {
             id: Date.now(),
             date: document.getElementById('date').value,
@@ -303,11 +296,9 @@
             name: document.getElementById('name').value || "無備註",
             amt: amt
         };
-        
         records.push(r);
         saveAndSync(r); 
         clearForm();
-        showToast("紀錄已保存");
     }
 
     function startEdit(id) {
@@ -333,7 +324,6 @@
         if (idx === -1) return;
         const amt = parseFloat(document.getElementById('amount').value);
         if (isNaN(amt)) return alert("請輸入金額");
-
         records[idx] = {
             ...records[idx],
             date: document.getElementById('date').value,
@@ -344,10 +334,8 @@
             name: document.getElementById('name').value || "無備註",
             amt: amt
         };
-        
         saveAndSync(records[idx]);
         cancelEdit();
-        showToast("紀錄已更新");
     }
 
     function cancelEdit() {
@@ -372,7 +360,7 @@
 
     function saveAndSync(data) {
         saveLocally();
-        // 推送到 Google Sheets
+        // 傳送 POST 到雲端
         fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -385,22 +373,18 @@
         const container = document.getElementById('list-container');
         const viewMonth = document.getElementById('month-view').value;
         container.innerHTML = '';
-        
         let bals = { fubon:0, next:0, feib:0, cash:0 };
         let mInc = 0, mExp = 0, catStats = {};
-
         records.forEach(r => {
             if (r.type === 'income') bals[r.acc] += r.amt;
             else if (r.type === 'expense') bals[r.acc] -= r.amt;
             else { bals[r.acc] -= r.amt; bals[r.toAcc] += r.amt; }
-
             if (r.date.startsWith(viewMonth)) {
                 if (r.type === 'income') mInc += r.amt;
                 else if (r.type === 'expense') { 
                     mExp += r.amt; 
                     catStats[r.cat] = (catStats[r.cat] || 0) + r.amt; 
                 }
-
                 const item = document.createElement('div');
                 item.className = 'record-item';
                 item.onclick = () => startEdit(r.id);
@@ -416,18 +400,14 @@
                 container.appendChild(item);
             }
         });
-
         document.getElementById('total-balance').innerText = `$ ${(mInc - mExp).toLocaleString()}`;
         document.getElementById('total-income').innerText = `$ ${mInc.toLocaleString()}`;
         document.getElementById('total-expense').innerText = `$ ${mExp.toLocaleString()}`;
-        
         const budgetPercent = (mExp / myBudget) * 100;
         document.getElementById('dash-box').className = budgetPercent >= 100 ? 'dashboard budget-warning' : 'dashboard';
-        
         ['fubon', 'next', 'feib', 'cash'].forEach(k => {
             document.getElementById(`acc-${k}`).innerText = `$${bals[k].toLocaleString()}`;
         });
-        
         drawChart(catStats);
     }
 
@@ -458,11 +438,11 @@
         records.forEach(r => csv += `${r.date},${r.name},${r.cat},${r.amt},${getAccName(r.acc)}\n`);
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); 
-        a.download = `LinShop_${new Date().toISOString().slice(0,10)}.csv`; 
+        a.download = `LinShop_Backup.csv`; 
         a.click();
     }
     
-    // 頁面加載時自動同步一次
+    // 網頁開啟自動同步
     fetchFromCloud();
 </script>
 </body>
