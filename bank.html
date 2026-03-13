@@ -3,319 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雲端財務管理系統 | LinShop 𖤣𖥧</title>
+    <title>LinShop | 莫蘭迪精緻版 ⟡</title>
     <style>
         :root {
-            --bg-color: #f4f1ea;
-            --card-bg: #ffffff;
-            --text-main: #5d5d5d;
-            --accent-blue: #9eb3c2;
-            --accent-green: #a3b18a;
-            --accent-orange: #e09f7d;
+            --bg-color: #f7f7f5;
+            --main-accent: #b8c6db; /* 霧霾藍 */
+            --text-dark: #5e5e5e;
+            --text-light: #b0b0b0;
+            --income-color: #9db2a2;
+            --expense-color: #d1a7a7;
+            --card-radius: 20px;
         }
 
         body {
-            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0; padding: 15px;
+            display: flex; justify-content: center;
         }
 
         .container {
-            width: 100%;
-            max-width: 550px;
-            background: var(--card-bg);
+            width: 100%; max-width: 400px; /* 寬度微調，手感更好 */
+            background: white;
+            border-radius: var(--card-radius);
             padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.02);
         }
 
-        h2 { text-align: center; font-weight: 300; letter-spacing: 2px; margin-bottom: 20px; }
-
-        /* 頂部統計看板 */
-        .total-summary {
-            display: flex;
-            justify-content: space-around;
-            background: #5d5d5d;
-            color: white;
-            padding: 18px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            text-align: center;
+        h2 { 
+            text-align: center; font-weight: 300; letter-spacing: 3px; 
+            margin: 10px 0 20px; color: #a5a5a5; font-size: 1rem;
         }
 
-        .summary-item span { font-size: 0.75rem; opacity: 0.8; display: block; margin-bottom: 5px; }
-        .summary-item b { font-size: 1.1rem; letter-spacing: 1px; }
-
-        /* 各帳戶餘額 */
-        .account-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 25px;
+        /* 儀表板 */
+        .dashboard {
+            background: #9fa9a3;
+            color: white; padding: 18px; border-radius: 18px;
+            margin-bottom: 20px; position: relative;
         }
+        .dashboard.budget-warning { background: #c2948a; }
 
-        .acc-box {
-            padding: 10px 5px;
-            border-radius: 12px;
-            background: #fdfdfd;
-            border: 1px solid #f0f0f0;
-            text-align: center;
-        }
-
-        .acc-name { font-size: 0.65rem; color: #aaa; display: block; }
-        .acc-val { font-size: 0.85rem; font-weight: bold; margin-top: 3px; }
-
-        /* 輸入區域 */
-        .input-card {
-            background: #fafafa;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .form-row { margin-bottom: 12px; }
-        label { font-size: 0.8rem; color: #888; margin-bottom: 4px; display: block; }
-
-        select, input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        /* 快速類別按鈕 */
-        .btn-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-        .cat-btn { padding: 5px 10px; background: white; border: 1px solid #eee; border-radius: 15px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
-        .cat-btn:hover { background: var(--accent-blue); color: white; }
-
-        .btn-submit { width: 100%; padding: 15px; background: var(--accent-green); color: white; border: none; border-radius: 12px; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .dash-label { font-size: 0.65rem; opacity: 0.8; letter-spacing: 0.5px; }
+        .dash-main-val { font-size: 1.8rem; font-weight: 200; margin: 4px 0; }
         
-        /* 狀態提示 */
-        #sync-status { font-size: 0.75rem; text-align: center; color: var(--accent-blue); margin-top: 5px; display: none; }
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; }
+        .stat-item b { font-size: 0.85rem; font-weight: 400; }
 
-        .list-header { font-size: 0.9rem; color: #999; margin: 20px 0 10px; padding-left: 5px; border-left: 3px solid var(--accent-blue); }
+        /* 帳戶卡片 */
+        .account-scroll {
+            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 10px;
+            scrollbar-width: none;
+        }
+        .acc-card {
+            min-width: 82px; padding: 10px 6px; background: #fbfbfb; border-radius: 12px;
+            border: 1px solid #f0f0f0; text-align: center; flex-shrink: 0;
+        }
+        .acc-card i { font-size: 0.6rem; color: var(--text-light); font-style: normal; display: block; margin-bottom: 2px; }
+        .acc-card b { font-size: 0.75rem; color: #777; }
 
-        /* 明細項目 */
-        .record-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f8f8f8; }
-        .item-main { flex: 1; }
-        .item-date { font-size: 0.7rem; color: #bbb; display: block; }
-        .item-tag { font-size: 0.75rem; color: var(--accent-blue); font-weight: bold; }
-        .item-name { font-size: 0.95rem; margin-left: 5px; }
-        .item-price { font-weight: bold; margin-right: 12px; }
-        .income { color: var(--accent-green); }
-        .expense { color: var(--accent-orange); }
+        /* 輸入群組調整 */
+        .input-group { background: #fcfcfc; padding: 15px; border-radius: 18px; border: 1px solid #f0f0f0; }
+        .field-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .field { display: flex; flex-direction: column; }
+        
+        label { font-size: 0.6rem; color: var(--text-light); margin: 0 0 4px 4px; }
+        input, select {
+            height: 36px; padding: 0 10px; border: 1px solid #e8e8e8; border-radius: 8px;
+            background: white; font-size: 0.8rem; color: var(--text-dark); outline: none;
+        }
+        input::placeholder { color: #ddd; }
 
-        .action-btns button { background: none; border: none; cursor: pointer; color: #ddd; padding: 5px; }
-        .action-btns .edit:hover { color: var(--accent-blue); }
-        .action-btns .del:hover { color: #ffab91; }
+        .btn-submit {
+            width: 100%; height: 42px; background: var(--main-accent); color: white;
+            border: none; border-radius: 10px; font-size: 0.9rem; cursor: pointer;
+            margin-top: 5px; font-weight: 300; transition: 0.3s;
+        }
+        .btn-submit:hover { opacity: 0.8; }
+
+        /* 列表項目 */
+        .record-item {
+            display: flex; align-items: center; padding: 12px 10px;
+            background: white; border-bottom: 1px solid #f9f9f9;
+        }
+        .icon-box {
+            width: 32px; height: 32px; border-radius: 8px; background: #f5f6f7;
+            display: flex; align-items: center; justify-content: center; margin-right: 10px;
+            font-size: 1rem;
+        }
+        .content h4 { margin: 0; font-size: 0.8rem; font-weight: 400; }
+        .content p { margin: 2px 0 0; font-size: 0.6rem; color: #ccc; }
+        
+        .price { font-size: 0.85rem; font-weight: 400; font-family: 'Helvetica', sans-serif; }
+        .price.income { color: var(--income-color); }
+        .price.expense { color: var(--expense-color); }
+
+        #config-trigger { text-align: center; font-size: 0.6rem; color: #ddd; margin-top: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Financial Ledger ⟡</h2>
+    <h2>LINSHOP LEDGER ⟡</h2>
 
-    <div class="total-summary">
-        <div class="summary-item"><span>總收入</span><b id="grand-income">$ 0</b></div>
-        <div class="summary-item"><span>總支出</span><b id="grand-expense">$ 0</b></div>
-        <div class="summary-item"><span>結餘</span><b id="grand-balance">$ 0</b></div>
-    </div>
-
-    <div class="account-grid">
-        <div class="acc-box"><span class="acc-name">富邦</span><span class="acc-val" id="bal-fubon">$0</span></div>
-        <div class="acc-box"><span class="acc-name">將來</span><span class="acc-val" id="bal-next">$0</span></div>
-        <div class="acc-box"><span class="acc-name">遠東</span><span class="acc-val" id="bal-feib">$0</span></div>
-        <div class="acc-box"><span class="acc-name">現金</span><span class="acc-val" id="bal-cash">$0</span></div>
-    </div>
-
-    <div class="input-card">
-        <div class="form-row">
-            <label>日期</label>
-            <input type="date" id="date">
+    <div id="dash-box" class="dashboard">
+        <div style="position: absolute; right: 15px; top: 15px;">
+            <canvas id="miniChart" width="50" height="50"></canvas>
         </div>
-        <div class="form-row">
-            <div style="display: flex; gap: 8px;">
-                <select id="account" style="flex: 2;">
+        <div class="dash-label">TOTAL BALANCE</div>
+        <div class="dash-main-val" id="total-balance">$ 0</div>
+        
+        <div class="dash-grid">
+            <div class="stat-item">
+                <div class="dash-label">INCOME</div>
+                <b id="total-income">$ 0</b>
+            </div>
+            <div class="stat-item">
+                <div class="dash-label">EXPENSE</div>
+                <b id="total-expense">$ 0</b>
+            </div>
+        </div>
+    </div>
+
+    <div class="account-scroll">
+        <div class="acc-card"><i>Fubon</i><b id="acc-fubon">$0</b></div>
+        <div class="acc-card"><i>Next</i><b id="acc-next">$0</b></div>
+        <div class="acc-card"><i>Feib</i><b id="acc-feib">$0</b></div>
+        <div class="acc-card"><i>Cash</i><b id="acc-cash">$0</b></div>
+    </div>
+
+    <div class="input-group">
+        <div class="field-row">
+            <div class="field" style="flex:1.2"><label>DATE</label><input type="date" id="date"></div>
+            <div class="field" style="flex:1"><label>TYPE</label>
+                <select id="type" onchange="uiSwitch()">
+                    <option value="expense">支出 (-)</option>
+                    <option value="income">收入 (+)</option>
+                    <option value="transfer">轉帳 (⇄)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="field" style="flex:1">
+                <label id="acc-label">ACCOUNT</label>
+                <select id="account">
                     <option value="fubon">富邦銀行</option>
                     <option value="next">將來銀行</option>
                     <option value="feib">遠東銀行</option>
                     <option value="cash">手邊現金</option>
                 </select>
-                <select id="type" style="flex: 1;">
-                    <option value="expense">支出 (-)</option>
-                    <option value="income">收入 (+)</option>
+            </div>
+            <div class="field" id="to-acc-col" style="display:none; flex:1">
+                <label>TO</label>
+                <select id="to-account">
+                    <option value="fubon">富邦銀行</option>
+                    <option value="next">將來銀行</option>
+                    <option value="feib">遠東銀行</option>
+                    <option value="cash">手邊現金</option>
                 </select>
             </div>
         </div>
 
-        <div class="form-row">
-            <input type="text" id="name" placeholder="項目名稱">
-            <div class="btn-list">
-                <button class="cat-btn" onclick="quickSet('📦 代購採購', 'expense')">代購採購</button>
-                <button class="cat-btn" onclick="quickSet('💰 薪資收入', 'income')">薪資收入</button>
-                <button class="cat-btn" onclick="quickSet('✨ 微風南山', 'expense')">微風南山</button>
-                <button class="cat-btn" onclick="quickSet('🛋️ IKEA', 'expense')">IKEA</button>
-                <button class="cat-btn" onclick="quickSet('🍱 午餐/晚餐', 'expense')">午/晚餐</button>
-                <button class="cat-btn" onclick="quickSet('🏧 ATM 提款', 'expense')">ATM 提款</button>
+        <div class="field-row">
+            <div class="field" style="flex:1"><label>CATEGORY</label>
+                <select id="category">
+                    <option value="🍱 餐飲">🍱 餐飲</option>
+                    <option value="📦 代購">📦 代購</option>
+                    <option value="🚗 交通">🚗 交通</option>
+                    <option value="✨ 娛樂">✨ 娛樂</option>
+                    <option value="🏠 固定">🏠 固定</option>
+                    <option value="💰 薪資">💰 薪資</option>
+                    <option value="🛒 雜項">🛒 雜項</option>
+                </select>
             </div>
+            <div class="field" style="flex:0.8"><label>AMOUNT</label><input type="number" id="amount" placeholder="$"></div>
         </div>
 
-        <div class="form-row">
-            <input type="number" id="amount" placeholder="金額">
+        <div class="field-row">
+            <div class="field" style="flex:1"><label>MEMO</label><input type="text" id="name" placeholder="Note something..."></div>
         </div>
 
-        <button id="main-btn" class="btn-submit" onclick="processRecord()">確認並上傳雲端</button>
-        <div id="sync-status">✨ 正在同步雲端表格...</div>
+        <button class="btn-submit" onclick="addRecord()">Add Record</button>
+        <div id="config-trigger" onclick="setBudget()">Budget Setting ⚙️</div>
     </div>
 
-    <div class="list-header">收支明細 (按日期自動排序)</div>
-    <div id="record-list"></div>
+    <div class="list-header" style="display:flex; justify-content: space-between; margin: 20px 5px 5px; align-items:center;">
+        <input type="month" id="month-view" style="border:none; font-size:0.75rem; color:#999; background:transparent;" onchange="render()">
+        <span style="font-size:0.6rem; color:#eee; cursor:pointer;" onclick="exportData()">EXPORT CSV</span>
+    </div>
+
+    <div id="list-container"></div>
 </div>
 
 <script>
-    // 你的 Google Apps Script 部署網址
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyZxedd--vJf40vY96TdC48-XeBxYecp5rtJ9sjD86p2yi3ykoW8nCOMwVi0uQiIKnx/exec";
-
-    let records = JSON.parse(localStorage.getItem('linshop_ledger')) || [];
-    let editingId = null;
-
+    let records = JSON.parse(localStorage.getItem('linshop_v2')) || [];
+    let myBudget = localStorage.getItem('linshop_budget') || 20000;
+    
     document.getElementById('date').valueAsDate = new Date();
+    document.getElementById('month-view').value = new Date().toISOString().slice(0, 7);
 
-    function quickSet(name, type) {
-        document.getElementById('name').value = name;
-        document.getElementById('type').value = type;
-    }
-
-    async function processRecord() {
-        const date = document.getElementById('date').value;
-        const acc = document.getElementById('account').value;
+    function uiSwitch() {
         const type = document.getElementById('type').value;
-        const name = document.getElementById('name').value;
+        const isTr = type === 'transfer';
+        document.getElementById('to-acc-col').style.display = isTr ? 'block' : 'none';
+        document.getElementById('category').disabled = isTr;
+        document.getElementById('acc-label').innerText = isTr ? 'FROM' : 'ACCOUNT';
+    }
+
+    function setBudget() {
+        const b = prompt("Monthly Budget:", myBudget);
+        if (b) { myBudget = b; localStorage.setItem('linshop_budget', b); render(); }
+    }
+
+    function addRecord() {
         const amt = parseFloat(document.getElementById('amount').value);
-
-        if (!date || !name || isNaN(amt)) return alert('請完整填寫 ‧ᴗ •');
-
-        const recordData = { date, acc: getAccName(acc), type, name, amount: amt };
-        const statusEl = document.getElementById('sync-status');
+        if (isNaN(amt)) return alert("請輸入金額");
         
-        statusEl.style.display = 'block';
-
-        try {
-            // 只有在「新增」時才上傳雲端（避免重複上傳舊資料）
-            if (!editingId) {
-                await fetch(GAS_URL, {
-                    method: "POST",
-                    mode: "no-cors", // Google Script 限制需用 no-cors
-                    body: JSON.stringify(recordData),
-                    headers: { "Content-Type": "application/json" }
-                });
-            }
-
-            // 本地邏輯處理
-            if (editingId) {
-                const idx = records.findIndex(r => r.id === editingId);
-                records[idx] = { ...records[idx], date, acc, type, name, amount: amt };
-                editingId = null;
-                document.getElementById('main-btn').innerText = '確認並上傳雲端';
-                document.getElementById('main-btn').style.background = 'var(--accent-green)';
-            } else {
-                records.push({ id: Date.now(), date, acc, type, name, amount: amt });
-            }
-
-            saveAndRender();
-            document.getElementById('name').value = '';
-            document.getElementById('amount').value = '';
-            
-        } catch (e) {
-            console.error(e);
-            alert("雲端同步失敗，但已儲存在本機。");
-        } finally {
-            statusEl.style.display = 'none';
-        }
+        const r = {
+            id: Date.now(),
+            date: document.getElementById('date').value,
+            type: document.getElementById('type').value,
+            acc: document.getElementById('account').value,
+            toAcc: document.getElementById('to-account').value,
+            cat: document.getElementById('category').value,
+            name: document.getElementById('name').value || "無備註",
+            amt: amt
+        };
+        records.push(r);
+        save();
+        document.getElementById('name').value = '';
+        document.getElementById('amount').value = '';
     }
 
-    function editRecord(id) {
-        const r = records.find(item => item.id === id);
-        editingId = id;
-        document.getElementById('date').value = r.date;
-        document.getElementById('account').value = r.acc;
-        document.getElementById('type').value = r.type;
-        document.getElementById('name').value = r.name;
-        document.getElementById('amount').value = r.amount;
-        document.getElementById('main-btn').innerText = '儲存修改內容 (僅本機)';
-        document.getElementById('main-btn').style.background = 'var(--accent-blue)';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function deleteRecord(id) {
-        if (confirm('確定要刪除這筆紀錄嗎？(僅刪除本機)')) {
-            records = records.filter(r => r.id !== id);
-            saveAndRender();
-        }
-    }
-
-    function saveAndRender() {
-        records.sort((a, b) => {
-            if (a.date !== b.date) return b.date.localeCompare(a.date);
-            return b.id - a.id;
-        });
-        localStorage.setItem('linshop_ledger', JSON.stringify(records));
+    function save() {
+        records.sort((a,b) => b.date.localeCompare(a.date));
+        localStorage.setItem('linshop_v2', JSON.stringify(records));
         render();
     }
 
     function render() {
-        const list = document.getElementById('record-list');
-        list.innerHTML = '';
-        let bals = { fubon: 0, next: 0, feib: 0, cash: 0 };
-        let totalInc = 0, totalExp = 0;
+        const container = document.getElementById('list-container');
+        const viewMonth = document.getElementById('month-view').value;
+        container.innerHTML = '';
+
+        let bals = { fubon:0, next:0, feib:0, cash:0 };
+        let mInc = 0, mExp = 0, catStats = {};
 
         records.forEach(r => {
-            const isInc = r.type === 'income';
-            bals[r.acc] += isInc ? r.amount : -r.amount;
-            if(isInc) totalInc += r.amount; else totalExp += r.amount;
+            if (r.type === 'income') bals[r.acc] += r.amt;
+            else if (r.type === 'expense') bals[r.acc] -= r.amt;
+            else { bals[r.acc] -= r.amt; bals[r.toAcc] += r.amt; }
 
-            const div = document.createElement('div');
-            div.className = 'record-item';
-            div.innerHTML = `
-                <div class="item-main">
-                    <span class="item-date">${r.date}</span>
-                    <span class="item-tag">[${getAccName(r.acc)}]</span>
-                    <span class="item-name">${r.name}</span>
-                </div>
-                <div class="item-price ${isInc ? 'income' : 'expense'}">
-                    ${isInc ? '+' : '-'}${r.amount.toLocaleString()}
-                </div>
-                <div class="action-btns">
-                    <button class="edit" onclick="editRecord(${r.id})">✎</button>
-                    <button class="del" onclick="deleteRecord(${r.id})">✕</button>
-                </div>
-            `;
-            list.appendChild(div);
+            if (r.date.startsWith(viewMonth)) {
+                if (r.type === 'income') mInc += r.amt;
+                else if (r.type === 'expense') { mExp += r.amt; catStats[r.cat] = (catStats[r.cat] || 0) + r.amt; }
+
+                const item = document.createElement('div');
+                item.className = 'record-item';
+                const emoji = r.type === 'transfer' ? '⇄' : r.cat.split(' ')[0];
+                item.innerHTML = `
+                    <div class="icon-box">${emoji}</div>
+                    <div class="content" style="flex:1">
+                        <h4>${r.name}</h4>
+                        <p>${getAccName(r.acc)} · ${r.date.slice(8)}日</p>
+                    </div>
+                    <div class="price ${r.type}">${r.type === 'income' ? '+' : (r.type === 'transfer' ? '' : '-')}${r.amt.toLocaleString()}</div>
+                `;
+                container.appendChild(item);
+            }
         });
 
-        document.getElementById('bal-fubon').innerText = `$${bals.fubon.toLocaleString()}`;
-        document.getElementById('bal-next').innerText = `$${bals.next.toLocaleString()}`;
-        document.getElementById('bal-feib').innerText = `$${bals.feib.toLocaleString()}`;
-        document.getElementById('bal-cash').innerText = `$${bals.cash.toLocaleString()}`;
-        document.getElementById('grand-income').innerText = `$ ${totalInc.toLocaleString()}`;
-        document.getElementById('grand-expense').innerText = `$ ${totalExp.toLocaleString()}`;
-        document.getElementById('grand-balance').innerText = `$ ${(totalInc - totalExp).toLocaleString()}`;
+        document.getElementById('total-balance').innerText = `$ ${(mInc - mExp).toLocaleString()}`;
+        document.getElementById('total-income').innerText = `$ ${mInc.toLocaleString()}`;
+        document.getElementById('total-expense').innerText = `$ ${mExp.toLocaleString()}`;
+        
+        document.getElementById('dash-box').className = (mExp / myBudget) * 100 >= 100 ? 'dashboard budget-warning' : 'dashboard';
+        ['fubon', 'next', 'feib', 'cash'].forEach(k => document.getElementById(`acc-${k}`).innerText = `$${bals[k].toLocaleString()}`);
+
+        drawChart(catStats);
     }
 
-    function getAccName(key) {
-        const m = { fubon: '富邦', next: '將來', feib: '遠東', cash: '現金' };
-        return m[key] || key;
+    function getAccName(k) { return { fubon: '富邦', next: '將來', feib: '遠東', cash: '現金' }[k]; }
+
+    function drawChart(stats) {
+        const canvas = document.getElementById('miniChart');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 50, 50);
+        let total = Object.values(stats).reduce((a,b) => a+b, 0);
+        if (total === 0) return;
+        let start = 0, colors = ['#eee', '#b8c6db', '#dcdcdc', '#e5e5e5', '#d1a7a7'];
+        Object.values(stats).forEach((v, i) => {
+            let slice = (v / total) * 2 * Math.PI;
+            ctx.beginPath(); ctx.fillStyle = colors[i % colors.length];
+            ctx.moveTo(25, 25); ctx.arc(25, 25, 24, start, start + slice); ctx.fill();
+            start += slice;
+        });
+        ctx.beginPath(); ctx.fillStyle = document.getElementById('dash-box').classList.contains('budget-warning') ? "#c2948a" : "#9fa9a3";
+        ctx.arc(25, 25, 14, 0, 2 * Math.PI); ctx.fill();
     }
 
+    function exportData() {
+        let csv = "\ufeffDATE,ITEM,CAT,AMT,ACC\n";
+        records.forEach(r => csv += `${r.date},${r.name},${r.cat},${r.amt},${getAccName(r.acc)}\n`);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'LinShop.csv'; a.click();
+    }
     render();
 </script>
-
 </body>
 </html>
