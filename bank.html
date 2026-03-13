@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinShop | 莫蘭迪精緻版 ⟡</title>
+    <title>LinShop | 雲端同步旗艦版 ⟡</title>
     <style>
         :root {
             --bg-color: #f7f7f5;
@@ -123,6 +123,14 @@
         .price.expense { color: var(--expense-color); }
 
         #config-trigger { text-align: center; font-size: 0.6rem; color: #ddd; margin-top: 12px; cursor: pointer; }
+        
+        /* 同步按鈕樣式 */
+        .sync-btn {
+            background: #f0f2f5; color: #888; padding: 4px 10px; 
+            border-radius: 20px; font-size: 0.6rem; cursor: pointer;
+            transition: 0.3s;
+        }
+        .sync-btn:active { background: #e0e0e0; }
     </style>
 </head>
 <body>
@@ -222,22 +230,24 @@
 
     <div class="list-header" style="display:flex; justify-content: space-between; margin: 20px 5px 5px; align-items:center;">
         <input type="month" id="month-view" style="border:none; font-size:0.75rem; color:#999; background:transparent;" onchange="render()">
-        <span style="font-size:0.6rem; color:#eee; cursor:pointer;" onclick="exportData()">EXPORT CSV</span>
+        <div style="display:flex; gap:8px;">
+            <span class="sync-btn" onclick="fetchFromCloud()">☁️ 同步雲端</span>
+            <span style="font-size:0.6rem; color:#eee; cursor:pointer;" onclick="exportData()">EXPORT CSV</span>
+        </div>
     </div>
 
     <div id="list-container"></div>
 </div>
 
 <script>
-    // --- 配置區 ---
+    // --- 妳提供的部署網址 ---
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZxedd--vJf40vY96TdC48-XeBxYecp5rtJ9sjD86p2yi3ykoW8nCOMwVi0uQiIKnx/exec';
     
-    // 初始化資料
     let records = JSON.parse(localStorage.getItem('linshop_v2')) || [];
     let myBudget = localStorage.getItem('linshop_budget') || 20000;
     let editId = null; 
     
-    // 初始日期設定
+    // 初始設定
     const now = new Date();
     document.getElementById('date').valueAsDate = now;
     document.getElementById('month-view').value = now.toISOString().slice(0, 7);
@@ -247,6 +257,23 @@
         toast.innerText = msg;
         toast.className = `toast show ${type}`;
         setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // 從雲端下載資料
+    async function fetchFromCloud() {
+        showToast("雲端同步中...", "loading");
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL);
+            const data = await response.json();
+            if (data && Array.isArray(data)) {
+                records = data;
+                saveLocally();
+                showToast("同步成功 ⟡");
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+            showToast("同步失敗，請檢查網路", "error");
+        }
     }
 
     function uiSwitch() {
@@ -277,11 +304,10 @@
             amt: amt
         };
         
-        // 更新本地端 records
         records.push(r);
-        save({ ...r, action: 'add' }); 
+        saveAndSync(r); 
         clearForm();
-        showToast("已紀錄至清單");
+        showToast("紀錄已保存");
     }
 
     function startEdit(id) {
@@ -319,7 +345,7 @@
             amt: amt
         };
         
-        save({ ...records[idx], action: 'update' });
+        saveAndSync(records[idx]);
         cancelEdit();
         showToast("紀錄已更新");
     }
@@ -338,31 +364,21 @@
         document.getElementById('date').valueAsDate = new Date();
     }
 
-    function save(syncData = null) {
-        // 排序：日期由新到舊
+    function saveLocally() {
         records.sort((a,b) => b.date.localeCompare(a.date));
-        // 持久化到 localStorage
         localStorage.setItem('linshop_v2', JSON.stringify(records));
         render();
-        // 同步到 Google
-        if (syncData && GOOGLE_SCRIPT_URL) {
-            syncToGoogleSheets(syncData);
-        }
     }
 
-    async function syncToGoogleSheets(data) {
-        // 同步狀態僅作為額外提示，不影響本地顯示
-        try {
-            await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            console.log("Cloud sync done.");
-        } catch (err) {
-            console.error('Sync failed:', err);
-        }
+    function saveAndSync(data) {
+        saveLocally();
+        // 推送到 Google Sheets
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
     }
 
     function render() {
@@ -373,14 +389,11 @@
         let bals = { fubon:0, next:0, feib:0, cash:0 };
         let mInc = 0, mExp = 0, catStats = {};
 
-        // 遍歷所有紀錄計算總額，但只渲染符合月份的清單
         records.forEach(r => {
-            // 計算各個帳戶的「總餘額」（不受月份影響，這才是真正的錢）
             if (r.type === 'income') bals[r.acc] += r.amt;
             else if (r.type === 'expense') bals[r.acc] -= r.amt;
             else { bals[r.acc] -= r.amt; bals[r.toAcc] += r.amt; }
 
-            // 月份過濾：只顯示與統計當前選擇月份的資料
             if (r.date.startsWith(viewMonth)) {
                 if (r.type === 'income') mInc += r.amt;
                 else if (r.type === 'expense') { 
@@ -404,16 +417,13 @@
             }
         });
 
-        // 更新 UI 數據
         document.getElementById('total-balance').innerText = `$ ${(mInc - mExp).toLocaleString()}`;
         document.getElementById('total-income').innerText = `$ ${mInc.toLocaleString()}`;
         document.getElementById('total-expense').innerText = `$ ${mExp.toLocaleString()}`;
         
-        // 預算警告
         const budgetPercent = (mExp / myBudget) * 100;
         document.getElementById('dash-box').className = budgetPercent >= 100 ? 'dashboard budget-warning' : 'dashboard';
         
-        // 更新帳戶卡片餘額
         ['fubon', 'next', 'feib', 'cash'].forEach(k => {
             document.getElementById(`acc-${k}`).innerText = `$${bals[k].toLocaleString()}`;
         });
@@ -443,7 +453,7 @@
     }
 
     function exportData() {
-        if(records.length === 0) return alert("尚無紀錄可導出");
+        if(records.length === 0) return alert("尚無紀錄");
         let csv = "\ufeffDATE,ITEM,CAT,AMT,ACC\n";
         records.forEach(r => csv += `${r.date},${r.name},${r.cat},${r.amt},${getAccName(r.acc)}\n`);
         const a = document.createElement('a');
@@ -452,8 +462,8 @@
         a.click();
     }
     
-    // 首次進入載入渲染
-    render();
+    // 頁面加載時自動同步一次
+    fetchFromCloud();
 </script>
 </body>
 </html>
