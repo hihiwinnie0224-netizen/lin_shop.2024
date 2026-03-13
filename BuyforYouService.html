@@ -3,119 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINSHOP 精選良物</title>
 <style>
     :root {
-        --bg-color: #fcf9f7;
+        --bg-color: #f2f2ef;
         --card-bg: #ffffff;
-        --accent-color: #b08968;
-        --text-main: #6d5d55;
-        --text-light: #a89a93;
-        --border-color: #eee1d7;
-        --price-color: #d88a8a;
+        --accent-color: #7d8e95;
+        --text-main: #4a4a4a;
+        --text-light: #9b9b9b;
+        --border-color: #e0e0da;   
+        --price-color: #a67c78;
     }
 
-    body { background-color: var(--bg-color); font-family: "PingFang TC", sans-serif; color: var(--text-main); margin: 0; padding-bottom: 100px; display: flex; flex-direction: column; align-items: center; }
+    body { 
+        background-color: var(--bg-color); 
+        font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; 
+        color: var(--text-main); 
+        margin: 0; padding-bottom: 120px; 
+        display: flex; flex-direction: column; align-items: center;
+    }
 
-    /* 頂部工具列 - 縮小且更美觀 */
-    .top-tools { position: sticky; top: 0; z-index: 100; width: 100%; background: rgba(252, 249, 247, 0.95); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; box-sizing: border-box; }
-    .layout-switcher { display: flex; gap: 5px; }
-    .switch-btn { padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border-color); background: white; font-size: 11px; cursor: pointer; color: var(--text-light); }
-    .switch-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+    .brand-header { width: 100%; padding: 35px 0 25px 0; text-align: center; }
+    .brand-name { font-size: 26px; letter-spacing: 6px; font-weight: 400; margin: 0; text-transform: uppercase; }
+    .brand-sub { font-size: 11px; letter-spacing: 2px; color: var(--text-light); margin-top: 8px; }
 
-    .identity-selector { font-size: 11px; background: #fff; padding: 3px; border-radius: 20px; border: 1px solid var(--border-color); display: flex; }
-    .identity-selector label { cursor: pointer; padding: 4px 12px; border-radius: 15px; }
-    input[type="radio"] { display: none; }
-    input[type="radio"]:checked + span { background: var(--accent-color); color: white; padding: 4px 12px; border-radius: 15px; }
+    .top-tools { 
+        position: sticky; top: 0; z-index: 100; width: 100%; 
+        background: rgba(242, 242, 239, 0.9); backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-color); 
+        display: flex; justify-content: space-between; align-items: center; 
+        padding: 12px 20px; box-sizing: border-box; 
+    }
 
-    /* 商品佈局 */
-    .product-grid { display: grid; gap: 10px; width: 95%; max-width: 1000px; grid-template-columns: repeat(2, 1fr); margin-top: 15px; }
+    .identity-selector label { cursor: pointer; font-size: 13px; }
+    .layout-switcher { display: flex; gap: 4px; background: #e0e0da; padding: 2px; border-radius: 8px; }
+    .switch-btn { padding: 6px 12px; border-radius: 6px; border: none; background: transparent; font-size: 12px; cursor: pointer; }
+    .switch-btn.active { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+    .product-grid { display: grid; gap: 12px; width: 94%; max-width: 1000px; grid-template-columns: repeat(2, 1fr); margin-top: 10px; }
     .product-grid.list-view { grid-template-columns: 1fr; }
 
-    .product-card { background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; }
-    .list-view .product-card { flex-direction: row; height: 120px; }
+    .product-card { 
+        background: var(--card-bg); border-radius: 16px; overflow: hidden; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; 
+    }
+    .list-view .product-card { flex-direction: row; height: 130px; }
 
-    .img-container { width: 100%; aspect-ratio: 1/1; overflow: hidden; cursor: pointer; }
-    .list-view .img-container { width: 120px; height: 120px; flex-shrink: 0; }
+    .img-container { width: 100%; aspect-ratio: 1/1; overflow: hidden; position: relative; }
+    .list-view .img-container { width: 130px; flex-shrink: 0; }
     .img-container img { width: 100%; height: 100%; object-fit: cover; }
 
-    .card-content { padding: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .card-title { font-size: 12px; font-weight: bold; line-height: 1.3; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .card-content { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-size: 13px; font-weight: 500; line-height: 1.4; height: 36px; overflow: hidden; }
+    .price-tag { color: var(--price-color); font-weight: 700; font-size: 16px; margin: 5px 0; }
 
-    /* 價格顯示 */
-    .price-tag { color: var(--price-color); font-weight: bold; font-size: 14px; margin: 4px 0; }
-    .info-link { font-size: 11px; color: var(--text-light); text-decoration: underline; cursor: pointer; margin-bottom: 5px; }
+    .add-btn { width: 100%; background: var(--accent-color); color: #fff; border: none; padding: 8px; border-radius: 8px; font-size: 12px; cursor: pointer; }
 
-    /* 下單區 */
-    .action-row { display: flex; flex-direction: column; gap: 5px; }
-    .spec-select { width: 100%; font-size: 11px; padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--text-main); }
-    .add-btn { width: 100%; background: var(--accent-color); color: #fff; border: none; padding: 7px; border-radius: 6px; font-size: 11px; cursor: pointer; }
-
-    /* 彈窗樣式 */
+    /* 彈窗 */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-    .modal-content { background: white; width: 85%; max-width: 400px; border-radius: 20px; padding: 20px; position: relative; max-height: 80vh; overflow-y: auto; }
-    .modal-close { position: absolute; top: 10px; right: 15px; font-size: 24px; color: #ccc; cursor: pointer; }
-    .detail-text { font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: var(--text-main); }
+    .modal-content { background: #fff; width: 90%; max-width: 400px; border-radius: 20px; padding: 20px; position: relative; max-height: 85vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; color: #999; cursor: pointer; }
 
-    .cart-float-btn { position: fixed; bottom: 20px; right: 20px; background: var(--accent-color); color: white; padding: 12px 20px; border-radius: 50px; z-index: 1000; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .spec-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin: 10px 0; font-size: 14px; }
+
+    .cart-float-btn { position: fixed; bottom: 25px; right: 20px; background: #333; color: white; padding: 14px 22px; border-radius: 50px; z-index: 1000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); font-size: 14px; }
 </style>
 </head>
 <body>
 
+<div class="brand-header">
+    <h1 class="brand-name">LINSHOP</h1>
+    <div class="brand-sub">精選各國良物・誠實代購服務</div>
+</div>
+
 <div class="top-tools">
     <div class="identity-selector">
-        <label><input type="radio" name="role" value="retail" checked onchange="updateView()"> <span>零售</span></label>
-        <label><input type="radio" name="role" value="wholesale" onchange="updateView()"> <span>批發</span></label>
+        <label><input type="radio" name="role" value="retail" checked onchange="updateView()"> 零售</label>
+        <label style="margin-left:8px"><input type="radio" name="role" value="wholesale" onchange="updateView()"> 批發</label>
     </div>
     <div class="layout-switcher">
-        <button class="switch-btn active" onclick="setGrid(true, this)">▦ 方格</button>
-        <button class="switch-btn" onclick="setGrid(false, this)">▤ 橫條</button>
+        <button class="switch-btn active" onclick="setGrid(true, this)">方格</button>
+        <button class="switch-btn" onclick="setGrid(false, this)">列表</button>
     </div>
 </div>
 
 <div class="product-grid" id="product-list"></div>
 
-<div class="cart-float-btn" onclick="toggleCart()">📋 明細 (<span id="cart-count">0</span>)</div>
+<div class="cart-float-btn" onclick="toggleCart()">
+    🛒 選購明細 (<span id="cart-count">0</span>)
+</div>
 
 <div id="detail-modal" class="modal" onclick="closeDetail(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="modal-close" onclick="document.getElementById('detail-modal').style.display='none'">&times;</span>
-        <img id="modal-img" style="width:100%; border-radius:10px; margin-bottom:15px;" src="">
-        <h3 id="modal-title" style="font-size: 16px; margin: 0 0 10px 0;"></h3>
-        <div id="modal-desc" class="detail-text"></div>
+        <img id="modal-img" style="width:100%; border-radius:12px; margin-bottom:15px;" src="">
+        
+        <div style="background:#f8f9fa; border-radius:10px; padding:10px; margin-bottom:15px; text-align:center; font-size:11px; color:var(--accent-color);">
+            📸 索取原圖請私訊官方 LINE 或至批發群組下載
+        </div>
+
+        <h3 id="modal-title" style="font-size: 17px; margin: 0 0 8px 0;"></h3>
+        <div id="modal-price" style="color:var(--price-color); font-size:20px; font-weight:700; margin-bottom:10px;"></div>
+        
+        <div id="spec-area"></div> <div id="modal-desc" style="font-size:13px; line-height:1.6; color:#666; white-space:pre-wrap; background:#fcfcfc; padding:10px; border-radius:8px;"></div>
+        
+        <button class="add-btn" id="modal-confirm-add" style="margin-top:20px; padding:15px; font-size:14px; font-weight:700;">確認加入清單</button>
     </div>
 </div>
 
 <div id="cart-modal" class="modal" onclick="toggleCart()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div style="text-align:center; font-weight:bold; margin-bottom:15px;">⸜❤︎⸝ 您的訂購明細</div>
-        <div id="cart-items-container"></div>
-        <div style="text-align:right; font-weight:bold; margin-top:10px; color:var(--price-color);">預估總計：$ <span id="cart-total-price">0</span></div>
-        <p style="font-size:11px; color:#aaa; text-align:center; margin-top:15px;">📸 請截圖此畫面傳送給我下單</p>
-        <button class="add-btn" onclick="toggleCart()">返回購物</button>
-        <button class="add-btn" style="background:#eee; color:#666; margin-top:5px;" onclick="clearCart()">清空重選</button>
+    <div class="modal-content">
+        <div style="text-align:center; font-weight:700; margin-bottom:15px; font-size:18px;">SHOPPING LIST</div>
+        <div id="cart-items-container" style="max-height:300px; overflow-y:auto;"></div>
+        <div style="text-align:right; font-weight:700; margin-top:15px; font-size: 20px; color:var(--price-color); border-top:1px solid #eee; padding-top:10px;">
+            Total: $ <span id="cart-total-price">0</span>
+        </div>
+        
+        <div style="background:#fff9f9; padding:12px; border-radius:10px; margin-top:15px; text-align:center; border:1px solid #ffebeb; font-size:12px;">
+            <div style="font-weight:700; color:#d9534f; margin-bottom:3px;">✨ 下單方式</div>
+            請將此清單「截圖」發送至官方 LINE 客服
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:15px;">
+            <button onclick="toggleCart()" style="flex:1; padding:12px; border-radius:8px; border:none; background:var(--accent-color); color:white;">繼續挑選</button>
+            <button onclick="clearCart()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#eee; color:#888;">重新選擇</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- 之後增加商品只需在這裡複製貼上一組 { ... } ---
     const products = [
         {
             id: 1, title: "Exoproxyl 積雪草安瓶修護霜 30ml",
             img: "https://img3.shop2000.com.tw/105667/p203/58640228-16o.jpg",
-            retail: 399, wholesale: 355,
-            desc: "【收單時間 03/14 23:59】\n🇰🇷 CICA EXOSOmethod™ 積雪草外囊泡20安瓶技術。\n高濃度修護，專為敏感及受損肌膚設計。\n交期：約4週。"
+            retail: 399, wholesale: 355, 
+            desc: "🇰🇷 CICA EXOSOmethod™ 積雪草技術。\n專為敏感及受損肌膚設計。\n🔸交期：約 4 週。"
         },
         {
             id: 2, title: "ILLIGO SEOUL 129 LOGO T恤",
             img: "https://img3.shop2000.com.tw/105667/p212/59262613-1o.jpg",
             retail: 950, wholesale: 850,
-            desc: "《單身即地獄》金高恩代言品牌！\n經典 LOGO 刺繡，100% 純棉材質。\n下單請截圖備註顏色（白,藍,紫,橘,奶）。"
+            desc: "《單身即地獄》金高恩代言品牌！\n經典 LOGO 刺繡，100% 純棉材質。\n🔸下單請備註顏色：白,藍,紫,橘,奶。"
         },
         {
             id: 3, title: "COVERNAT 大C羊羔毛棒球帽",
             img: "https://img3.shop2000.com.tw/105667/p212/59262602-1o.jpg",
             retail: 699, wholesale: 590,
-            desc: "立體羊羔毛設計，秋冬必備。\n修飾臉型，多色可選。"
+            desc: "立體羊羔毛設計，秋冬必備。\n帽型修飾臉型，多色可選。"
         },
         {
             id: 4, title: "CANMAKE 水光果凍打亮 04 冰透藍",
@@ -127,31 +161,31 @@
             id: 5, title: "GA 訂製奢光潤唇蜜 #01 晶透光",
             img: "https://img3.shop2000.com.tw/105667/p212/59241428-11o.jpg",
             retail: 450, wholesale: 430,
-            desc: "🔸貨源：韓免 (官網$1650)\n#一抹開啟嘟嘟水光模式\n15%高濃度角鯊烷，長效潤唇零黏膩。\n效期：2027/04"
+            desc: "🔸貨源：韓免 (官網售價$1650)\n#一抹上唇開啟嘟嘟水光模式💧\n15%高濃度角鯊烷，長效潤唇零黏膩。\n✅效期：2027/04"
         },
         {
             id: 6, title: "GUXON 凍感快充組 (頭/線自選)",
             img: "https://img3.shop2000.com.tw/105667/p213/59274139-1o.jpg",
-            retail: 390, wholesale: 330, // 預設頭的價格
+            retail: 390, wholesale: 330,
             isMulti: true,
             specs: [
-                { name: "30W 凍感快充頭", r: 390, w: 330 },
-                { name: "60W 果凍扁扁線", r: 250, w: 210 },
-                { name: "限時合購組(頭+線)", r: 599, w: 540 }
+                { name: "30W 凍感快充頭 (白/藍/紫/奶)", r: 390, w: 330 },
+                { name: "60W 果凍扁扁線 (白/藍/紫/橘)", r: 250, w: 210 },
+                { name: "限時合購組 (頭+線)", r: 599, w: 540 }
             ],
-            desc: "交期 4-6週。\n⭐30W快充頭：氮化鎵技術，摺疊插腳。\n⭐60W扁扁線：液態矽膠不纏繞。\n請備註顏色：白/藍/紫/橘/奶。"
+            desc: "⭐30W快充頭：氮化鎵技術，摺疊插腳。\n⭐60W扁扁線：液態矽膠，3mm超薄。\n🔸交期：約 4-6 週。"
         },
         {
             id: 7, title: "日本 RISUKAI 智慧液晶快充頭",
             img: "https://img3.shop2000.com.tw/105667/p201/58524823-1o.jpg",
             retail: 349, wholesale: 299,
-            desc: "【收單 03/16 23:59】\n即時顯示充電瓦數！日本 PSE 安規認證。\n三孔同步(C*2 + A*1)，出國旅行一顆搞定。"
+            desc: "最大輸出 30W，瓦數即時顯示。\n三孔同步 (C*2 + A*1)，日本 PSE 認證。\n🎨顏色：粉/藍/綠/灰/白/黑 (缺貨隨機)"
         },
         {
             id: 8, title: "艾絲樂小兔 透明冷水壺",
             img: "https://img3.shop2000.com.tw/105667/p212/59227616-1o.jpg",
             retail: 129, wholesale: 105,
-            desc: "【收單 03/16 23:59】\n超萌艾絲樂小兔！360度防漏設計。\n內含吸管(可拆卸)，圓潤手提把方便攜帶。"
+            desc: "超萌小兔兔！360度安全不滲漏。\n吸管可拆卸，圓潤手提把隨心帶著走。"
         }
     ];
 
@@ -160,64 +194,69 @@
     function renderProducts() {
         const container = document.getElementById('product-list');
         const role = document.querySelector('input[name="role"]:checked').value;
-        
         container.innerHTML = products.map(p => {
-            let priceDisp = role === 'retail' ? p.retail : p.wholesale;
-            let specHtml = p.isMulti ? 
-                `<select class="spec-select" id="spec-${p.id}">
-                    ${p.specs.map(s => `<option value="${role==='retail'?s.r:s.w}">${s.name} $${role==='retail'?s.r:s.w}</option>`).join('')}
-                </select>` : '';
-
+            let price = role === 'retail' ? p.retail : p.wholesale;
             return `
-            <div class="product-card">
-                <div class="img-container" onclick="openDetail(${p.id})"><img src="${p.img}"></div>
+            <div class="product-card" onclick="openDetail(${p.id})">
+                <div class="img-container"><img src="${p.img}" loading="lazy"></div>
                 <div class="card-content">
                     <div class="card-title">${p.title}</div>
-                    <div class="price-tag">$${priceDisp}${p.isMulti?'起':''}</div>
-                    <div class="info-link" onclick="openDetail(${p.id})">詳情</div>
-                    <div class="action-row">
-                        ${specHtml}
-                        <button class="add-btn" onclick="addToCart(${p.id})">+ 加入清單</button>
-                    </div>
+                    <div class="price-tag">$${price}${p.isMulti?'起':''}</div>
+                    <button class="add-btn">VIEW DETAILS</button>
                 </div>
-            </div>
-            `;
+            </div>`;
         }).join('');
     }
 
     function openDetail(id) {
         const p = products.find(x => x.id === id);
+        const role = document.querySelector('input[name="role"]:checked').value;
+        
         document.getElementById('modal-img').src = p.img;
         document.getElementById('modal-title').innerText = p.title;
         document.getElementById('modal-desc').innerText = p.desc;
-        document.getElementById('detail-modal').style.display = 'flex';
-    }
-
-    function addToCart(id) {
-        const p = products.find(x => x.id === id);
-        const role = document.querySelector('input[name="role"]:checked').value;
-        let finalTitle = p.title;
-        let finalPrice = role === 'retail' ? p.retail : p.wholesale;
-
-        if (p.isMulti) {
-            const sel = document.getElementById(`spec-${id}`);
-            finalPrice = parseInt(sel.value);
-            finalTitle += ` (${sel.options[sel.selectedIndex].text.split(' $')[0]})`;
+        document.getElementById('modal-price').innerText = `$${role==='retail'?p.retail:p.wholesale}${p.isMulti?'起':''}`;
+        
+        // 處理多規格顯示
+        const specArea = document.getElementById('spec-area');
+        specArea.innerHTML = '';
+        if(p.isMulti) {
+            let selectHtml = `<select id="spec-select-box" class="spec-select">`;
+            p.specs.forEach((s, idx) => {
+                let p_val = role === 'retail' ? s.r : s.w;
+                selectHtml += `<option value="${idx}">${s.name} - $${p_val}</option>`;
+            });
+            selectHtml += `</select>`;
+            specArea.innerHTML = selectHtml;
         }
 
-        cart.push({ title: finalTitle, price: finalPrice });
-        updateCartUI();
+        document.getElementById('modal-confirm-add').onclick = () => {
+            let finalTitle = p.title;
+            let finalPrice = role === 'retail' ? p.retail : p.wholesale;
+
+            if(p.isMulti) {
+                const sel = document.getElementById('spec-select-box');
+                const specObj = p.specs[sel.value];
+                finalTitle += ` (${specObj.name})`;
+                finalPrice = role === 'retail' ? specObj.r : specObj.w;
+            }
+
+            cart.push({ title: finalTitle, price: finalPrice });
+            updateCartUI();
+            document.getElementById('detail-modal').style.display='none';
+        };
+
+        document.getElementById('detail-modal').style.display = 'flex';
     }
 
     function updateCartUI() {
         document.getElementById('cart-count').innerText = cart.length;
-        let total = 0;
-        document.getElementById('cart-items-container').innerHTML = cart.map((item, idx) => {
-            total += item.price;
-            return `<div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px; border-bottom:1px dashed #eee; padding-bottom:3px;">
-                <span>${item.title}</span><span>$${item.price}</span>
-            </div>`;
-        }).join('');
+        let total = cart.reduce((s, i) => s + i.price, 0);
+        document.getElementById('cart-items-container').innerHTML = cart.map((item, index) => `
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; border-bottom:1px solid #f9f9f9; padding-bottom:5px;">
+                <span style="flex:1;">${item.title}</span>
+                <span style="font-weight:600; margin-left:10px;">$${item.price}</span>
+            </div>`).join('');
         document.getElementById('cart-total-price').innerText = total;
     }
 
