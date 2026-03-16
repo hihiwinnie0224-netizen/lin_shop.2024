@@ -48,7 +48,6 @@
             margin: 0 auto;
         }
 
-        /* 縮小搜尋框與按鈕列 */
         .search-bar-row {
             display: flex;
             gap: 8px;
@@ -68,7 +67,6 @@
             background: rgba(255, 255, 255, 0.9);
         }
 
-        /* 縮小切換按鈕 */
         .view-toggle, .role-switch {
             display: flex;
             background: #e8e7ed;
@@ -104,7 +102,6 @@
 
         input[name="role"] { display: none; }
 
-        /* 商品佈局 */
         #product-list {
             display: grid;
             gap: 15px;
@@ -112,12 +109,10 @@
             margin: 30px auto;
         }
 
-        /* 方格模式 */
         #product-list.grid {
             grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
         }
 
-        /* 橫條模式 - 優化手機端顯示 */
         #product-list.list {
             grid-template-columns: 1fr;
             max-width: 600px;
@@ -130,12 +125,13 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             display: flex;
             flex-direction: column;
+            cursor: pointer;
             transition: transform 0.3s;
         }
 
         #product-list.list .product-card {
             flex-direction: row;
-            height: 110px; /* 固定橫條高度，避免太大 */
+            height: 110px;
         }
 
         .img-container {
@@ -167,7 +163,7 @@
             color: #444;
             font-weight: 500;
             display: -webkit-box;
-            -webkit-line-clamp: 1; /* 橫條模式強制單行 */
+            -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -183,7 +179,6 @@
             color: #bbb;
         }
 
-        /* 彈窗優化 */
         .modal {
             display: none;
             position: fixed;
@@ -226,6 +221,7 @@
             justify-content: center; align-items: center;
             box-shadow: 0 4px 15px rgba(157, 138, 177, 0.4);
             z-index: 999;
+            cursor: pointer;
         }
 
         @media (max-width: 600px) {
@@ -283,7 +279,6 @@
     <span>🛒</span>
     <div id="cart-count" style="position: absolute; top: -5px; right: -5px; background: #d62828; border-radius: 50%; width: 20px; height: 20px; line-height: 20px; text-align: center; font-size: 11px; color: white;">0</div>
 </div>
-
 
 <script>
     const products = [
@@ -836,7 +831,6 @@
 ];
 
 let cart = [];
-    let currentRole = 'wholesale';
     let timers = {};
     let currentLayout = 'grid';
 
@@ -844,20 +838,15 @@ let cart = [];
         currentLayout = type;
         const list = document.getElementById('product-list');
         const btns = document.querySelectorAll('.view-btn');
-        
         list.className = type;
-        btns.forEach(btn => btn.classList.remove('active'));
-        if(type === 'grid') btns[0].classList.add('active');
-        else btns[1].classList.add('active');
-        
+        btns.forEach(btn => btn.classList.toggle('active', btn.innerText.includes(type === 'grid' ? '方格' : '橫條')));
         updateView();
     }
 
     function updateView() {
-        const searchInput = document.getElementById('product-search');
-        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const searchTerm = document.getElementById('product-search').value.toLowerCase();
         const roleEl = document.querySelector('input[name="role"]:checked');
-        currentRole = roleEl ? roleEl.value : 'wholesale';
+        const currentRole = roleEl ? roleEl.value : 'wholesale';
         
         const list = document.getElementById('product-list');
         list.innerHTML = '';
@@ -868,7 +857,7 @@ let cart = [];
             const price = currentRole === 'wholesale' ? p.wholesale : p.retail;
             const card = document.createElement('div');
             card.className = 'product-card';
-            card.addEventListener('click', () => openDetail(p.id));
+            card.onclick = () => openDetail(p.id);
             
             card.innerHTML = `
                 <div class="img-container"><img src="${p.img}" loading="lazy"></div>
@@ -889,7 +878,7 @@ let cart = [];
         const p = products.find(item => item.id === id);
         if (!p) return;
 
-        const modal = document.getElementById('detail-modal');
+        const role = document.querySelector('input[name="role"]:checked').value;
         const imgArea = document.getElementById('modal-img-area');
         
         if (p.images && p.images.length > 0) {
@@ -904,8 +893,7 @@ let cart = [];
         }
 
         document.getElementById('modal-title').innerText = p.title;
-        const price = currentRole === 'wholesale' ? p.wholesale : p.retail;
-        document.getElementById('modal-price').innerText = `$${price}`;
+        document.getElementById('modal-price').innerText = `$${role === 'wholesale' ? p.wholesale : p.retail}`;
         document.getElementById('modal-desc').innerText = p.desc || "尚無產品描述";
 
         const specArea = document.getElementById('spec-area');
@@ -913,11 +901,9 @@ let cart = [];
         if (p.isMulti && p.specs) {
             const select = document.createElement('select');
             select.id = 'active-spec';
-            select.className = 'aesthetic-select';
             select.style = "width:100%; padding:12px; margin:20px 0; border-radius:12px; border:1px solid #eee; background:#fff;";
-            
             p.specs.forEach(s => {
-                const sPrice = currentRole === 'wholesale' ? s.w : s.r;
+                const sPrice = role === 'wholesale' ? s.w : s.r;
                 const option = document.createElement('option');
                 option.value = s.name;
                 option.text = `${s.name} - $${sPrice}`;
@@ -927,11 +913,8 @@ let cart = [];
             specArea.appendChild(select);
         }
 
-        document.getElementById('modal-confirm-add').onclick = (e) => {
-            e.stopPropagation();
-            addToCart(p);
-        };
-        modal.style.display = 'flex';
+        document.getElementById('modal-confirm-add').onclick = () => addToCart(p);
+        document.getElementById('detail-modal').style.display = 'flex';
     }
 
     function closeModal() {
@@ -939,8 +922,9 @@ let cart = [];
     }
 
     function addToCart(p) {
+        const role = document.querySelector('input[name="role"]:checked').value;
         let finalTitle = p.title;
-        let finalPrice = currentRole === 'wholesale' ? p.wholesale : p.retail;
+        let finalPrice = role === 'wholesale' ? p.wholesale : p.retail;
 
         if (p.isMulti) {
             const specEl = document.getElementById('active-spec');
@@ -966,9 +950,9 @@ let cart = [];
             const div = document.createElement('div');
             div.style = "display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:12px; padding:12px; background:#f8f8f8; border-radius:12px;";
             div.innerHTML = `
-                <span style="flex:1; padding-right:10px;">${item.title}</span>
-                <span style="color:var(--price-color); font-weight:600;">$${item.price}</span>
-                <span onclick="removeFromCart(${index})" style="cursor:pointer; color:#ccc; padding-left:15px; font-size:18px;">✕</span>
+                <span style="flex:1;">${item.title}</span>
+                <span style="color:var(--price-color); font-weight:600; margin:0 10px;">$${item.price}</span>
+                <span onclick="removeFromCart(${index})" style="cursor:pointer; color:#ccc;">✕</span>
             `;
             container.appendChild(div);
         });
@@ -992,12 +976,11 @@ let cart = [];
         const endTime = new Date(endStr).getTime();
         const refresh = () => {
             const now = new Date().getTime();
-            const distance = endTime - now;
-            if (distance < 0) { el.innerText = "活動結束"; clearInterval(timers[id]); return; }
-            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            el.innerText = `倒數 ${d}天 ${h}:${m}`;
+            const d = endTime - now;
+            if (d < 0) { el.innerText = "活動結束"; clearInterval(timers[id]); return; }
+            const days = Math.floor(d / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            el.innerText = `倒數 ${days}天 ${hours}時`;
         };
         refresh();
         timers[id] = setInterval(refresh, 60000);
@@ -1011,18 +994,13 @@ let cart = [];
             text += `${i + 1}. ${item.title} $${item.price}\n`;
             total += item.price;
         });
-        text += "--------------------------\n";
-        text += `總計項目：${cart.length} 件\n應付金額：$${total}\n\n✨ 截圖或複製私訊客服即可！`;
-        navigator.clipboard.writeText(text).then(() => alert("✨ 清單已複製到剪貼簿！"));
+        text += `--------------------------\n總計項目：${cart.length} 件\n應付金額：$${total}\n\n✨ 截圖或複製私訊客服即可！`;
+        navigator.clipboard.writeText(text).then(() => alert("✨ 清單已複製！"));
     }
 
-    function clearCart() {
-        if (confirm("確定要清空嗎？")) { cart = []; updateCartUI(); }
-    }
-
-    window.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal')) event.target.style.display = 'none';
-    });
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') event.target.style.display = 'none';
+    };
 
     document.addEventListener('DOMContentLoaded', updateView);
 </script>
