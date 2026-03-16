@@ -1,134 +1,253 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINSHOP | Aesthetic Selection</title>
+    <title>LINSHOP 🛒 精選選物</title>
     <style>
         :root {
-            --bg-color: #f5f5f2;
+            --bg-color: #f8f7f5;
             --card-bg: #ffffff;
-            --accent-color: #8fa0a8; 
-            --text-main: #333333;
-            --text-light: #999999;
-            --border-color: #ebebe6;   
-            --price-color: #b5838d; 
-            --timer-color: #d68c8c;
+            --primary-text: #5a5a5a;
+            --accent-color: #a3b18a; /* Morandi 綠 */
+            --price-color: #bc6c25;  /* 柔和橘棕 */
+            --border-color: #e9e9e9;
         }
 
-        body { 
-            background-color: var(--bg-color); 
-            font-family: "PingFang TC", "STHeitiTC-Light", "Microsoft JhengHei", sans-serif; 
-            color: var(--text-main); 
-            margin: 0; padding-bottom: 100px; 
-            display: flex; flex-direction: column; align-items: center;
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
         }
 
-        /* Header */
-        .brand-header { width: 100%; padding: 40px 0 20px 0; text-align: center; }
-        .brand-name { font-size: 28px; letter-spacing: 8px; font-weight: 300; margin: 0; color: #555; }
-        .brand-sub { font-size: 10px; letter-spacing: 3px; color: var(--text-light); margin-top: 10px; text-transform: uppercase; }
-
-        .top-tools { 
-            position: sticky; top: 0; z-index: 100; width: 100%; 
-            background: rgba(245, 245, 242, 0.95); backdrop-filter: blur(5px);
-            border-bottom: 1px solid var(--border-color); 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 20px; box-sizing: border-box; 
+        /* 頂部導航與搜尋 */
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            text-align: center;
         }
 
-        .identity-selector label { cursor: pointer; font-size: 14px; margin-right: 12px; color: #777; display: inline-flex; align-items: center; }
-        .identity-selector input { margin-right: 5px; accent-color: var(--accent-color); }
-
-        .filter-section { width: 92%; max-width: 1200px; margin-top: 20px; }
-        .search-bar { width: 100%; margin-bottom: 15px; }
-        .search-bar input { 
-            width: 100%; padding: 12px 20px; border-radius: 25px; box-sizing: border-box;
-            border: 1px solid var(--border-color); background: #fff; font-size: 14px; outline: none; transition: 0.3s;
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
         }
 
-        /* Grid */
-        .product-grid { display: grid; gap: 15px; width: 92%; max-width: 1200px; grid-template-columns: repeat(2, 1fr); margin-top: 20px; }
-        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
-
-        /* Card Style */
-        .product-card { 
-            background: var(--card-bg); border-radius: 12px; overflow: hidden; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; flex-direction: column; 
-            transition: 0.3s; cursor: pointer; border: 1px solid transparent;
-        }
-        .img-container { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #fafafa; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .card-content { padding: 12px; flex-grow: 1; }
-        .card-title { font-size: 13px; font-weight: 500; height: 39px; overflow: hidden; margin-bottom: 8px;}
-        .price-tag { color: var(--price-color); font-weight: 700; font-size: 16px; }
-
-        .countdown-timer { 
-            font-size: 10px; color: var(--timer-color); margin-top: 8px;
-            background: rgba(214, 140, 140, 0.08); padding: 4px 8px; border-radius: 4px;
+        input[type="text"] {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            outline: none;
+            width: 250px;
         }
 
-        /* Modal & Images */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; padding: 25px; position: relative; max-height: 85vh; overflow-y: auto; }
-        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #ddd; cursor: pointer; }
-        
+        /* 角色切換 */
+        .role-switch {
+            background: #eee;
+            padding: 5px;
+            border-radius: 20px;
+            display: flex;
+        }
+        .role-switch label {
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+        input[name="role"] { display: none; }
+        input[name="role"]:checked + span {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 15px;
+            padding: 5px 15px;
+        }
+
+        /* 商品網格 */
+        #product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .product-card:hover { transform: translateY(-5px); }
+
+        .img-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-content { padding: 15px; }
+        .card-title { font-size: 14px; font-weight: 500; height: 40px; overflow: hidden; margin-bottom: 5px;}
+        .price-tag { color: var(--price-color); font-weight: bold; margin: 10px 0; }
+        .countdown-timer { font-size: 11px; color: #999; }
+
+        /* 彈窗樣式 (Modal) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 20px;
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* 多圖滑動區 */
         .image-scroller {
-            display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px;
-            snap-type: x mandatory; scrollbar-width: none;
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 10px;
         }
-        .image-scroller img { width: 90%; flex-shrink: 0; border-radius: 12px; snap-align: center; }
+        .image-scroller img {
+            width: 100%;
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            border-radius: 10px;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
 
-        .add-btn { width: 100%; background: var(--accent-color); color: #fff; border: none; padding: 15px; border-radius: 12px; margin-top: 20px; cursor: pointer; }
-        .cart-float-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #444; color: white; padding: 12px 30px; border-radius: 50px; z-index: 1000; cursor: pointer; }
+        /* 規格選擇器樣式 */
+        .aesthetic-select {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--primary-text);
+            font-size: 14px;
+        }
+
+        /* 購物車懸浮按鈕 */
+        .cart-fab {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            background: var(--accent-color);
+            color: white;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center; align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 999;
+        }
+        #cart-count {
+            position: absolute;
+            top: 0; right: 0;
+            background: #d62828;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            font-size: 11px;
+            color: white;
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-outline { background: #f2f2f2; color: #555; }
+
+        /* 響應式 */
+        @media (max-width: 600px) {
+            #product-list { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .header h1 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="brand-header">
-    <h1 class="brand-name">LINSHOP</h1>
-    <div class="brand-sub">Curated Select Shop / Since 2025</div>
-</div>
-
-<div class="top-tools">
-    <div class="identity-selector">
-        <label><input type="radio" name="role" value="wholesale" checked onchange="updateView()"> 批發</label>
-        <label><input type="radio" name="role" value="retail" onchange="updateView()"> 零售</label>
+<div class="header">
+    <h1>LINSHOP ✧ 精選選物</h1>
+    <div class="controls">
+        <input type="text" id="product-search" placeholder="搜尋商品名稱..." oninput="updateView()">
+        <div class="role-switch">
+            <label><input type="radio" name="role" value="wholesale" checked onclick="updateView()"><span>批發端</span></label>
+            <label><input type="radio" name="role" value="retail" onclick="updateView()"><span>零售端</span></label>
+        </div>
     </div>
 </div>
 
-<div class="filter-section">
-    <div class="search-bar">
-        <input type="text" id="product-search" placeholder="搜尋關鍵字..." oninput="updateView()">
-    </div>
-</div>
+<div id="product-list"></div>
 
-<div class="product-grid" id="product-list"></div>
-
-<div class="cart-float-btn" onclick="toggleCart()">
-    🛒 選購清單 (<span id="cart-count">0</span>)
-</div>
-
-<div id="detail-modal" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
+<div id="detail-modal" class="modal">
+    <div class="modal-content">
         <div id="modal-img-area"></div>
-        <h3 id="modal-title" style="margin: 15px 0 5px 0;"></h3>
-        <div id="modal-price" style="color:var(--price-color); font-size:20px; font-weight:700;"></div>
+        <h3 id="modal-title" style="margin: 15px 0 5px;"></h3>
+        <div id="modal-price" style="color:var(--price-color); font-size: 20px; font-weight: bold;"></div>
+        
         <div id="spec-area"></div>
-        <div id="modal-desc" style="font-size:13px; color:#666; margin-top:15px; line-height:1.6; white-space:pre-wrap;"></div>
-        <button class="add-btn" id="modal-confirm-add">加入購物清單</button>
+        
+        <p id="modal-desc" style="white-space: pre-line; font-size: 13px; color: #777; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;"></p>
+        
+        <button class="btn btn-primary" id="modal-confirm-add">加入清單</button>
+        <button class="btn btn-outline" onclick="closeModal()">返回列表</button>
     </div>
 </div>
 
-<div id="cart-modal" class="modal" onclick="toggleCart()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="text-align:center;">MY LIST</h3>
-        <div id="cart-items-container" style="max-height:300px; overflow-y:auto;"></div>
-        <div id="cart-total" style="text-align:right; font-weight:700; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">Total: $0</div>
-        <button class="add-btn" onclick="copyCartText()">複製清單文字</button>
-        <button class="add-btn" style="background:#eee; color:#999; margin-top:10px;" onclick="clearCart()">清空</button>
+<div id="cart-modal" class="modal">
+    <div class="modal-content">
+        <h3>🛒 我的選購清單</h3>
+        <div id="cart-items-container" style="max-height: 300px; overflow-y: auto; margin: 15px 0;"></div>
+        <div id="cart-total" style="text-align: right; font-weight: bold; font-size: 18px; margin-bottom: 15px;"></div>
+        <button class="btn btn-primary" onclick="copyCartText()">複製報單文字</button>
+        <button class="btn btn-outline" onclick="clearCart()" style="color: #d62828;">清空全部</button>
+        <button class="btn btn-outline" onclick="toggleCart()">返回購物</button>
     </div>
+</div>
+
+<div class="cart-fab" onclick="toggleCart()">
+    <span>🛒</span>
+    <div id="cart-count">0</div>
 </div>
 
 <script>
@@ -683,11 +802,14 @@
 
 let cart = [];
     let currentRole = 'wholesale';
+    let timers = {};
 
-    // 初始化渲染
     function updateView() {
-        const searchTerm = document.getElementById('product-search').value.toLowerCase();
-        currentRole = document.querySelector('input[name="role"]:checked').value;
+        const searchInput = document.getElementById('product-search');
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const roleEl = document.querySelector('input[name="role"]:checked');
+        currentRole = roleEl ? roleEl.value : 'wholesale';
+        
         const list = document.getElementById('product-list');
         list.innerHTML = '';
 
@@ -698,8 +820,9 @@ let cart = [];
             const card = document.createElement('div');
             card.className = 'product-card';
             card.onclick = () => openDetail(p.id);
+            
             card.innerHTML = `
-                <div class="img-container"><img src="${p.img}" alt=""></div>
+                <div class="img-container"><img src="${p.img}" loading="lazy"></div>
                 <div class="card-content">
                     <div class="card-title">${p.title}</div>
                     <div class="price-tag">$${price}</div>
@@ -711,34 +834,45 @@ let cart = [];
         });
     }
 
-    // 修復點不進去的問題：核心函數
     function openDetail(id) {
         const p = products.find(item => item.id === id);
+        if (!p) return;
+
         const modal = document.getElementById('detail-modal');
         const imgArea = document.getElementById('modal-img-area');
         
-        // 處理多圖與單圖
+        // 處理圖片顯示
         if (p.images && p.images.length > 0) {
-            imgArea.innerHTML = `<div class="image-scroller">${p.images.map(src => `<img src="${src}">`).join('')}</div><p style="font-size:10px; color:#ccc; text-align:center;">← 左右滑動查看更多 →</p>`;
+            imgArea.innerHTML = `
+                <div class="image-scroller">
+                    ${p.images.map(src => `<img src="${src}">`).join('')}
+                </div>
+                <p style="font-size:10px; color:#bbb; text-align:center; margin-top:5px;">← 左右滑動查看細節 →</p>
+            `;
         } else {
-            imgArea.innerHTML = `<img src="${p.img}" style="width:100%; border-radius:12px;">`;
+            imgArea.innerHTML = `<img src="${p.img}" style="width:100%; border-radius:12px; aspect-ratio:1/1; object-fit:cover;">`;
         }
 
         document.getElementById('modal-title').innerText = p.title;
         const price = currentRole === 'wholesale' ? p.wholesale : p.retail;
         document.getElementById('modal-price').innerText = `$${price}`;
-        document.getElementById('modal-desc').innerText = p.desc;
+        document.getElementById('modal-desc').innerText = p.desc || "尚無產品描述";
 
-        // 處理規格選擇
+        // 處理規格
         const specArea = document.getElementById('spec-area');
         specArea.innerHTML = '';
         if (p.isMulti && p.specs) {
             const select = document.createElement('select');
             select.id = 'active-spec';
-            select.style = "width:100%; padding:10px; margin-top:10px; border-radius:8px; border:1px solid #eee;";
+            select.className = 'aesthetic-select';
+            
             p.specs.forEach(s => {
                 const sPrice = currentRole === 'wholesale' ? s.w : s.r;
-                select.innerHTML += `<option value="${s.name}" data-price="${sPrice}">${s.name} - $${sPrice}</option>`;
+                const option = document.createElement('option');
+                option.value = s.name;
+                option.text = `${s.name} - $${sPrice}`;
+                option.dataset.price = sPrice;
+                select.appendChild(option);
             });
             specArea.appendChild(select);
         }
@@ -757,9 +891,9 @@ let cart = [];
 
         if (p.isMulti) {
             const specEl = document.getElementById('active-spec');
-            const selected = specEl.options[specEl.selectedIndex];
-            finalTitle += ` (${selected.value})`;
-            finalPrice = parseInt(selected.getAttribute('data-price'));
+            const selectedOption = specEl.options[specEl.selectedIndex];
+            finalTitle += ` (${selectedOption.value})`;
+            finalPrice = parseInt(selectedOption.dataset.price);
         }
 
         cart.push({ title: finalTitle, price: finalPrice });
@@ -776,14 +910,21 @@ let cart = [];
 
         cart.forEach((item, index) => {
             total += item.price;
-            container.innerHTML += `
-                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px; padding:5px; background:#fafafa;">
-                    <span>${item.title}</span>
-                    <span style="color:var(--price-color)">$${item.price}</span>
-                </div>
+            const div = document.createElement('div');
+            div.style = "display:flex; justify-content:space-between; align-items:center; font-size:13px; margin-bottom:8px; padding:8px; background:#f9f9f9; border-radius:5px;";
+            div.innerHTML = `
+                <span style="flex:1;">${item.title}</span>
+                <span style="color:var(--price-color); font-weight:bold; margin: 0 10px;">$${item.price}</span>
+                <span onclick="removeFromCart(${index})" style="cursor:pointer; color:#ccc; padding:0 5px;">✕</span>
             `;
+            container.appendChild(div);
         });
-        totalEl.innerText = `Total: $${total}`;
+        totalEl.innerText = `總計金額：$${total}`;
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCartUI();
     }
 
     function toggleCart() {
@@ -792,35 +933,54 @@ let cart = [];
     }
 
     function startTimer(id, endStr) {
+        if (timers[id]) clearInterval(timers[id]);
         const el = document.getElementById(`timer-${id}`);
-        function refresh() {
+        if (!el) return;
+
+        const endTime = new Date(endStr).getTime();
+        const refresh = () => {
             const now = new Date().getTime();
-            const distance = new Date(endStr).getTime() - now;
-            if (distance < 0) { el.innerText = "活動已結束"; el.style.color = "#ccc"; return; }
+            const distance = endTime - now;
+            if (distance < 0) {
+                el.innerText = "活動已結束";
+                clearInterval(timers[id]);
+                return;
+            }
             const d = Math.floor(distance / (1000 * 60 * 60 * 24));
             const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             el.innerText = `倒數: ${d}天 ${h}時 ${m}分`;
-        }
-        setInterval(refresh, 60000);
+        };
         refresh();
+        timers[id] = setInterval(refresh, 60000);
     }
 
     function copyCartText() {
-        if (cart.length === 0) return alert("清單是空的");
-        let text = "🛒 LINSHOP 我的選購清單：\n------------------\n";
+        if (cart.length === 0) return alert("清單是空的唷！");
+        let text = "🛒 LINSHOP 我的選購清單：\n--------------------------\n";
         let total = 0;
-        cart.forEach(item => {
-            text += `• ${item.title} $${item.price}\n`;
+        cart.forEach((item, i) => {
+            text += `${i + 1}. ${item.title} $${item.price}\n`;
             total += item.price;
         });
-        text += `------------------\n總計：$${total}\n✨ 感謝選購！`;
-        navigator.clipboard.writeText(text).then(() => alert("清單已複製，可直接貼給客服或小幫手！"));
+        text += "--------------------------\n";
+        text += `總計項目：${cart.length} 件\n`;
+        text += `應付金額：$${total}\n\n✨ 截圖或複製私訊客服即可！`;
+        navigator.clipboard.writeText(text).then(() => alert("✨ 清單已複製！"));
     }
 
     function clearCart() {
-        cart = [];
-        updateCartUI();
+        if (confirm("確定要清空嗎？")) {
+            cart = [];
+            updateCartUI();
+        }
+    }
+
+    // 點擊彈窗外部關閉
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
     }
 
     window.onload = updateView;
