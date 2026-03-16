@@ -229,6 +229,26 @@
             .header h1 { font-size: 1.2rem; }
             input[type="text"] { width: 120px; }
         }
+        /* --- 原單標籤樣式 --- */
+.img-container {
+    position: relative; /* 必加，讓標籤準確定位在圖片上 */
+}
+
+/* 當容器同時有 original-tag 類別時，顯示標籤 */
+.original-tag::after {
+    content: "原單精品";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--accent-color);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 5;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
     </style>
 </head>
 <body>
@@ -790,6 +810,7 @@
     },
         {
         id: 47,
+        isOriginal: true, // 新增這個標記
         category: "factory",
         title: "👟 熱賣莆田新款新色 PM 賽車鞋 (Rosé 同款)",
         img: "https://i.ibb.co/NccPpfk/6-ECA4170-A4-C5-462-D-9-CD0-E9-BE42-A45-D1-D.jpg",
@@ -830,6 +851,7 @@
    },
         {
             id: 48,
+            isOriginal: true, // 新增這個標記
             category: "factory",
             title: "👟 熱賣經典款-潮牌AF1純原休閒百搭男女運動板鞋",
             img: "https://i.ibb.co/pjSLFbBB/2-D54-BB75-3227-4-C1-A-A41-E-F9-F5-CA4-E1496.jpg",
@@ -862,6 +884,7 @@
         },
         {
             id: 49,
+            isOriginal: true, // 新增這個標記
             category: "factory",
             title: "✨ 2026韓系春夏新款厚底鬆糕百搭增高老爹鞋",
             img: "https://i.ibb.co/d0kbGNPc/622-A6-AC2-C6-DC-41-EF-A908-CFB206-DC8-CA0.jpg",
@@ -885,6 +908,7 @@
         },
         {
             id: 50,
+            isOriginal: true, // 新增這個標記
             category: "factory",
             title: "🏀 跨境新款氣墊底防滑厚底增高情侶籃球鞋",
             img: "https://i.ibb.co/wZGkmyjM/1-DE865-C1-A6-D7-4-BBC-893-A-A7-CE4121330-F.jpg",
@@ -938,25 +962,30 @@ let cart = [];
         const filtered = products.filter(p => p.title.toLowerCase().includes(searchTerm));
 
         filtered.forEach(p => {
-            const price = currentRole === 'wholesale' ? p.wholesale : p.retail;
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.onclick = () => openDetail(p.id);
-            
-            card.innerHTML = `
-                <div class="img-container"><img src="${p.img}" loading="lazy"></div>
-                <div class="card-content">
-                    <div>
-                        <div class="card-title">${p.title}</div>
-                        <div class="price-tag">$${price}</div>
-                    </div>
-                    <div class="countdown-timer" id="timer-${p.id}">計算中...</div>
+        const price = currentRole === 'wholesale' ? p.wholesale : p.retail;
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = () => openDetail(p.id);
+
+        // --- 加入這兩行判斷 ---
+        const tagClass = p.isOriginal ? 'original-tag' : '';
+        const originalIcon = p.isOriginal ? '<span style="color:var(--accent-color);">✦</span> ' : '';
+
+        card.innerHTML = `
+            <div class="img-container ${tagClass}"> <img src="${p.img}" loading="lazy">
+            </div>
+            <div class="card-content">
+                <div>
+                    <div class="card-title">${originalIcon}${p.title}</div> <div class="price-tag">$${price}</div>
                 </div>
-            `;
-            list.appendChild(card);
-            startTimer(p.id, p.endTime);
-        });
-    }
+                <div class="countdown-timer" id="timer-${p.id}">計算中...</div>
+            </div>
+        `;
+        list.appendChild(card);
+        startTimer(p.id, p.endTime);
+    });
+}
+
 
     function openDetail(id) {
         const p = products.find(item => item.id === id);
