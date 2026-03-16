@@ -13,7 +13,7 @@
             --text-light: #999999;
             --border-color: #ebebe6;   
             --price-color: #b5838d; /* Morandi Rose */
-            --timer-color: #d68c8c;
+            --timer-color: #d68c8c; /* Warm Red for timer */
         }
 
         body { 
@@ -37,15 +37,13 @@
             padding: 15px 20px; box-sizing: border-box; 
         }
 
-        .identity-selector label { cursor: pointer; font-size: 13px; margin-right: 12px; color: #777; }
-        .identity-selector input { accent-color: var(--accent-color); }
+        .identity-selector label { cursor: pointer; font-size: 14px; margin-right: 12px; color: #777; display: inline-flex; align-items: center; }
+        .identity-selector input { margin-right: 5px; accent-color: var(--accent-color); }
 
         /* Grid */
         .product-grid { display: grid; gap: 15px; width: 92%; max-width: 1200px; grid-template-columns: repeat(2, 1fr); margin-top: 20px; }
         @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
-        
-        .product-grid.list-view { grid-template-columns: 1fr; }
 
         /* Card Style */
         .product-card { 
@@ -54,16 +52,26 @@
             transition: 0.3s; cursor: pointer; border: 1px solid transparent;
         }
         .product-card:hover { transform: translateY(-3px); border-color: #eee; }
-        .list-view .product-card { flex-direction: row; height: 140px; }
 
         .img-container { width: 100%; aspect-ratio: 1/1; overflow: hidden; background: #fafafa; }
-        .list-view .img-container { width: 140px; }
         .img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
 
         .card-content { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .card-title { font-size: 13px; font-weight: 500; line-height: 1.5; height: 39px; overflow: hidden; color: #444; }
-        .price-tag { color: var(--price-color); font-weight: 600; font-size: 16px; margin: 5px 0; }
-        .countdown-timer { font-size: 9px; color: var(--timer-color); letter-spacing: 0.5px; }
+        .price-tag { color: var(--price-color); font-weight: 700; font-size: 16px; margin: 5px 0; }
+        
+        /* 倒數計時器樣式優化 */
+        .countdown-timer { 
+            font-size: 11px; 
+            color: var(--timer-color); 
+            letter-spacing: 0.2px; 
+            font-weight: 500;
+            background: rgba(214, 140, 140, 0.08);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .timer-ended { color: #bbb !important; background: #f0f0f0 !important; }
 
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; justify-content: center; align-items: center; }
@@ -87,8 +95,8 @@
 
 <div class="top-tools">
     <div class="identity-selector">
-        <label><input type="radio" name="role" value="retail" checked onchange="updateView()"> 零售</label>
-        <label><input type="radio" name="role" value="wholesale" onchange="updateView()"> 批發</label>
+        <label><input type="radio" name="role" value="wholesale" checked onchange="updateView()"> 批發</label>
+        <label><input type="radio" name="role" value="retail" onchange="updateView()"> 零售</label>
     </div>
     <div style="font-size: 12px; color: #aaa;">✨ 精選良物</div>
 </div>
@@ -124,369 +132,37 @@
 
 <script>
     const products = [
-        {
-            id: 1, title: "Exoproxyl 積雪草安瓶修護霜 30ml",
-            img: "https://img3.shop2000.com.tw/105667/p203/58640228-16o.jpg",
-            retail: 399, wholesale: 355, 
-            endTime: "2026/03/14 23:59:59",
-            desc: "🇰🇷 CICA EXOSOmethod™ 積雪草技術。\n🔸交期：約 4 週。"
-        },
-        {
-            id: 2, title: "ILLIGO SEOUL 129 LOGO T恤",
-            img: "https://img3.shop2000.com.tw/105667/p212/59262613-1o.jpg",
-            retail: 950, wholesale: 850,
-            endTime: "2026/03/20 23:59:59",
-            desc: "《單身即地獄》金高恩代言品牌！\n🔸顏色：白,藍,紫,橘,奶。"
-        },
-        {
-            id: 3, title: "COVERNAT 大C羊羔毛棒球帽",
-            img: "https://img3.shop2000.com.tw/105667/p212/59262602-1o.jpg",
-            retail: 699, wholesale: 590,
-            endTime: "2026/03/20 23:59:59",
-            desc: "立體羊羔毛設計，秋冬必備。"
-        },
-        {
-            id: 4, title: "CANMAKE 水光果凍打亮 04 冰透藍",
-            img: "https://img3.shop2000.com.tw/105667/p212/59244009-1o.jpg",
-            retail: 229, wholesale: 205,
-            endTime: "2026/03/15 23:59:59",
-            desc: "日本限定色！打造透明感肌膚。"
-        },
-        {
-            id: 5, title: "GA 訂製奢光潤唇蜜 #01 晶透光",
-            img: "https://img3.shop2000.com.tw/105667/p212/59241428-11o.jpg",
-            retail: 450, wholesale: 430,
-            endTime: "2026/03/18 23:59:59",
-            desc: "🔸貨源：韓免 (官網售價$1650)\n✅效期：2027/04"
-        },
-        {
-            id: 6, title: "GUXON 凍感快充組 (頭/線自選)",
-            img: "https://img3.shop2000.com.tw/105667/p213/59274139-1o.jpg",
-            retail: 390, wholesale: 330,
-            isMulti: true,
-            endTime: "2026/03/25 23:59:59",
-            specs: [
-                { name: "30W 凍感快充頭 (白/藍/紫/奶)", r: 390, w: 330 },
-                { name: "60W 果凍扁扁線 (白/藍/紫/橘)", r: 250, w: 210 },
-                { name: "限時合購組 (頭+線)", r: 599, w: 540 }
-            ],
-            desc: "⭐氮化鎵技術 / 液態矽膠。"
-        },
-        {
-            id: 7, title: "日本 RISUKAI 智慧液晶快充頭",
-            img: "https://img3.shop2000.com.tw/105667/p201/58524823-1o.jpg",
-            retail: 349, wholesale: 299,
-            endTime: "2026/03/16 23:59:59",
-            desc: "最大輸出 30W，瓦數即時顯示。\n🎨顏色：粉/藍/綠/灰/白/黑"
-        },
-        {
-            id: 8, title: "艾絲樂小兔 透明冷水壺",
-            img: "https://img3.shop2000.com.tw/105667/p212/59227616-1o.jpg",
-            retail: 129, wholesale: 105,
-            endTime: "2026/03/16 23:59:59",
-            desc: "超萌小兔兔！360度安全不滲漏。"
-        },
-        {
-            id: 9, 
-            title: "迪士尼史迪奇抱娃娃吊飾 13cm",
-            img: "https://img3.shop2000.com.tw/105667/p213/59296183-1o.jpg",
-            retail: 269, wholesale: 225,
-            endTime: "2026/03/21 23:59:59",
-            desc: "超療癒的史迪奇抱著小金，萌萌造型一看就愛上！\n圓滾滾大眼睛＋柔軟絨毛材質，掛在包包上最吸睛。\n尺寸：13CM\n🔸交期：約 4 週。"
-        },
-        {
-            id: 10, 
-            title: "日本大創 洗臉用起泡器 (ほいっぷるん)",
-            img: "https://img3.shop2000.com.tw/105667/p212/59227174-2o.jpg",
-            retail: 55, wholesale: 49,
-            endTime: "2026/03/16 23:59:59",
-            desc: "✨ 限時加碼：任選 2 入只要 $99！\n只要一點點洗面乳＋水，按壓幾下馬上打出奶霜般濃密泡泡，溫柔清潔不傷臉。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 11, 
-            title: "日本 毛球去除刷 (2色隨機出貨)",
-            img: "https://img3.shop2000.com.tw/105667/p212/59227165-2o.jpg",
-            retail: 55, wholesale: 49,
-            endTime: "2026/03/16 23:59:59",
-            desc: "✨ 限時快閃：任選 2 入只要 $99！\n特殊刷毛設計，一刷即淨，不傷衣料。\n適用毛衣、外套、沙發、寵物毛清理。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 12, 
-            title: "MLB 復古水洗老帽 LA 刺繡款",
-            img: "https://img3.shop2000.com.tw/105667/p213/59296103-1o.jpg",
-            retail: 899, wholesale: 820,
-            endTime: "2026/03/17 23:59:59",
-            desc: "經典 LA 刺繡搭配復古水洗布料，帶點做舊感。弧形帽簷修飾臉型，男女皆可戴。\n頭圍：約 58cm (可調節)\n🔸交期：約 4-6 週。"
-        },
-        {
-            id: 13, 
-            title: "POWER TO THE PEOPLE 老虎刺繡復古街頭Tee",
-            img: "https://img3.shop2000.com.tw/105667/p213/59296088-1o.jpg",
-            retail: 799, wholesale: 690,
-            isMulti: true,
-            endTime: "2026/03/20 23:59:59",
-            specs: [
-                { name: "黑色 - M", r: 799, w: 690 },
-                { name: "黑色 - L (缺貨)", r: 799, w: 690 },
-                { name: "米白 - M", r: 799, w: 690 },
-                { name: "米白 - L", r: 799, w: 690 },
-                { name: "深灰 - M", r: 799, w: 690 },
-                { name: "深灰 - L", r: 799, w: 690 }
-            ],
-            desc: "日系 Vintage 老虎立體刺繡，質感十足。\n採用 100% 空紡紗棉質，手感乾爽透氣。\n📏尺寸參考：M(衣長67/胸54), L(衣長70/胸57), LL(衣長73/胸60)\n🔸交期：約 2-4 週。"
-        },
-        {
-            id: 14, 
-            title: "iBRIDGE 5000mAh 固態電池極薄無線行充",
-            img: "https://img3.shop2000.com.tw/105667/p213/59296020-5o.jpg",
-            retail: 990, wholesale: 890,
-            endTime: "2026/03/20 23:59:59",
-            desc: "業界最薄 0.8cm，僅 104g 名片大小。\nSSB固態防爆電芯，安心首選。強力磁吸支援 20W 快充。\n✅台灣 BSMI+NCC 認證，一年保固。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 15,
-            title: "迪士尼史迪奇毛衣眨眼絨毛吊飾 12cm",
-            img: "https://img3.shop2000.com.tw/105667/p213/59296052-1o.jpg",
-            retail: 279, wholesale: 225,
-            endTime: "2026/03/20 23:59:59",
-            desc: "史迪奇小可愛吊飾來啦 🥺💛\n毛絨絨觸感＋超萌眨眼表情，搭配針織小毛衣造型，質感爆棚！\n📏尺寸：約12cm\n⚠️吊牌為簡體字版本，有防偽標籤。\n🔸交期：約 4 週。"
-        },
-        {
-            id: 16,
-            title: "KANGOL 雙飲式手提冰霸杯 880ml",
-            img: "https://img3.shop2000.com.tw/105667/p213/59279825-1o.jpg",
-            retail: 399, wholesale: 320,
-            isMulti: true,
-            endTime: "2026/03/16 23:59:59",
-            specs: [
-                { name: "櫻霧粉 (Sakura Mist)", r: 399, w: 320 },
-                { name: "極簡黑 (Minimalist Black)", r: 399, w: 320 }
-            ],
-            desc: "🔥正版授權！日本潮流圈瘋傳。\n雙層真空304不鏽鋼，保溫保冷效果極佳。手提設計一拎就走。\n容量：880ml\n🔸交期：約 6-8 週。"
-        },
-        {
-            id: 17,
-            title: "日本 KOSE URUMINA+ 生光澤水光UV乳液 35g",
-            img: "https://img3.shop2000.com.tw/105667/p211/59213398-1o.jpg",
-            retail: 239, wholesale: 205,
-            isMulti: true,
-            endTime: "2026/03/16 23:59:59",
-            specs: [
-                { name: "01 自然米色 (Natural Beige)", r: 239, w: 205 },
-                { name: "02 薰衣草紫 (Lavender)", r: 239, w: 205 }
-            ],
-            desc: "✨日本2026/02新款！美容液高達93%配方。\n防曬、潤色、提亮氣色一次完成，可用肥皂卸除。\nSPF50+ PA++++\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 18,
-            title: "日本 CEZANNE 美容液up 光澤潤唇唇膏 3.2g",
-            img: "https://img3.shop2000.com.tw/105667/p211/59213315-1o.jpg",
-            retail: 229, wholesale: 200,
-            isMulti: true,
-            endTime: "2026/03/16 23:59:59",
-            specs: [
-                { name: "101 成熟感無花果摩卡色", r: 229, w: 200 },
-                { name: "201 優雅玫瑰粉", r: 229, w: 200 },
-                { name: "301 甜美蜜桃珊瑚色", r: 229, w: 200 }
-            ],
-            desc: "💄美容液成分高達80%！\n顯色自然且高保濕，打造溫柔光澤感的水潤雙唇。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 19,
-            title: "日本 萬協製藥 ACNE CREAM 去痘膏 24g",
-            img: "https://img3.shop2000.com.tw/105667/p211/59213234-1o.jpg",
-            retail: 229, wholesale: 190,
-            endTime: "2026/03/16 23:59:59",
-            desc: "日本大國專賣！改善紅腫發炎，軟化角質清除毛孔堵塞。\n清爽不黏膩，適合青春痘、壓力痘、生理期爆痘。\n🔸容量：24g\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 20,
-            title: "巨顯瘦！斜切彎刀水洗牛仔神褲",
-            img: "https://img3.shop2000.com.tw/105667/p211/59207933-1o.jpg",
-            retail: 399, wholesale: 340,
-            isMulti: true,
-            endTime: "2026/03/16 23:59:59",
-            specs: [
-                { name: "尺寸 S", r: 399, w: 340 },
-                { name: "尺寸 M", r: 399, w: 340 },
-                { name: "尺寸 L", r: 399, w: 340 },
-                { name: "尺寸 XL", r: 399, w: 340 },
-                { name: "尺寸 2XL", r: 399, w: 340 }
-            ],
-            desc: "😌神褲等級！斜切車線＋彎刀版型，完美修飾腿型。\n高腰設計修飾腰線，直筒微寬版型不挑身形。\n📏尺寸參考：S(腰33) ~ 2XL(腰40)\n🔸交期：預購約 20-40 工作天。"
-        },
-        {
-            id: 21,
-            title: "滋露 波吉巧克力風味糖果 (12條/盒)",
-            img: "https://img3.shop2000.com.tw/105667/p211/59185338-1o.jpg",
-            retail: 149, wholesale: 125,
-            isMulti: true,
-            endTime: "2026/03/16 23:59:59",
-            specs: [
-                { name: "單盒 (白盒隨機包裝)", r: 149, w: 125 },
-                { name: "組合價 (兩盒共24條)", r: 289, w: 250 }
-            ],
-            desc: "💟經典組合：草莓、咖啡、奶油、奶酥四種口味一次滿足。\n一盒12條，迷你小巧，辦公室療癒首選。\n🔸產地：台灣\n🔸交期：預購約 20-40 工作天。"
-        },
-        {
-            id: 22,
-            title: "日本 EVE 金色DX加強錠 40錠 (藍金盒)",
-            img: "https://img3.shop2000.com.tw/105667/p142/53969996-1o.jpg",
-            retail: 349, wholesale: 290,
-            endTime: "2026/03/16 23:59:59",
-            desc: "快速抑制劇烈頭痛！添加氧化鎂保護胃黏膜，溫和不刺激。\n✅效期：2027/12\n⛔禁止公開平台販售，觸法需自行負責。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 23,
-            title: "infoThink 小牡蠣系列 無線滑鼠/鍵盤",
-            img: "https://img3.shop2000.com.tw/105667/p210/59158062-1o.jpg",
-            retail: 599, wholesale: 550,
-            isMulti: true,
-            endTime: "2026/03/16 23:59:59",
-            specs: [
-                { name: "無線滑鼠", r: 599, w: 550 },
-                { name: "無線鍵盤", r: 899, w: 799 },
-                { name: "大全配 (滑鼠+鍵盤)", r: 1399, w: 1250 }
-            ],
-            desc: "🐚迪士尼正式授權！藍牙/2.4G 雙模式切換。\n靜音敲擊設計，環保充電循環使用，可愛與功能兼具。\n🔸交期：預購約四月初到貨。"
-        },
-        {
-            id: 24,
-            title: "日本 無印良品 MUJI 睡眠噴霧 300ml",
-            img: "https://img3.shop2000.com.tw/105667/p187/57463540-1o.jpg",
-            retail: 549, wholesale: 495,
-            endTime: "2026/03/16 23:59:59",
-            desc: "🌙日本爆紅！佛手柑×甜橙 100%天然精油。\n被封為「睡眠麻藥」，一噴進入舒壓模式，大容量可用約1000次。\n🔸容量：300mL\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 25,
-            title: "泰國 MINI MONO 迪士尼聯名玩具總動員托特包 L號",
-            img: "https://img3.shop2000.com.tw/105667/p213/59280707-1o.jpg",
-            retail: 520, wholesale: 460,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "1️⃣ 粉色 KINDNESS CLUB", r: 520, w: 460 },
-                { name: "2️⃣ 深藍 SPACE CRANE", r: 520, w: 460 },
-                { name: "3️⃣ 紫色 PIZZA PLANET (三眼怪)", r: 520, w: 460 },
-                { name: "4️⃣ 白色 TOY STORY", r: 520, w: 460 }
-            ],
-            desc: "可愛爆擊！L號大容量托特包，寬30cm/高24cm，可放書本水壺。\n包底加厚PVC板不塌陷，重量僅0.4kg輕盈有型。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 26,
-            title: "正版授權｜Snoopy 史努比 Olaf 雷射木鉛筆 12入盒裝",
-            img: "https://img3.shop2000.com.tw/105667/p212/59258442-1o.jpg",
-            retail: 99, wholesale: 80,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "單盒裝 (12入)", r: 99, w: 80 },
-                { name: "文具狂熱組 (2盒)", r: 188, w: 160 }
-            ],
-            desc: "超萌 Olaf 呆萌表情！筆芯顯色好寫，削筆滑順不卡屑。\n精美盒裝，送禮自用文具控必收。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 27,
-            title: "卡娜赫拉的小動物 迷你隨身濕紙巾 (一組3串)",
-            img: "https://img3.shop2000.com.tw/105667/p212/59258426-1o.jpg",
-            retail: 135, wholesale: 110,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "一組 (共3串/24包)", r: 135, w: 110 },
-                { name: "全家囤貨組 (共6串/48包)", r: 259, w: 215 }
-            ],
-            desc: "迷你尺寸隨身帶！RO純水成分，無酒精、無螢光劑，添加蘆薈萃取。\n每串擁有四款超萌圖樣，張張分明不連抽。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 28,
-            title: "韓國 TIRTIR 持久光彩遮瑕氣墊粉餅 (水光紅盒)",
-            img: "https://img3.shop2000.com.tw/105667/p212/59242609-1o.jpg",
-            retail: 269, wholesale: 230,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "迷你隨身版 4.5g - 21N象牙白", r: 269, w: 230 },
-                { name: "迷你隨身版 4.5g - 23N自然白", r: 269, w: 230 },
-                { name: "經典正裝版 18g - 21N象牙白", r: 420, w: 365 },
-                { name: "經典正裝版 18g - 23N自然白", r: 420, w: 365 },
-                { name: "全妝組合 (正裝21N+迷你21N)", r: 650, w: 580 }
-            ],
-            desc: "韓國 Olive Young 霸榜冠軍！72小時持妝，水光奶油肌效果。\n遮瑕力強但不厚重，含玻尿酸與煙酰胺邊妝邊保濕。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 29,
-            title: "韓國 AVCA 積雪草茶樹淨痘修護精華油 8g",
-            img: "https://img3.shop2000.com.tw/105667/p211/59186835-1o.jpg",
-            retail: 139, wholesale: 115,
-            endTime: "2026/03/23 23:59:59",
-            desc: "快速消痘法寶！4-松油醇核心成分，比純茶樹精油更溫和有效。\n透明輕盈質地，淡淡草本香，厚敷隔天明顯退紅。\n🔸效期：2028/07\n🔸交期：預購約 20-40 工作天。"
-        },
-        {
-            id: 30,
-            title: "🥤 攜帶式榨汁杯 450mL (白)",
-            img: "https://img3.shop2000.com.tw/105667/p211/59186117-1o.jpg",
-            retail: 219, wholesale: 175,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "單台 (附充電線)", r: 219, w: 175 },
-                { name: "健康雙享組 (兩台)", r: 399, w: 340 }
-            ],
-            desc: "旋風級 6 葉精鋼刀頭，18,000rpm 高速運轉。1500mAh 大續航。\n磁感應安全鎖，開蓋即斷電。食品級 PC 材質安心飲用。\n🔸注意：清洗時底座不可浸泡水中。\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 31,
-            title: "理膚寶水 B5+全面修復霜(升級版) 15ml 一組3條",
-            img: "https://img3.shop2000.com.tw/105667/p211/59214592-1o.jpg",
-            retail: 315, wholesale: 265,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "修復霜一組 (15ml x 3)", r: 315, w: 265 },
-                { name: "肌膚守護組 (B5三條 + AVCA精華油)", r: 439, w: 370 }
-            ],
-            desc: "📌台灣專櫃貨。速效修復16種肌膚問題，嬰幼兒皆可使用。\n含 5% 高濃度維生素原 B5 與積雪草萃取，保濕舒緩全能神器。\n🔸效期：2028/05\n🔸交期：預購約 15-30 工作天。"
-        },
-        {
-            id: 32,
-            title: "🌞 KINYO 多功能傘夾充電風扇 (IUF-2168)",
-            img: "https://img3.shop2000.com.tw/105667/p211/59214694-1o.jpg",
-            retail: 269, wholesale: 240,
-            isMulti: true,
-            endTime: "2026/03/23 23:59:59",
-            specs: [
-                { name: "單台 (隨附夾具/掛繩)", r: 269, w: 240 },
-                { name: "夏日清爽組 (風扇 + 隨行榨汁杯)", r: 469, w: 405 }
-            ],
-            desc: "輕量 100g 隨行無負擔。軟管支架可自由調整角度，傘夾設計清涼隨行。\n內建 1200mAh 電池，續航 2-5 小時。\n🔸交期：預購約 15-30 工作天。"
-        }
+        { id: 1, title: "Exoproxyl 積雪草安瓶修護霜 30ml", img: "https://img3.shop2000.com.tw/105667/p203/58640228-16o.jpg", retail: 399, wholesale: 355, endTime: "2026/03/24 23:59:59", desc: "🇰🇷 CICA EXOSOmethod™ 積雪草技術。\n🔸交期：約 4 週。" },
+        { id: 2, title: "ILLIGO SEOUL 129 LOGO T恤", img: "https://img3.shop2000.com.tw/105667/p212/59262613-1o.jpg", retail: 950, wholesale: 850, endTime: "2026/03/20 23:59:59", desc: "《單身即地獄》金高恩代言品牌！\n🔸顏色：白,藍,紫,橘,奶。" },
+        { id: 3, title: "COVERNAT 大C羊羔毛棒球帽", img: "https://img3.shop2000.com.tw/105667/p212/59262602-1o.jpg", retail: 699, wholesale: 590, endTime: "2026/03/20 23:59:59", desc: "立體羊羔毛設計，秋冬必備。" },
+        { id: 4, title: "CANMAKE 水光果凍打亮 04 冰透藍", img: "https://img3.shop2000.com.tw/105667/p212/59244009-1o.jpg", retail: 229, wholesale: 205, endTime: "2026/03/25 23:59:59", desc: "日本限定色！打造透明感肌膚。" },
+        { id: 5, title: "GA 訂製奢光潤唇蜜 #01 晶透光", img: "https://img3.shop2000.com.tw/105667/p212/59241428-11o.jpg", retail: 450, wholesale: 430, endTime: "2026/03/18 23:59:59", desc: "🔸貨源：韓免 (官網售價$1650)\n✅效期：2027/04" },
+        { id: 6, title: "GUXON 凍感快充組 (頭/線自選)", img: "https://img3.shop2000.com.tw/105667/p213/59274139-1o.jpg", retail: 390, wholesale: 330, isMulti: true, endTime: "2026/03/25 23:59:59", specs: [{ name: "30W 凍感快充頭", r: 390, w: 330 }, { name: "60W 果凍扁扁線", r: 250, w: 210 }, { name: "限時合購組 (頭+線)", r: 599, w: 540 }], desc: "⭐氮化鎵技術 / 液態矽膠。" },
+        { id: 7, title: "日本 RISUKAI 智慧液晶快充頭", img: "https://img3.shop2000.com.tw/105667/p201/58524823-1o.jpg", retail: 349, wholesale: 299, endTime: "2026/03/16 23:59:59", desc: "最大輸出 30W，瓦數即時顯示。\n🎨顏色：粉/藍/綠/灰/白/黑" },
+        { id: 8, title: "艾絲樂小兔 透明冷水壺", img: "https://img3.shop2000.com.tw/105667/p212/59227616-1o.jpg", retail: 129, wholesale: 105, endTime: "2026/03/16 23:59:59", desc: "超萌小兔兔！360度安全不滲漏。" },
+        { id: 9, title: "迪士尼史迪奇抱娃娃吊飾 13cm", img: "https://img3.shop2000.com.tw/105667/p213/59296183-1o.jpg", retail: 269, wholesale: 225, endTime: "2026/03/21 23:59:59", desc: "超療癒的史迪奇抱著小金。\n🔸交期：約 4 週。" },
+        { id: 10, title: "日本大創 洗臉用起泡器 (2入組)", img: "https://img3.shop2000.com.tw/105667/p212/59227174-2o.jpg", retail: 99, wholesale: 85, endTime: "2026/03/16 23:59:59", desc: "✨ 限時加碼：任選 2 入只要 $99！\n🔸交期：預購約 15-30 工作天。" }
     ];
 
     let cart = [];
     let timerInterval = null;
 
     function renderProducts() {
-        console.log("正在執行渲染，目前的商品數量：", products.length);
         const container = document.getElementById('product-list');
         if (!container) return;
 
-        const roleEl = document.querySelector('input[name="role"]:checked');
-        const role = roleEl ? roleEl.value : 'retail';
+        const role = document.querySelector('input[name="role"]:checked').value;
 
         container.innerHTML = products.map(p => {
             const price = (role === 'retail') ? p.retail : p.wholesale;
-            const displayImg = Array.isArray(p.img) ? p.img[0] : p.img;
-
             return `
                 <div class="product-card" onclick="openDetail(${p.id})">
-                    <div class="img-container"><img src="${displayImg}" loading="lazy"></div>
+                    <div class="img-container"><img src="${p.img}" loading="lazy"></div>
                     <div class="card-content">
                         <div>
                             <div class="card-title">${p.title}</div>
                             <div class="price-tag">$${price}${p.isMulti ? ' 起' : ''}</div>
-                            <div class="countdown-timer" id="timer-${p.id}">--:--:--</div>
+                            <div class="countdown-timer" id="timer-${p.id}">載入中...</div>
                         </div>
                     </div>
                 </div>`;
@@ -495,22 +171,37 @@
         startTimers();
     }
 
+    // --- 倒數計時核心邏輯 ---
     function startTimers() {
         if (timerInterval) clearInterval(timerInterval);
         const update = () => {
             products.forEach(p => {
                 const el = document.getElementById(`timer-${p.id}`);
                 if (!el) return;
-                const diff = new Date(p.endTime).getTime() - new Date().getTime();
+                
+                const now = new Date().getTime();
+                const diff = new Date(p.endTime).getTime() - now;
+                
                 if (diff <= 0) {
-                    el.innerText = "ENDED";
-                    el.style.color = "#ccc";
+                    el.innerText = "● 活動已結束";
+                    el.classList.add('timer-ended');
                 } else {
                     const d = Math.floor(diff / 86400000);
                     const h = Math.floor((diff % 86400000) / 3600000);
                     const m = Math.floor((diff % 3600000) / 60000);
                     const s = Math.floor((diff % 60000) / 1000);
-                    el.innerText = `CLOSES IN ${d}D ${h}:${m}:${s}`;
+                    
+                    // 格式化數字補零
+                    const hh = String(h).padStart(2, '0');
+                    const mm = String(m).padStart(2, '0');
+                    const ss = String(s).padStart(2, '0');
+                    
+                    if (d > 0) {
+                        el.innerText = `⏳ 剩餘 ${d}天 ${hh}:${mm}:${ss}`;
+                    } else {
+                        // 少於 24 小時改為顯眼的文字
+                        el.innerText = `🔥 最後倒數 ${hh}:${mm}:${ss}`;
+                    }
                 }
             });
         };
@@ -525,9 +216,7 @@
         const modal = document.getElementById('detail-modal');
         
         const imgCont = document.getElementById('modal-img-container');
-        imgCont.innerHTML = Array.isArray(p.img) 
-            ? p.img.map(s => `<img src="${s}" style="width:100%; border-radius:12px; margin-bottom:10px;">`).join('')
-            : `<img src="${p.img}" style="width:100%; border-radius:12px;">`;
+        imgCont.innerHTML = `<img src="${p.img}" style="width:100%; border-radius:12px;">`;
 
         document.getElementById('modal-title').innerText = p.title;
         document.getElementById('modal-desc').innerText = p.desc;
@@ -540,12 +229,10 @@
             let html = `<select id="spec-select-box" class="spec-select" onchange="updateModalPrice(${id})">`;
             p.specs.forEach((s, idx) => {
                 const p_val = (role === 'retail') ? s.r : s.w;
-                const isOut = s.name.includes("缺貨");
-                html += `<option value="${idx}" ${isOut?'disabled':''}>${s.name} - $${p_val} ${isOut?'(缺貨)':''}</option>`;
+                html += `<option value="${idx}">${s.name} - $${p_val}</option>`;
             });
             specArea.innerHTML = html + `</select>`;
-            const firstValid = p.specs.find(s => !s.name.includes("缺貨")) || p.specs[0];
-            finalPrice = (role === 'retail') ? firstValid.r : firstValid.w;
+            finalPrice = (role === 'retail') ? p.specs[0].r : p.specs[0].w;
         }
         document.getElementById('modal-price').innerText = `$${finalPrice}`;
 
@@ -560,7 +247,7 @@
             if(p.isMulti) {
                 const sel = document.getElementById('spec-select-box');
                 const sObj = p.specs[sel.value];
-                itemTitle += ` - ${sObj.name}`;
+                itemTitle += ` (${sObj.name})`;
                 itemPrice = (role === 'retail') ? sObj.r : sObj.w;
             }
             cart.push({ title: itemTitle, price: itemPrice });
@@ -582,8 +269,8 @@
     function updateCartUI() {
         document.getElementById('cart-count').innerText = cart.length;
         document.getElementById('cart-items-container').innerHTML = cart.map((item, idx) => `
-            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px;">
-                <span>${item.title}</span>
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:10px; border-bottom:1px solid #f9f9f9; padding-bottom:5px;">
+                <span style="flex:1; padding-right:10px;">${item.title}</span>
                 <span style="font-weight:700;">$${item.price}</span>
             </div>`).join('');
         const total = cart.reduce((sum, i) => sum + i.price, 0);
@@ -597,12 +284,10 @@
 
     function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
     function closeDetail(e) { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; }
-    function clearCart() { cart = []; updateCartUI(); }
+    function clearCart() { if(confirm("確定要清空清單嗎？")) { cart = []; updateCartUI(); } }
     function updateView() { renderProducts(); }
 
-    // 啟動邏輯
     document.addEventListener("DOMContentLoaded", renderProducts);
-    window.onload = renderProducts;
 </script>
 
 </body>
