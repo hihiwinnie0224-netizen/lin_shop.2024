@@ -98,27 +98,51 @@
         }
 
         /* 角色切換 */
-        .role-switch {
-            background: #e5e5e5;
-            padding: 4px;
-            border-radius: 25px;
-            display: flex;
-            gap: 4px;
-        }
-        .role-switch label {
-            padding: 8px 18px;
-            cursor: pointer;
-            border-radius: 20px;
-            transition: 0.3s;
-            font-size: 14px;
-            color: #888;
-        }
-        input[name="role"] { display: none; }
-        input[name="role"]:checked + span {
-            background: var(--accent-color);
-            color: white;
-            box-shadow: 0 2px 8px rgba(163, 177, 138, 0.3);
-        }
+/* 角色切換鈕美化 */
+.role-switch {
+    background: rgba(229, 229, 229, 0.6); /* 輕微透明底色 */
+    padding: 4px;
+    border-radius: 30px;
+    display: flex;
+    gap: 2px;
+    width: fit-content;
+    margin: 10px auto;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* 增加精緻邊線 */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.role-switch label {
+    cursor: pointer;
+    position: relative;
+}
+
+.role-switch input[name="role"] {
+    display: none; /* 隱藏原生單選鈕 */
+}
+
+.role-switch span {
+    display: inline-block;
+    padding: 8px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #888;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 絲滑動畫 */
+    letter-spacing: 1px;
+}
+
+/* 選中狀態的樣式 */
+.role-switch input[name="role"]:checked + span {
+    background: var(--accent-color); /* Morandi 綠 */
+    color: white;
+    box-shadow: 0 4px 10px rgba(163, 177, 138, 0.3);
+    transform: translateY(-1px);
+}
+
+/* 滑鼠經過時的微動效 */
+.role-switch label:hover span {
+    color: #5a5a5a;
+}
 
         /* 商品網格與橫條佈局控制 */
         #product-list {
@@ -293,10 +317,16 @@
             </div>
         </div>
         
-        <div class="role-switch">
-            <label><input type="radio" name="role" value="wholesale" checked onclick="updateView()"><span>批發端</span></label>
-            <label><input type="radio" name="role" value="retail" onclick="updateView()"><span>零售端</span></label>
-        </div>
+<div class="role-switch">
+    <label>
+        <input type="radio" name="role" value="wholesale" checked onclick="updateView()">
+        <span>批發端</span>
+    </label>
+    <label>
+        <input type="radio" name="role" value="retail" onclick="updateView()">
+        <span>零售端</span>
+    </label>
+</div>
     </div>
 </div>
 
