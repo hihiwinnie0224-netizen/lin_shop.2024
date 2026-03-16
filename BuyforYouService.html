@@ -469,29 +469,33 @@
     let cart = [];
 
 // 修正後的渲染函數
-    function renderProducts() {
-        const container = document.getElementById('product-list');
-        const role = document.querySelector('input[name="role"]:checked').value;
+// 建議優化後的渲染邏輯，增加對多圖格式的防呆
+function renderProducts() {
+    const container = document.getElementById('product-list');
+    const role = document.querySelector('input[name="role"]:checked').value;
+    
+    container.innerHTML = products.map(p => {
+        let price = role === 'retail' ? p.retail : p.wholesale;
         
-        container.innerHTML = products.map(p => {
-            let price = role === 'retail' ? p.retail : p.wholesale;
-            
-            // 【關鍵修正】檢查圖片是否為陣列，如果是，取第一張來當封面
-            const displayImg = Array.isArray(p.img) ? p.img[0] : p.img;
-            
-            return `
-            <div class="product-card" id="card-${p.id}" onclick="openDetail(${p.id})">
-                <div class="img-container"><img src="${displayImg}"></div>
+        // 防呆：如果 img 是陣列取第一張，如果是字串直接用
+        const displayImg = Array.isArray(p.img) ? p.img[0] : (p.img || "");
+        
+        // 檢查是否過期
+        const isExpired = new Date(p.endTime).getTime() - new Date().getTime() <= 0;
+
+        return `
+            <div class="product-card ${isExpired ? 'expired' : ''}" id="card-${p.id}" onclick="openDetail(${p.id})">
+                <div class="img-container"><img src="${displayImg}" loading="lazy"></div>
                 <div class="card-content">
                     <div class="card-title">${p.title}</div>
                     <div class="countdown-timer" id="timer-${p.id}">計算中...</div>
-                    <div class="price-tag">$${price}${p.isMulti?'起':''}</div>
-                    <button class="add-btn" id="btn-${p.id}">VIEW DETAILS</button>
+                    <div class="price-tag">$${price}${p.isMulti ? '起' : ''}</div>
+                    <button class="add-btn" id="btn-${p.id}">${isExpired ? 'CLOSED' : 'VIEW DETAILS'}</button>
                 </div>
             </div>`;
-        }).join('');
-        startTimers();
-    }
+    }).join('');
+    startTimers();
+}
 
     // 倒數計時器
     function startTimers() {
