@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✧ ＬＩＮＳＨＯＰ ✧</title>
+    <style>
+        :root { --bg: #ffffff; --text: #333; --accent: #888; --border: #f0f0f0; }
+        body { font-family: "Courier New", "Microsoft JhengHei", monospace; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; }
+        
+        header { text-align: center; margin-bottom: 60px; }
+        header h1 { font-size: 24px; letter-spacing: 8px; font-weight: lighter; }
+        header p { font-size: 10px; color: var(--accent); letter-spacing: 3px; }
+
+        .catalog { 
+            max-width: 1000px; margin: 0 auto; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 30px; 
+        }
+
+        .item-card { border: 1px solid var(--border); padding: 12px; transition: 0.3s; background: #fff; }
+        .item-card:hover { border-color: #ccc; }
+
+        .img-container { width: 100%; height: 260px; background: #fafafa; overflow: hidden; position: relative; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 下載按鈕 */
+        .download-btn {
+            position: absolute; bottom: 8px; right: 8px;
+            background: rgba(255,255,255,0.95); border: 1px solid #333;
+            color: #333; padding: 4px 8px; font-size: 9px;
+            text-decoration: none; opacity: 0; transition: 0.2s;
+        }
+        .item-card:hover .download-btn { opacity: 1; }
+
+        /* 價格資訊排版 */
+        .item-info { margin-top: 15px; }
+        .name { font-size: 13px; letter-spacing: 1.5px; font-weight: bold; margin-bottom: 8px; display: block; }
+        
+        .price-tags { display: flex; flex-direction: column; gap: 4px; }
+        .tag { font-size: 11px; color: var(--accent); border-left: 2px solid #eee; padding-left: 8px; }
+
+        footer { text-align: center; margin-top: 80px; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ＬＩＮＳＨＯＰ</h1>
+    <p>. . . aesthetic collection . . .</p>
+</header>
+
+<div class="catalog" id="mainCatalog">
+    </div>
+
+<footer>
+    ‧ ₊ ˚ ────  ✧  ──── ˚ ₊ ‧
+</footer>
+
+</body>
+</html>
