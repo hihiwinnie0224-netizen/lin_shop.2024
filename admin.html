@@ -2,61 +2,91 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>✧ ＡＤＭＩＮ  ＰＡＮＥＬ ✧</title>
     <style>
-        :root { --bg: #ffffff; --text: #444; --border: #eee; --accent: #999; }
-        body { font-family: "Courier New", monospace; background: var(--bg); color: var(--text); padding: 40px; line-height: 1.6; }
-        .admin-box { max-width: 500px; margin: 0 auto; border: 1px solid var(--border); padding: 30px; }
-        h2 { font-weight: lighter; letter-spacing: 3px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        :root { --bg: #ffffff; --text: #333; --border: #eeeeee; --accent: #888888; }
+        
+        /* 基礎手機樣式重置 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: "Courier New", monospace; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; font-size: 14px; }
+        
+        .admin-box { max-width: 450px; margin: 0 auto; border: 1px solid var(--border); padding: 20px; background: #fff; }
+        h2 { font-weight: lighter; letter-spacing: 3px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; font-size: 18px; }
+        
         .group { margin-bottom: 15px; }
-        label { font-size: 10px; color: var(--accent); letter-spacing: 1px; }
-        input { width: 100%; border: none; border-bottom: 1px solid var(--border); padding: 8px 0; outline: none; font-family: inherit; }
-        button { width: 100%; background: none; border: 1px solid var(--text); padding: 12px; cursor: pointer; letter-spacing: 2px; transition: 0.3s; margin-top: 10px; }
-        button:hover { background: #000; color: #fff; }
-        #outputCode { margin-top: 30px; width: 100%; height: 120px; font-size: 10px; color: #999; display: none; background: #fafafa; border: 1px dashed #ccc; padding: 10px; }
+        label { font-size: 10px; color: var(--accent); letter-spacing: 1px; display: block; margin-bottom: 5px; }
+        
+        /* 手機端易輸入的樣式 */
+        input[type="text"], input[type="number"] { width: 100%; border: none; border-bottom: 1px solid var(--border); padding: 12px 0; outline: none; font-family: inherit; font-size: 16px; border-radius: 0; }
+        input[type="file"] { font-size: 12px; color: var(--accent); padding: 10px 0; }
+
+        button { width: 100%; background: none; border: 1px solid var(--text); padding: 15px; cursor: pointer; letter-spacing: 2px; transition: 0.3s; margin-top: 15px; font-size: 14px; font-family: inherit; border-radius: 0; }
+        button:active { background: #000; color: #fff; } /* 手機點擊效果 */
+        
+        /* 代碼輸出區 */
+        #outputCode { margin-top: 25px; width: 100%; height: 150px; font-size: 10px; color: #999; display: none; background: #fafafa; border: 1px dashed #ccc; padding: 10px; font-family: monospace; resize: none; overflow: auto; border-radius: 0; }
+        .help-text { font-size: 11px; color: var(--accent); text-align: center; margin-top: 15px; display: none;}
     </style>
 </head>
 <body>
 
 <div class="admin-box">
     <h2>✧ ＵＰＬＯＡＤ ✧</h2>
-    <div class="group"><label>ＰＨＯＴＯ</label><input type="file" id="pImg" accept="image/*"></div>
-    <div class="group"><label>ＮＡＭＥ</label><input type="text" id="pName" placeholder="..."></div>
-    <div class="group"><label>ＷＨＯＬＥＳＡＬＥ (批發)</label><input type="number" id="pWholesale" placeholder="0"></div>
-    <div class="group"><label>ＲＥＴＡＩＬ (零售)</label><input type="number" id="pRetail" placeholder="0"></div>
+    
+    <div class="group"><label>ＰＨＯＴＯ (商品照片)</label><input type="file" id="pImg" accept="image/*"></div>
+    <div class="group"><label>ＮＡＭＥ (商品名稱)</label><input type="text" id="pName" placeholder="..."></div>
+    <div class="group"><label>ＷＨＯＬＥＳＡＬＥ $ (批發價)</label><input type="number" id="pWholesale" placeholder="0"></div>
+    <div class="group"><label>ＲＥＴＡＩＬ $ (零售價)</label><input type="number" id="pRetail" placeholder="0"></div>
     
     <button onclick="generateItem()">ＧＥＮＥＲＡＴＥ  ＣＯＤＥ</button>
-    <textarea id="outputCode" readonly onclick="this.select(); document.execCommand('copy'); alert('Copied!');"></textarea>
+    
+    <p class="help-text" id="helpText">tap the code below to copy</p>
+    <textarea id="outputCode" readonly onclick="copyCode()"></textarea>
 </div>
 
 <script>
     function generateItem() {
         const file = document.getElementById('pImg').files[0];
-        const name = document.getElementById('pName').value.toUpperCase();
-        const wPrice = document.getElementById('pWholesale').value;
-        const rPrice = document.getElementById('pRetail').value;
+        const name = document.getElementById('pName').value.toUpperCase() || "UNNAMED ITEM";
+        const wPrice = document.getElementById('pWholesale').value || "0";
+        const rPrice = document.getElementById('pRetail').value || "0";
         const reader = new FileReader();
+
+        if (!file) { alert("please select a photo"); return; }
 
         reader.onload = function(e) {
             const base64 = e.target.result;
+            // 產出適合手機展示的 HTML 結構
             const htmlSnippet = `
             <div class="item-card">
                 <div class="img-container">
-                    <img src="${base64}" alt="${name}">
+                    <img src="${base64}" alt="${name}" onclick="toggleDownload(this)">
                     <a href="${base64}" download="${name}.jpg" class="download-btn">ＤＯＷＮＬＯＡＤ</a>
                 </div>
                 <div class="item-info">
                     <div class="name">${name}</div>
                     <div class="price-tags">
-                        <span class="tag">批發 $${wPrice}</span>
-                        <span class="tag">零售 $${rPrice}</span>
+                        <span class="tag wholesale">批發 $${wPrice}</span>
+                        <span class="tag retail">零售 $${rPrice}</span>
                     </div>
                 </div>
             </div>`;
-            document.getElementById('outputCode').value = htmlSnippet;
+            
+            document.getElementById('outputCode').value = htmlSnippet.trim();
             document.getElementById('outputCode').style.display = 'block';
+            document.getElementById('helpText').style.display = 'block';
+            alert("Code Generated!");
         };
-        if(file) reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+    }
+
+    function copyCode() {
+        const copyText = document.getElementById("outputCode");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+        navigator.clipboard.writeText(copyText.value);
+        alert("Copied to clipboard!");
     }
 </script>
 </body>
