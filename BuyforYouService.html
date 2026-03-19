@@ -1140,7 +1140,7 @@
     }
 ];
 
-    let cart = [];
+let cart = [];
     let timers = {};
     let currentLayout = 'grid';
 
@@ -1159,14 +1159,15 @@
         const currentRole = roleEl ? roleEl.value : 'wholesale';
         
         const list = document.getElementById('product-list');
+        if (!list) return; // 安全檢查
         list.innerHTML = '';
 
-        // 【修改點】過濾後加上 .sort 進行倒序排列，讓新 ID 排在前面
-        const filtered = products
+        // 【核心修正】先複製一份陣列再排序，確保不會更動到原資料且能正確執行
+        const displayData = [...products]
             .filter(p => p.title.toLowerCase().includes(searchTerm))
-            .sort((a, b) => b.id - a.id); 
+            .sort((a, b) => b.id - a.id); // 大 ID 在前
 
-        filtered.forEach(p => {
+        displayData.forEach(p => {
             const price = currentRole === 'wholesale' ? p.wholesale : p.retail;
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -1180,7 +1181,8 @@
                 </div>
                 <div class="card-content">
                     <div>
-                        <div class="card-title">${originalIcon}${p.title}</div> <div class="price-tag">$${price}</div>
+                        <div class="card-title">${originalIcon}${p.title}</div> 
+                        <div class="price-tag">$${price}</div>
                     </div>
                     <div class="countdown-timer" id="timer-${p.id}">計算中...</div>
                 </div>
@@ -1190,34 +1192,29 @@
         });
     }
 
+    // --- 以下為其他必要函式，請務必保留 ---
+
     function openDetail(id) {
         const p = products.find(item => item.id === id);
         if (!p) return;
-
         const role = document.querySelector('input[name="role"]:checked').value;
         const imgArea = document.getElementById('modal-img-area');
-        
         if (p.images && p.images.length > 0) {
-            imgArea.innerHTML = `
-                <div class="image-scroller" style="display:flex; overflow-x:auto; gap:10px; scroll-snap-type:x mandatory;">
-                    ${p.images.map(src => `<img src="${src}" style="width:100%; flex-shrink:0; scroll-snap-align:start; border-radius:15px; aspect-ratio:1/1; object-fit:cover;">`).join('')}
-                </div>
-                <p style="font-size:11px; color:#bbb; text-align:center; margin-top:10px;">← 左右滑動查看細節 →</p>
-            `;
+            imgArea.innerHTML = `<div class="image-scroller" style="display:flex; overflow-x:auto; gap:10px; scroll-snap-type:x mandatory;">
+                ${p.images.map(src => `<img src="${src}" style="width:100%; flex-shrink:0; scroll-snap-align:start; border-radius:15px; aspect-ratio:1/1; object-fit:cover;">`).join('')}
+            </div>`;
         } else {
             imgArea.innerHTML = `<img src="${p.img}" style="width:100%; border-radius:15px; aspect-ratio:1/1; object-fit:cover;">`;
         }
-
         document.getElementById('modal-title').innerText = p.title;
         document.getElementById('modal-price').innerText = `$${role === 'wholesale' ? p.wholesale : p.retail}`;
         document.getElementById('modal-desc').innerText = p.desc || "尚無產品描述";
-
         const specArea = document.getElementById('spec-area');
         specArea.innerHTML = '';
         if (p.isMulti && p.specs) {
             const select = document.createElement('select');
             select.id = 'active-spec';
-            select.style = "width:100%; padding:12px; margin:20px 0; border-radius:12px; border:1px solid #eee; background:#fff;";
+            select.style = "width:100%; padding:12px; margin:20px 0; border-radius:12px; border:1px solid #eee;";
             p.specs.forEach(s => {
                 const sPrice = role === 'wholesale' ? s.w : s.r;
                 const option = document.createElement('option');
@@ -1228,27 +1225,22 @@
             });
             specArea.appendChild(select);
         }
-
         document.getElementById('modal-confirm-add').onclick = () => addToCart(p);
         document.getElementById('detail-modal').style.display = 'flex';
     }
 
-    function closeModal() {
-        document.getElementById('detail-modal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('detail-modal').style.display = 'none'; }
 
     function addToCart(p) {
         const role = document.querySelector('input[name="role"]:checked').value;
         let finalTitle = p.title;
         let finalPrice = role === 'wholesale' ? p.wholesale : p.retail;
-
         if (p.isMulti) {
             const specEl = document.getElementById('active-spec');
             const selectedOption = specEl.options[specEl.selectedIndex];
             finalTitle += ` (${selectedOption.value})`;
             finalPrice = parseInt(selectedOption.dataset.price);
         }
-
         cart.push({ title: finalTitle, price: finalPrice });
         updateCartUI();
         closeModal();
@@ -1260,26 +1252,17 @@
         const totalEl = document.getElementById('cart-total');
         container.innerHTML = '';
         let total = 0;
-
         cart.forEach((item, index) => {
             total += item.price;
             const div = document.createElement('div');
             div.style = "display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:12px; padding:12px; background:#f8f8f8; border-radius:12px;";
-            div.innerHTML = `
-                <span style="flex:1;">${item.title}</span>
-                <span style="color:var(--price-color); font-weight:600; margin:0 10px;">$${item.price}</span>
-                <span onclick="removeFromCart(${index})" style="cursor:pointer; color:#ccc;">✕</span>
-            `;
+            div.innerHTML = `<span style="flex:1;">${item.title}</span><span style="color:var(--price-color); font-weight:600; margin:0 10px;">$${item.price}</span><span onclick="removeFromCart(${index})" style="cursor:pointer; color:#ccc;">✕</span>`;
             container.appendChild(div);
         });
         totalEl.innerText = `總計金額：$${total}`;
     }
 
-    function removeFromCart(index) {
-        cart.splice(index, 1);
-        updateCartUI();
-    }
-
+    function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
     function toggleCart() {
         const m = document.getElementById('cart-modal');
         m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
