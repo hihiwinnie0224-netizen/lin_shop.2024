@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>✧ ＡＤＭＩＮ  ＰＡＮＥＬ ✧</title>
+    <style>
+        :root { --bg: #ffffff; --text: #444; --border: #eee; --accent: #999; }
+        body { font-family: "Courier New", monospace; background: var(--bg); color: var(--text); padding: 40px; line-height: 1.6; }
+        .admin-box { max-width: 500px; margin: 0 auto; border: 1px solid var(--border); padding: 30px; }
+        h2 { font-weight: lighter; letter-spacing: 3px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .group { margin-bottom: 15px; }
+        label { font-size: 10px; color: var(--accent); letter-spacing: 1px; }
+        input { width: 100%; border: none; border-bottom: 1px solid var(--border); padding: 8px 0; outline: none; font-family: inherit; }
+        button { width: 100%; background: none; border: 1px solid var(--text); padding: 12px; cursor: pointer; letter-spacing: 2px; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #000; color: #fff; }
+        #outputCode { margin-top: 30px; width: 100%; height: 120px; font-size: 10px; color: #999; display: none; background: #fafafa; border: 1px dashed #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="admin-box">
+    <h2>✧ ＵＰＬＯＡＤ ✧</h2>
+    <div class="group"><label>ＰＨＯＴＯ</label><input type="file" id="pImg" accept="image/*"></div>
+    <div class="group"><label>ＮＡＭＥ</label><input type="text" id="pName" placeholder="..."></div>
+    <div class="group"><label>ＷＨＯＬＥＳＡＬＥ (批發)</label><input type="number" id="pWholesale" placeholder="0"></div>
+    <div class="group"><label>ＲＥＴＡＩＬ (零售)</label><input type="number" id="pRetail" placeholder="0"></div>
+    
+    <button onclick="generateItem()">ＧＥＮＥＲＡＴＥ  ＣＯＤＥ</button>
+    <textarea id="outputCode" readonly onclick="this.select(); document.execCommand('copy'); alert('Copied!');"></textarea>
+</div>
+
+<script>
+    function generateItem() {
+        const file = document.getElementById('pImg').files[0];
+        const name = document.getElementById('pName').value.toUpperCase();
+        const wPrice = document.getElementById('pWholesale').value;
+        const rPrice = document.getElementById('pRetail').value;
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const base64 = e.target.result;
+            const htmlSnippet = `
+            <div class="item-card">
+                <div class="img-container">
+                    <img src="${base64}" alt="${name}">
+                    <a href="${base64}" download="${name}.jpg" class="download-btn">ＤＯＷＮＬＯＡＤ</a>
+                </div>
+                <div class="item-info">
+                    <div class="name">${name}</div>
+                    <div class="price-tags">
+                        <span class="tag">批發 $${wPrice}</span>
+                        <span class="tag">零售 $${rPrice}</span>
+                    </div>
+                </div>
+            </div>`;
+            document.getElementById('outputCode').value = htmlSnippet;
+            document.getElementById('outputCode').style.display = 'block';
+        };
+        if(file) reader.readAsDataURL(file);
+    }
+</script>
+</body>
+</html>
