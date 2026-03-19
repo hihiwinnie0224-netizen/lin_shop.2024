@@ -2,52 +2,68 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>✧ ＬＩＮＳＨＯＰ ✧</title>
     <style>
-        :root { --bg: #ffffff; --text: #333; --accent: #888; --border: #f0f0f0; }
-        body { font-family: "Courier New", "Microsoft JhengHei", monospace; background: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; }
+        :root { --bg: #ffffff; --text: #222; --accent: #aaaaaa; --border: #f5f5f5; --ws-color: #666; --rt-color: #333;}
         
-        header { text-align: center; margin-bottom: 60px; }
-        header h1 { font-size: 24px; letter-spacing: 8px; font-weight: lighter; }
-        header p { font-size: 10px; color: var(--accent); letter-spacing: 3px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: "Courier New", "Microsoft JhengHei", monospace; background: var(--bg); color: var(--text); margin: 0; padding: 20px; font-size: 14px; }
+        
+        header { text-align: center; margin-bottom: 40px; margin-top: 20px; }
+        header h1 { font-size: 20px; letter-spacing: 5px; font-weight: lighter; margin: 0; }
+        header p { font-size: 9px; color: var(--accent); letter-spacing: 2px; margin: 5px 0 0; }
 
+        /* RWD 網格：手機預設為單欄，螢幕大於 350px 變雙欄 */
         .catalog { 
-            max-width: 1000px; margin: 0 auto; 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 30px; 
+            max-width: 1200px; margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 自動雙欄 */
+            gap: 15px; 
         }
 
-        .item-card { border: 1px solid var(--border); padding: 12px; transition: 0.3s; background: #fff; }
-        .item-card:hover { border-color: #ccc; }
+        .item-card { border: 1px solid var(--border); padding: 8px; transition: 0.2s; background: #fff; position: relative; }
 
-        .img-container { width: 100%; height: 260px; background: #fafafa; overflow: hidden; position: relative; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        /* 商品圖容器 */
+        .img-container { width: 100%; height: 0; padding-bottom: 120%; background: #fafafa; overflow: hidden; position: relative; }
+        .img-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
 
-        /* 下載按鈕 */
+        /* 手機下載按鈕優化 */
         .download-btn {
-            position: absolute; bottom: 8px; right: 8px;
-            background: rgba(255,255,255,0.95); border: 1px solid #333;
-            color: #333; padding: 4px 8px; font-size: 9px;
-            text-decoration: none; opacity: 0; transition: 0.2s;
+            position: absolute; bottom: 8px; left: 8px; right: 8px;
+            background: rgba(255,255,255,0.98); border: 1px solid #333;
+            color: #333; padding: 12px 0; font-size: 10px;
+            text-decoration: none; text-align: center; letter-spacing: 2px;
+            opacity: 0; visibility: hidden; transition: 0.2s; display: block;
+            z-index: 10;
         }
-        .item-card:hover .download-btn { opacity: 1; }
+        /* 當圖片被點擊時顯示按鈕 (透過 JS 控制) */
+        .img-container.show-dl .download-btn { opacity: 1; visibility: visible; }
 
-        /* 價格資訊排版 */
-        .item-info { margin-top: 15px; }
-        .name { font-size: 13px; letter-spacing: 1.5px; font-weight: bold; margin-bottom: 8px; display: block; }
+        /* 價格排版：手機窄螢幕垂直排列 */
+        .item-info { margin-top: 10px; text-align: left; }
+        .name { font-size: 12px; letter-spacing: 1px; font-weight: bold; margin-bottom: 5px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         
-        .price-tags { display: flex; flex-direction: column; gap: 4px; }
-        .tag { font-size: 11px; color: var(--accent); border-left: 2px solid #eee; padding-left: 8px; }
+        .price-tags { display: flex; flex-direction: column; gap: 3px; }
+        .tag { font-size: 10px; border-left: 2px solid #eee; padding-left: 6px; }
+        .wholesale { color: var(--ws-color); }
+        .retail { color: var(--rt-color); font-weight: bold; }
 
-        footer { text-align: center; margin-top: 80px; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
+        footer { text-align: center; margin-top: 60px; font-size: 10px; color: var(--accent); letter-spacing: 2px; padding-bottom: 20px; }
+
+        /* 針對窄手機的細節調整 */
+        @media (max-width: 350px) {
+            .catalog { grid-template-columns: 1fr; } /* 極窄手機變單欄 */
+            .item-card { padding: 15px; }
+            .img-container { padding-bottom: 100%; } /* 方形圖片 */
+        }
     </style>
 </head>
 <body>
 
 <header>
     <h1>ＬＩＮＳＨＯＰ</h1>
-    <p>. . . aesthetic collection . . .</p>
+    <p>. . . aesthetic mobile shop . . .</p>
 </header>
 
 <div class="catalog" id="mainCatalog">
@@ -56,6 +72,27 @@
 <footer>
     ‧ ₊ ˚ ────  ✧  ──── ˚ ₊ ‧
 </footer>
+
+<script>
+    // 手機存圖功能邏輯
+    function toggleDownload(imgElement) {
+        const container = imgElement.parentElement;
+        // 切換顯示/隱藏下載按鈕
+        container.classList.toggle('show-dl');
+        
+        // 可選：點擊其他地方時隱藏按鈕
+        setTimeout(() => {
+            if (container.classList.contains('show-dl')) {
+                document.addEventListener('click', function hideDl(e) {
+                    if (!container.contains(e.target)) {
+                        container.classList.remove('show-dl');
+                        document.removeEventListener('click', hideDl);
+                    }
+                }, { once: true });
+            }
+        }, 10);
+    }
+</script>
 
 </body>
 </html>
