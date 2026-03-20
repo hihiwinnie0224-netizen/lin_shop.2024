@@ -6,6 +6,10 @@
     <title>◌ LENSES | LINSHOP Select ◌</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <a href="https://line.me/R/ti/p/@532lxhxc" target="_blank" class="fixed-chat-btn">
+    <span class="chat-icon">✦</span>
+    <span class="chat-text">CONTACT LINE</span>
+</a>
     <style>
         body { font-family: 'Montserrat', 'Noto Sans TC', sans-serif; background-color: #FDFCFB; color: #666; }
         .series-card { background: white; border-radius: 30px; overflow: hidden; transition: all 0.5s ease; border: 1px solid #F5F2ED; cursor: pointer; display: flex; flex-direction: column; height: 100%; }
@@ -23,6 +27,50 @@
         .download-btn { display: block; width: 100%; padding: 16px; margin-top: 25px; background: #444; color: white; text-align: center; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; transition: 0.3s; }
         .download-btn:hover { background: #000; }
         .brand-tag { font-size: 9px; color: #AAA; font-weight: bold; letter-spacing: 0.1em; }
+    /* 這裡延用妳原本提供的 CSS 樣式即可 */
+    .fixed-chat-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 99;
+        background: white;
+        border: 1px solid #F5F2ED;
+        padding: 12px 22px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-decoration: none;
+    }
+
+    .fixed-chat-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(181, 164, 158, 0.2);
+        border-color: #D1C7C3;
+    }
+
+    .chat-icon {
+        font-size: 16px;
+        color: #8C8279;
+    }
+
+    .chat-text {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        color: #8C8279;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    @media (max-width: 640px) {
+        .fixed-chat-btn {
+            bottom: 25px;
+            right: 25px;
+            padding: 10px 18px;
+        }
+    }
     </style>
 </head>
 <body>
