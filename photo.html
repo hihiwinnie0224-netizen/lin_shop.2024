@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✦ 夢幻薰衣草 1:1 商品圖產生器 ✦</title>
+    <title>✦ 完美防變形版 1:1 商品圖產生器 ✦</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
-        /* ✦ 全新升級：夢幻鮮豔淺紫配色系統 ✦ */
         :root {
             --bg-color: #f3e8ff;       /* 夢幻淺紫奶色 */
             --card-bg: #ffffff;        /* 純白卡片 */
@@ -23,7 +22,7 @@
 
         body {
             font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            background-color: #d8b4fe; /* 外層深背景 */
+            background-color: #d8b4fe; 
             color: var(--text-main);
             margin: 0;
             padding: 15px;
@@ -71,12 +70,7 @@
             background-color: #fdfbff;
             color: var(--text-main);
             outline: none;
-            transition: border-color 0.2s;
             -webkit-appearance: none;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            border-color: var(--btn-add);
         }
 
         .price-inputs {
@@ -102,14 +96,12 @@
             border: none;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: opacity 0.2s;
         }
 
-        .btn:active { opacity: 0.8; }
         .btn-add { background-color: var(--btn-add); color: white; }
         .btn-download { background-color: var(--btn-download); color: white; }
 
-        /* 1:1 畫布預覽區 */
+        /* 1:1 畫布外層滾動條（防止手機螢幕太小看步到全貌，但不影響下載） */
         .flyer-wrapper {
             width: 100%;
             max-width: 500px;
@@ -118,6 +110,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* 嚴格鎖定 600x600 輸出尺寸 */
         #flyer-area {
             background-color: var(--bg-color);
             width: 600px;
@@ -131,7 +124,7 @@
             position: relative;
         }
 
-        /* 標題設計 */
+        /* 標題區 */
         .flyer-header {
             text-align: center;
             margin-bottom: 15px;
@@ -156,7 +149,7 @@
             letter-spacing: 1px;
         }
 
-        /* 商品卡片網格 */
+        /* 商品排版網格 */
         .catalog-grid {
             display: grid;
             gap: 12px;
@@ -172,10 +165,9 @@
             flex-direction: column;
             border: 1px solid #e9d5ff;
             position: relative;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.04);
         }
 
-        /* 刪除鍵 */
+        /* 刪除按鈕 */
         .delete-btn {
             position: absolute;
             top: 6px;
@@ -193,19 +185,24 @@
             justify-content: center;
             z-index: 10;
             font-size: 14px;
-            padding: 0;
         }
 
+        /* 照片區域：增加固定高度與彈性控制，防止被壓扁 */
         .product-image-container {
             width: 100%;
+            height: 100%;
             position: relative;
             background-color: #fdfaff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .product-image-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* 確保照片按等比例縮放，絕不變形 */
             padding: 8px;
         }
 
@@ -232,10 +229,9 @@
             white-space: pre-line;
             line-height: 1.4;
             margin-bottom: 6px;
-            overflow: hidden;
         }
 
-        /* ✦ 放大版價格標籤區塊 ✦ */
+        /* 放大價格區 */
         .price-tag-box {
             border-top: 1px dashed #d8b4fe;
             padding-top: 8px;
@@ -252,94 +248,50 @@
             font-size: 12px;
         }
 
-        .price-label {
-            color: var(--text-muted);
-            font-weight: bold;
-        }
-
-        .price-wholesale { 
-            color: var(--wholesale-color); 
-            font-weight: 800; 
-            font-size: 18px; /* 大字體 */
-        }
-        
-        .price-retail { 
-            color: var(--retail-color); 
-            font-weight: 800; 
-            font-size: 18px; /* 大字體 */
-        }
+        .price-label { color: var(--text-muted); font-weight: bold; }
+        .price-wholesale { color: var(--wholesale-color); font-weight: 800; font-size: 18px; }
+        .price-retail { color: var(--retail-color); font-weight: 800; font-size: 18px; }
 
         /* ==================================================
-           ✦ 智慧佈局與價格自適應 ✦
+           ✦ 智慧佈局防跑版控制 ✦
            ================================================== */
         
-        /* 【1個商品】：左右完美對分 */
-        .catalog-grid:has(.product-card:nth-child(1):last-child) {
-            grid-template-columns: 1fr;
-        }
-        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-card {
-            flex-direction: row;
-            height: 100%;
-        }
-        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-image-container {
-            width: 50%;
-            height: 100%;
-        }
-        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-info {
-            width: 50%;
-            padding: 25px 20px;
-        }
-        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-title {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
+        /* 【1個商品】左右對分 */
+        .catalog-grid:has(.product-card:nth-child(1):last-child) { grid-template-columns: 1fr; }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-card { flex-direction: row; height: 100%; }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-image-container { width: 50%; height: 100%; }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-info { width: 50%; padding: 25px 20px; }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-title { font-size: 18px; }
         .catalog-grid:has(.product-card:nth-child(1):last-child) .price-wholesale,
-        .catalog-grid:has(.product-card:nth-child(1):last-child) .price-retail {
-            font-size: 22px; /* 單圖時價格加倍放大，極致醒目 */
-        }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .price-retail { font-size: 22px; }
 
-        /* 【2個商品】：雙欄佈局 */
-        .catalog-grid:has(.product-card:nth-child(2):last-child) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .catalog-grid:has(.product-card:nth-child(2):last-child) .product-image-container {
-            height: 230px;
-        }
+        /* 【2個商品】雙欄 */
+        .catalog-grid:has(.product-card:nth-child(2):last-child) { grid-template-columns: repeat(2, 1fr); }
+        .catalog-grid:has(.product-card:nth-child(2):last-child) .product-image-container { height: 230px; }
         .catalog-grid:has(.product-card:nth-child(2):last-child) .price-wholesale,
-        .catalog-grid:has(.product-card:nth-child(2):last-child) .price-retail {
-            font-size: 19px;
-        }
+        .catalog-grid:has(.product-card:nth-child(2):last-child) .price-retail { font-size: 19px; }
 
-        /* 【3~4個商品】：精緻四宮格 */
-        .catalog-grid:has(.product-card:nth-child(3)), 
-        .catalog-grid:has(.product-card:nth-child(4)) {
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
+        /* 【3~4個商品】四宮格 */
+        .catalog-grid:has(.product-card:nth-child(3)), .catalog-grid:has(.product-card:nth-child(4)) {
+            grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);
         }
         .catalog-grid:has(.product-card:nth-child(3)) .product-image-container,
-        .catalog-grid:has(.product-card:nth-child(4)) .product-image-container {
-            height: 110px;
-        }
+        .catalog-grid:has(.product-card:nth-child(4)) .product-image-container { height: 110px; }
         .catalog-grid:has(.product-card:nth-child(3)) .product-info,
-        .catalog-grid:has(.product-card:nth-child(4)) .product-info {
-            padding: 6px 10px;
-        }
-        /* 四宮格時微調為 15px，兼顧「大字體」與「防擠壓跑版」 */
+        .catalog-grid:has(.product-card:nth-child(4)) .product-info { padding: 6px 10px; }
         .catalog-grid:has(.product-card:nth-child(3)) .price-wholesale,
         .catalog-grid:has(.product-card:nth-child(4)) .price-wholesale,
         .catalog-grid:has(.product-card:nth-child(3)) .price-retail,
-        .catalog-grid:has(.product-card:nth-child(4)) .price-retail {
-            font-size: 15px; 
-        }
+        .catalog-grid:has(.product-card:nth-child(4)) .price-retail { font-size: 15px; }
     </style>
 </head>
 <body>
 
     <div id="control-panel">
-        <h2 class="panel-title">🔮 1:1 自定義功能圖模組 (紫色版)</h2>
+        <h2 class="panel-title">🔮 1:1 防變形圖稿管理後台</h2>
         
         <div class="form-group">
-            <label>✦ 圖片大標題 (可任意輸入符號)</label>
+            <label>✦ 圖片大標題</label>
             <input type="text" id="inputMainTitle" placeholder="例如：🔮 限時預購新品 🔮" oninput="syncHeader()">
         </div>
 
@@ -357,16 +309,16 @@
         
         <div class="form-group">
             <label>✦ 規格 / 敘述 (支援換行)</label>
-            <textarea id="prodSpecs" rows="2" placeholder="規格描述或連線說明"></textarea>
+            <textarea id="prodSpecs" rows="2" placeholder="規格描述"></textarea>
         </div>
 
         <div class="price-inputs">
             <div class="form-group">
-                <label>🏷️ 批發價 (直接打數字即可)</label>
+                <label>🏷️ 批發價</label>
                 <input type="text" id="prodWholesale" placeholder="例如：350">
             </div>
             <div class="form-group">
-                <label>✨ 零售價 (直接打數字即可)</label>
+                <label>✨ 零售價</label>
                 <input type="text" id="prodRetail" placeholder="例如：580">
             </div>
         </div>
@@ -384,28 +336,22 @@
 
     <div class="flyer-wrapper">
         <div id="flyer-area">
-            
             <div class="flyer-header">
                 <h1 id="displayMainTitle">🔮 限時預購新品 🔮</h1>
                 <p id="displaySubTitle">06/01 收單商品</p>
             </div>
-            
             <div class="catalog-grid" id="catalog-grid"></div>
-            
         </div>
     </div>
 
     <script>
-        // 標題與收單日期實時同步
         function syncHeader() {
             const mainText = document.getElementById('inputMainTitle').value;
             const subText = document.getElementById('inputSubTitle').value;
-            
             document.getElementById('displayMainTitle').innerText = mainText ? mainText : '🔮 限時預購新品 🔮';
             document.getElementById('displaySubTitle').innerText = subText ? subText : '06/01 收單商品';
         }
 
-        // 新增商品方塊
         function addProductCard() {
             const name = document.getElementById('prodName').value;
             const specs = document.getElementById('prodSpecs').value;
@@ -415,7 +361,7 @@
 
             const currentCards = document.querySelectorAll('.product-card').length;
             if (currentCards >= 4) {
-                alert('為了維持 1:1 最佳清晰比例，一張圖建議最多放 4 個商品唷！');
+                alert('一張圖最多放 4 個商品唷！');
                 return;
             }
 
@@ -424,7 +370,6 @@
                 return;
             }
 
-            // 金額前置自動加上 $ 符號處理
             const wholesaleText = wholesale ? `$${wholesale}` : '--';
             const retailText = retail ? `$${retail}` : '--';
 
@@ -446,21 +391,14 @@
                     <div class="product-title">🧸 ${name}</div>
                     <div class="product-specs">${specs ? specs : '新品特惠上架'}</div>
                     <div class="price-tag-box">
-                        <div class="price-line">
-                            <span class="price-label">批發:</span>
-                            <span class="price-wholesale">${wholesaleText}</span>
-                        </div>
-                        <div class="price-line">
-                            <span class="price-label">零售:</span>
-                            <span class="price-retail">${retailText}</span>
-                        </div>
+                        <div class="price-line"><span class="price-label">批發:</span><span class="price-wholesale">${wholesaleText}</span></div>
+                        <div class="price-line"><span class="price-label">零售:</span><span class="price-retail">${retailText}</span></div>
                     </div>
                 </div>
             `;
 
             grid.appendChild(card);
 
-            // 清空欄位以便下一筆輸入
             document.getElementById('prodName').value = '';
             document.getElementById('prodSpecs').value = '';
             document.getElementById('prodWholesale').value = '';
@@ -468,19 +406,21 @@
             document.getElementById('prodImage').value = '';
         }
 
-        // 打包下載 1:1 圖片
+        // 核心修正：利用 windowWidth/windowHeight 強制鎖定拍照視窗比例
         function downloadSquareImage() {
             const flyer = document.getElementById('flyer-area');
             if (document.querySelectorAll('.product-card').length === 0) {
-                alert('畫布上還沒有商品，請先填寫資料並點擊「加入方塊」！');
+                alert('請先新增商品再下載唷！');
                 return;
             }
 
             html2canvas(flyer, {
                 useCORS: true,
-                scale: 2, // 2倍高解析輸出，防糊防壓縮
-                width: 600,
-                height: 600
+                scale: 2.5,          // 提高清晰度
+                width: 600,          // 裁剪寬度 600
+                height: 600,         // 裁剪高度 600
+                windowWidth: 600,    // 強制套件在背景使用 600px 寬度的視窗去畫圖（防擠壓關鍵！）
+                windowHeight: 600    // 強制套件在背景使用 600px 高度的視窗去畫圖
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = '收單商品圖稿_' + new Date().getTime() + '.png';
