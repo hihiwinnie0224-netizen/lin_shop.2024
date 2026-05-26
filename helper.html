@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>𐙚 LINSHOP 智慧定價助手</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang TC','Microsoft JhengHei',sans-serif;background:#f4eff6;color:#4a4a4a;padding:20px}
+.wrap{max-width:700px;margin:0 auto}
+.header{text-align:center;margin-bottom:1.5rem;padding:1.5rem 0 0.5rem}
+.header h1{font-size:22px;font-weight:600;color:#7a688a;letter-spacing:0.06em}
+.header p{font-size:13px;color:#9e8fac;margin-top:6px}
+.card{background:#fff;border:1px solid #e2daea;border-radius:14px;padding:1.25rem;margin-bottom:12px;box-shadow:0 2px 8px rgba(122,104,138,0.07)}
+label{font-size:13px;color:#6b5b7a;font-weight:600;display:block;margin-bottom:6px}
+textarea,input[type=text],input[type=number]{width:100%;font-family:inherit;font-size:14px;padding:10px 12px;border:1px solid #d8d0e0;border-radius:8px;background:#faf9fb;color:#4a4a4a;outline:none;transition:border 0.2s}
+textarea:focus,input:focus{border-color:#9a85b4}
+.hint{font-size:12px;color:#a896b8;margin-top:5px;line-height:1.5}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.search-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.search-btn{font-size:13px;font-weight:600;padding:9px 12px;border-radius:8px;cursor:pointer;border:none;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.search-btn:hover{opacity:0.85}
+.search-btn.shopee{background:#ee4d2d;color:#fff}
+.search-btn.google{background:#4285f4;color:#fff}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;min-height:28px}
+.tag{font-size:12px;padding:3px 10px;border-radius:20px;background:#f0eaf5;color:#7a5a96;border:1px solid #d8cce6}
+.generate-btn{width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer;border:none;background:#9a85b4;color:#fff;letter-spacing:0.05em;margin-top:4px;transition:background 0.2s;box-shadow:0 4px 12px rgba(154,133,180,0.25)}
+.generate-btn:hover{background:#836e9c}
+.price-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.price-card{padding:1rem;border-radius:10px;text-align:center}
+.price-card.wholesale{background:#f5f2f8;border:1px solid #d8cce6}
+.price-card.retail{background:#eef4ff;border:1px solid #b5d0f5}
+.plabel{font-size:12px;color:#8878a0;margin-bottom:4px;font-weight:600}
+.price-card.retail .plabel{color:#4a7fd4}
+.pval{font-size:24px;font-weight:700;color:#5b4b6b}
+.price-card.retail .pval{color:#2563eb}
+.output-section{margin-top:4px}
+.output-label{font-size:13px;color:#6b5b7a;font-weight:600;margin-bottom:8px}
+.output-box{background:#faf9fb;border:1px solid #e2daea;border-radius:10px;padding:1rem;font-size:13px;line-height:1.9;white-space:pre-wrap;word-break:break-word;color:#4a4a4a;max-height:520px;overflow-y:auto;font-family:'PingFang TC','Microsoft JhengHei',sans-serif}
+.copy-btn{width:100%;padding:11px;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;border:1px solid #c8bedc;background:#f0eaf5;color:#6b5b7a;margin-top:8px;transition:background 0.2s}
+.copy-btn:hover{background:#e4daf0}
+.section-sep{border-top:1px solid #eee8f4;margin:12px 0;padding-top:12px}
+.mini-label{font-size:12px;color:#8878a0;margin-bottom:4px;font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <h1>𐙚 LINSHOP 智慧定價助手</h1>
+  <p>智慧偵測分類 · 自動估重 · 市場比價 · 一鍵生成文案</p>
+</div>
+
+<div class="card">
+  <label>① 商品名稱 + 描述（合一輸入，關鍵字自動抓取分類與重量）</label>
+  <textarea id="prodInput" rows="3" placeholder="例如：日本代購 吉伊卡哇盲盒 正版正貨 附保證書 現貨可直出" oninput="onInput()"></textarea>
+  <div class="tag-row" id="detectedTags"></div>
+  <div class="search-row">
+    <button class="search-btn shopee" onclick="searchShopee()">🧡 蝦皮查市場行情</button>
+    <button class="search-btn google" onclick="searchGoogle()">💙 Google 購物比價</button>
+  </div>
+  <div class="hint">💡 查完後把價格填入下方市場行情欄位，文案會自動帶入區間</div>
+</div>
+
+<div class="card">
+  <label>② 市場行情區間（查完蝦皮 / Google 後填入）</label>
+  <div class="row">
+    <div>
+      <div class="mini-label">市場最低價 (NT$)</div>
+      <input type="number" id="mktLow" placeholder="例：99" min="0" oninput="calcPrices()">
+    </div>
+    <div>
+      <div class="mini-label">市場最高價 (NT$)</div>
+      <input type="number" id="mktHigh" placeholder="例：299" min="0" oninput="calcPrices()">
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <label>③ 成本與重量</label>
+  <div class="row">
+    <div>
+      <div class="mini-label">商品裸成本 (NT$)</div>
+      <input type="number" id="prodCost" placeholder="進貨成本" min="0" oninput="calcPrices()">
+    </div>
+    <div>
+      <div class="mini-label">預估重量 (kg)</div>
+      <input type="number" id="prodWeight" placeholder="自動偵測" min="0" step="0.01" oninput="calcPrices()">
+    </div>
+  </div>
+  <div class="hint" id="weightHint">💡 空運費 $70/kg，最低計費 0.1kg（$7 元）</div>
+  <div class="section-sep"></div>
+  <label>④ 利潤設定（依商品類別自動調整，可手動覆蓋）</label>
+  <div class="row3">
+    <div>
+      <div class="mini-label">批發利潤 %</div>
+      <input type="number" id="wholesaleRate" value="20" min="0" max="100" oninput="calcPrices()">
+    </div>
+    <div>
+      <div class="mini-label">零售利潤 %</div>
+      <input type="number" id="retailRate" value="50" min="0" max="100" oninput="calcPrices()">
+    </div>
+    <div>
+      <div class="mini-label">運費 NT$（自動）</div>
+      <input type="number" id="shippingFee" value="0" min="0" oninput="calcPrices()">
+    </div>
+  </div>
+</div>
+
+<div class="price-display" id="priceDisplay" style="display:none">
+  <div class="price-card wholesale">
+    <div class="plabel">🤝 批發價</div>
+    <div class="pval" id="wPrice">—</div>
+  </div>
+  <div class="price-card retail">
+    <div class="plabel">🎀 零售價</div>
+    <div class="pval" id="rPrice">—</div>
+  </div>
+</div>
+
+<button class="generate-btn" onclick="generate()">✨ 一鍵生成 LINE 群組文案</button>
+
+<div class="output-section" id="outputSec" style="display:none">
+  <div class="card" style="margin-top:12px">
+    <div class="output-label">📱 LINE 群組文案預覽</div>
+    <pre class="output-box" id="outputBox"></pre>
+    <button class="copy-btn" onclick="copyPost()">📋 複製完整文案</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const weightRules=[
+  {kw:['螺螄粉','好歡螺','臭寶','螺霸王','義大利麵'],w:0.35,wl:15,rl:40},
+  {kw:['杯','水壺','保溫杯'],w:0.3,wl:20,rl:45},
+  {kw:['衣服','女裝','男裝','套裝','外套','長褲','睡衣','服飾','上衣','裙'],w:0.25,wl:20,rl:50},
+  {kw:['鞋','靴','拖鞋','洞洞鞋'],w:0.4,wl:20,rl:45},
+  {kw:['盲盒','玩偶','娃娃','公仔','玩具'],w:0.15,wl:25,rl:60},
+  {kw:['破壞袋','飛機盒','包材','封口貼','自黏袋'],w:0.4,wl:10,rl:30},
+  {kw:['筆記本','卡冊','資料夾','文具'],w:0.2,wl:20,rl:45},
+  {kw:['彩妝','唇釉','口紅','眼影','防曬','粉餅','化妝品','定妝'],w:0.05,wl:30,rl:60},
+  {kw:['穿戴甲','鯊魚夾','髮夾','耳環','項鍊','吊飾','戒指','手鍊'],w:0.02,wl:30,rl:70},
+  {kw:['包包','痛包','化妝包','錢包','長夾','短夾'],w:0.3,wl:20,rl:50},
+  {kw:['手機殼','耳機殼','行動電源','充電'],w:0.1,wl:20,rl:50},
+  {kw:['零食','餅乾','糖果','海苔','巧克力','凍乾','奶茶','飲品'],w:0.15,wl:15,rl:35},
+  {kw:['小卡','貼紙','油畫','diy','扭扭棒','材料'],w:0.05,wl:25,rl:55},
+  {kw:['寵物'],w:0.12,wl:20,rl:50},
+];
+
+const categoryRules=[
+  {kw:['日本連線','韓國連線','泰國連線','限時快閃','預購'],cats:['ㅣ限時預購ㅣ各國連線'],tags:['#日本連線','#韓國連線','#泰國連線','#限時快閃']},
+  {kw:['長期代購','常態','免等'],cats:['ㅣ長期代購ㅣ免等常備'],tags:['#韓國長期代購','#日本長期代購','#泰國長期代購']},
+  {kw:['美瞳','隱形眼鏡','隱眼'],cats:['ㅣ美瞳專區ㅣ彩色隱眼'],tags:['#日韓美瞳','#隱形眼鏡','#美瞳現貨']},
+  {kw:['精品','專櫃','outlet','名牌'],cats:['ㅣ精品專區ㅣ經典選物'],tags:['#專櫃精品','#精品代購','#Outlet連線']},
+  {kw:['吉伊卡哇','三麗鷗','庫洛米','烏薩奇','蠟筆小新','卡皮巴拉','拉布布','史迪奇','草莓熊','星黛露','暴力熊','星之卡比'],cats:['ㅣ正版週邊ㅣ官方正貨'],tags:['#正版','#官方正貨','#日本官方正版']},
+  {kw:['追星','明星','動漫'],cats:['ㅣ追星ㅣ動漫'],tags:['#明星小卡','#動漫吊飾','#徽章立牌']},
+  {kw:['兒童','童裝','童鞋','嬰','奶瓶','親子'],cats:['ㅣ兒童專區 服飾ㅣ鞋子ㅣ配飾'],tags:['#女童裝','#男童裝','#童鞋','#嬰幼兒用品']},
+  {kw:['螺螄粉','好歡螺','臭寶','螺霸王'],cats:['ㅣ螺螄粉專區ㅣ'],tags:['#好歡螺系列','#臭寶爆爆濃湯','#螺霸王','#小楊哥螺螄粉']},
+  {kw:['零食','餅乾','糖果','海苔','巧克力','凍乾'],cats:['ㅣ甜鹹零食ㅣ'],tags:['#糖果','#餅乾','#零食','#草莓凍乾','#韓國零食']},
+  {kw:['奶茶','飲品','果汁'],cats:['ㅣ飲品甜品ㅣ'],tags:['#爆搖奶茶','#安慕希','#巧口奶昔']},
+  {kw:['破壞袋','飛機盒','包材','封口貼','自黏袋','卡頭'],cats:['ㅣ賣家專用ㅣ包材'],tags:['#破壞袋','#飛機盒','#封口貼','#自黏袋','#包裝袋','#氣泡袋']},
+  {kw:['油畫','貼畫','diy','扭扭棒','手作','積木'],cats:['ㅣDIYㅣ材料ㅣ客製化'],tags:['#數字油畫','#鑽石貼畫','#扭扭棒','#貼紙','#客製化']},
+  {kw:['穿戴甲','鯊魚夾','髮夾','項鍊','耳環','戒指','手鍊','髮箍','髮帶'],cats:['ㅣ配飾ㅣ穿戴甲'],tags:['#手工穿戴甲','#鯊魚夾','#髮夾','#項鍊','#戒指','#耳環','#髮箍']},
+  {kw:['包包','痛包','化妝包','錢包','長夾','短夾','斜挎包'],cats:['ㅣ包包「包軌」'],tags:['#包包','#痛包','#化妝包','#長夾短夾','#斜挎包']},
+  {kw:['衣服','女裝','套裝','外套','裙','睡衣','馬甲','罩衫','吊帶'],cats:['ㅣ女生專區 服飾ㅣ外套ㅣ睡衣'],tags:['#女套裝','#女外套','#女睡衣','#連衣裙','#長裙','#短裙']},
+  {kw:['男裝','男外套','男套裝','大學t','tshirt'],cats:['ㅣ男生專區 服飾ㅣ外套ㅣ睡衣'],tags:['#男套裝','#男外套','#大學t','#男睡衣']},
+  {kw:['長襪','短襪','中襪'],cats:['ㅣ襪子ㅣ鞋子ㅣ雨具'],tags:['#長襪','#中襪','#短襪']},
+  {kw:['雨衣','雨傘','雨鞋'],cats:['ㅣ雨來了'],tags:['#雨鞋','#雨衣','#雨傘']},
+  {kw:['手機殼','耳機殼','行動電源','藍芽','充電線','保護貼'],cats:['ㅣ3C周邊ㅣ保護殼ㅣ行充'],tags:['#蘋果殼','#耳機殼','#行動電源','#藍芽音響','#充電線']},
+  {kw:['文具','筆記本','便利貼','卡冊','便簽','立可帶'],cats:['ㅣ文具類ㅣ學生周邊'],tags:['#筆記本','#便利貼','#卡冊系列','#立可帶','#資料夾']},
+  {kw:['收納','收納盒','收納袋'],cats:['ㅣ收納高手'],tags:['#收納袋','#收納盒','#置物架']},
+  {kw:['盲盒','玩偶','娃娃','公仔','吊飾','抱枕','盲袋'],cats:['ㅣ挂飾ㅣ娃娃ㅣ公仔'],tags:['#盲盒','#盲袋','#公仔','#吊飾','#娃娃','#抱枕']},
+  {kw:['唇釉','眼影','彩妝','化妝品','定妝','卸妝','粉餅'],cats:['ㅣ彩妝商品ㅣ臉部裝飾'],tags:['#唇釉','#眼影盤','#定妝粉餅','#卸妝用品','#彩妝工具']},
+  {kw:['香水','香片','身體乳','護手霜','防曬'],cats:['ㅣ香氛保養ㅣ'],tags:['#香水','#身體乳','#防曬霜','#護手霜','#香氛噴霧']},
+  {kw:['洗髮','沐浴','磨砂','浴巾','毛巾','乾髮帽'],cats:['ㅣ洗香香'],tags:['#浴巾毛巾','#乾髮帽','#洗髮護髮沐浴','#磨砂膏']},
+  {kw:['吹風機','電捲棒','捲髮棒','直板夾','離子梳'],cats:['ㅣ家電小家電ㅣ'],tags:['#無葉吹風機','#自動捲髮棒','#直板夾','#離子梳']},
+  {kw:['寵物衣','寵物碗','寵物窩','寵物帽','寵物'],cats:['ㅣ寵物用品'],tags:['#寵物衣','#寵物碗','#寵物窩','#寵物配件']},
+  {kw:['小夜燈','相框','蠟燭','拼圖','擺件','存錢筒'],cats:['ㅣ可愛小物ㅣ佈置'],tags:['#小夜燈','#相框','#蠟燭','#拼圖','#擺件手辦']},
+];
+
+let detectedRule=null;
+
+function onInput(){
+  const txt=document.getElementById('prodInput').value.toLowerCase();
+  const tagsEl=document.getElementById('detectedTags');
+
+  detectedRule=null;
+  for(let r of weightRules){
+    for(let k of r.kw){
+      if(txt.includes(k)){detectedRule=r;break;}
+    }
+    if(detectedRule)break;
+  }
+
+  if(detectedRule){
+    document.getElementById('prodWeight').value=detectedRule.w;
+    document.getElementById('wholesaleRate').value=detectedRule.wl;
+    document.getElementById('retailRate').value=detectedRule.rl;
+    document.getElementById('weightHint').textContent='💡 偵測到相關商品，預估重量 '+detectedRule.w+'kg，批發'+detectedRule.wl+'% / 零售'+detectedRule.rl+'%';
+  } else {
+    document.getElementById('weightHint').textContent='💡 空運費 $70/kg，最低計費 0.1kg（$7 元）';
+  }
+
+  let detectedCats=[];
+  for(let r of categoryRules){
+    for(let k of r.kw){
+      if(txt.includes(k)){detectedCats.push(...r.cats);break;}
+    }
+  }
+  detectedCats=[...new Set(detectedCats)].slice(0,5);
+
+  tagsEl.innerHTML='';
+  detectedCats.forEach(c=>{
+    const sp=document.createElement('span');
+    sp.className='tag';sp.textContent=c;
+    tagsEl.appendChild(sp);
+  });
+
+  calcPrices();
+}
+
+function calcPrices(){
+  const cost=parseFloat(document.getElementById('prodCost').value)||0;
+  let w=parseFloat(document.getElementById('prodWeight').value)||0;
+  const wRate=parseFloat(document.getElementById('wholesaleRate').value)||20;
+  const rRate=parseFloat(document.getElementById('retailRate').value)||50;
+
+  if(w>0&&w<0.1)w=0.1;
+  const ship=w>0?Math.round(w*70):0;
+  document.getElementById('shippingFee').value=ship;
+
+  if(cost>0){
+    const total=cost+ship;
+    const wp=Math.round(total*(1+wRate/100));
+    const rp=Math.round(total*(1+rRate/100))+20;
+    document.getElementById('wPrice').textContent='$'+wp;
+    document.getElementById('rPrice').textContent='$'+rp;
+    document.getElementById('priceDisplay').style.display='grid';
+  } else {
+    document.getElementById('priceDisplay').style.display='none';
+  }
+}
+
+function searchShopee(){
+  const v=document.getElementById('prodInput').value.trim();
+  if(!v){alert('請先輸入商品名稱！');return;}
+  const name=v.split('\n')[0].substring(0,40);
+  window.open('https://shopee.tw/search?keyword='+encodeURIComponent(name),'_blank');
+}
+function searchGoogle(){
+  const v=document.getElementById('prodInput').value.trim();
+  if(!v){alert('請先輸入商品名稱！');return;}
+  const name=v.split('\n')[0].substring(0,40);
+  window.open('https://www.google.com/search?tbm=shop&q='+encodeURIComponent(name),'_blank');
+}
+
+function generate(){
+  const input=document.getElementById('prodInput').value.trim();
+  if(!input){alert('請輸入商品名稱或描述！');return;}
+
+  const cost=parseFloat(document.getElementById('prodCost').value)||0;
+  let w=parseFloat(document.getElementById('prodWeight').value)||0;
+  const wRate=parseFloat(document.getElementById('wholesaleRate').value)||20;
+  const rRate=parseFloat(document.getElementById('retailRate').value)||50;
+  const mktLow=document.getElementById('mktLow').value;
+  const mktHigh=document.getElementById('mktHigh').value;
+
+  if(w>0&&w<0.1)w=0.1;
+  const ship=w>0?Math.round(w*70):0;
+  const total=cost+ship;
+  const wp=cost>0?Math.round(total*(1+wRate/100)):0;
+  const rp=cost>0?Math.round(total*(1+rRate/100))+20:0;
+
+  const now=new Date();
+  const yr=String(now.getFullYear()).slice(2);
+  const mo=String(now.getMonth()+1).padStart(2,'0');
+  const code=wp>0?'#'+yr+mo+wp:'';
+
+  const txt=input.toLowerCase();
+  let cats=[];let tags=[];
+  for(let r of categoryRules){
+    for(let k of r.kw){
+      if(txt.includes(k)){cats.push(...r.cats);tags.push(...r.tags);break;}
+    }
+  }
+  if(cats.length===0){cats=['ㅣ日常用品ㅣ生活選物'];tags=['#生活小物','#日常用品'];}
+  cats=[...new Set(cats)];tags=[...new Set(tags)];
+
+  const lines=input.split('\n');
+  const firstLine=lines[0].substring(0,60);
+  const restLines=lines.slice(1).join(' ').trim();
+
+  let post='𐙚 𝐋𝐈𝐍𝐒𝐇𝐎𝐏 𝐍𝐄𝐖 𝐀𝐑𝐑𝐈𝐕𝐀𝐋 𐙚\n';
+  post+='──────────────────\n\n';
+  post+='【商品】 '+firstLine+'\n';
+  if(restLines)post+='【描述】 '+restLines+'\n';
+  if(mktLow||mktHigh){
+    if(mktLow&&mktHigh)post+='【市場行情】 $'+mktLow+' ～ $'+mktHigh+' 元\n';
+    else if(mktLow)post+='【市場行情】 約 $'+mktLow+' 元起\n';
+    else post+='【市場行情】 最高約 $'+mktHigh+' 元\n';
+  }
+  post+='\n';
+  if(rp>0&&wp>0){
+    post+='批發 $'+wp+'  ｜  零售 $'+rp+'\n';
+    if(code)post+='批發代碼：'+code+'\n';
+  }
+  post+='\n──────────────────\n';
+  cats.forEach(c=>{post+=c+'\n';});
+  post+='\n';
+
+  let line='';
+  tags.forEach((t,i)=>{
+    line+=t+' ';
+    if((i+1)%4===0){post+=line.trim()+'\n';line='';}
+  });
+  if(line.trim())post+=line.trim()+'\n';
+
+  document.getElementById('outputBox').textContent=post;
+  document.getElementById('outputSec').style.display='block';
+  document.getElementById('outputSec').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyPost(){
+  const text=document.getElementById('outputBox').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('.copy-btn');
+    const orig=btn.textContent;
+    btn.textContent='✓ 複製成功！可直接去 LINE 貼上囉 (⁎⁍̴̛ᴗ⁍̴̛⁎)';
+    setTimeout(()=>{btn.textContent=orig;},2500);
+  }).catch(()=>alert('複製失敗，請手動全選複製。'));
+}
+</script>
+</body>
+</html>
