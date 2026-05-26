@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✦ 夢幻薰衣草 1:1 商品圖產生器 ✦</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        /* ✦ 全新升級：夢幻鮮豔淺紫配色系統 ✦ */
+        :root {
+            --bg-color: #f3e8ff;       /* 夢幻淺紫奶色 */
+            --card-bg: #ffffff;        /* 純白卡片 */
+            --text-main: #2e2538;      /* 深紫灰主文字 */
+            --text-muted: #7c6e8d;     /* 質感紫灰字 */
+            --wholesale-color: #7c3aed;/* 鮮豔深紫色（批發價） */
+            --retail-color: #db2777;   /* 鮮豔莓紅色（零售價） */
+            --btn-add: #a855f7;        /* 亮紫色 */
+            --btn-download: #6366f1;   /* 靛藍紫 */
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: #d8b4fe; /* 外層深背景 */
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 控制面板 */
+        #control-panel {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            margin: 0 0 18px 0;
+            color: #6d28d9;
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            color: #6d28d9;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e9d5ff;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #fdfbff;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--btn-add);
+        }
+
+        .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* 動作按鈕 */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: opacity 0.2s;
+        }
+
+        .btn:active { opacity: 0.8; }
+        .btn-add { background-color: var(--btn-add); color: white; }
+        .btn-download { background-color: var(--btn-download); color: white; }
+
+        /* 1:1 畫布預覽區 */
+        .flyer-wrapper {
+            width: 100%;
+            max-width: 500px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #flyer-area {
+            background-color: var(--bg-color);
+            width: 600px;
+            height: 600px;
+            min-width: 600px;
+            min-height: 600px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        /* 標題設計 */
+        .flyer-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9d5ff;
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .flyer-header h1 {
+            font-size: 24px;
+            color: #6d28d9;
+            margin: 0 0 6px 0;
+            letter-spacing: 2px;
+            font-weight: 800;
+        }
+
+        .flyer-header p {
+            margin: 0;
+            color: var(--retail-color); 
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* 商品卡片網格 */
+        .catalog-grid {
+            display: grid;
+            gap: 12px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e9d5ff;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.04);
+        }
+
+        /* 刪除鍵 */
+        .delete-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e9d5ff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .product-image-container {
+            width: 100%;
+            position: relative;
+            background-color: #fdfaff;
+        }
+
+        .product-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        .product-info {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .product-title {
+            font-size: 14px;
+            margin: 0 0 4px 0;
+            font-weight: bold;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+
+        .product-specs {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: pre-line;
+            line-height: 1.4;
+            margin-bottom: 6px;
+            overflow: hidden;
+        }
+
+        /* ✦ 放大版價格標籤區塊 ✦ */
+        .price-tag-box {
+            border-top: 1px dashed #d8b4fe;
+            padding-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .price-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .price-label {
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .price-wholesale { 
+            color: var(--wholesale-color); 
+            font-weight: 800; 
+            font-size: 18px; /* 大字體 */
+        }
+        
+        .price-retail { 
+            color: var(--retail-color); 
+            font-weight: 800; 
+            font-size: 18px; /* 大字體 */
+        }
+
+        /* ==================================================
+           ✦ 智慧佈局與價格自適應 ✦
+           ================================================== */
+        
+        /* 【1個商品】：左右完美對分 */
+        .catalog-grid:has(.product-card:nth-child(1):last-child) {
+            grid-template-columns: 1fr;
+        }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-card {
+            flex-direction: row;
+            height: 100%;
+        }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-image-container {
+            width: 50%;
+            height: 100%;
+        }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-info {
+            width: 50%;
+            padding: 25px 20px;
+        }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .product-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .price-wholesale,
+        .catalog-grid:has(.product-card:nth-child(1):last-child) .price-retail {
+            font-size: 22px; /* 單圖時價格加倍放大，極致醒目 */
+        }
+
+        /* 【2個商品】：雙欄佈局 */
+        .catalog-grid:has(.product-card:nth-child(2):last-child) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .catalog-grid:has(.product-card:nth-child(2):last-child) .product-image-container {
+            height: 230px;
+        }
+        .catalog-grid:has(.product-card:nth-child(2):last-child) .price-wholesale,
+        .catalog-grid:has(.product-card:nth-child(2):last-child) .price-retail {
+            font-size: 19px;
+        }
+
+        /* 【3~4個商品】：精緻四宮格 */
+        .catalog-grid:has(.product-card:nth-child(3)), 
+        .catalog-grid:has(.product-card:nth-child(4)) {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        .catalog-grid:has(.product-card:nth-child(3)) .product-image-container,
+        .catalog-grid:has(.product-card:nth-child(4)) .product-image-container {
+            height: 110px;
+        }
+        .catalog-grid:has(.product-card:nth-child(3)) .product-info,
+        .catalog-grid:has(.product-card:nth-child(4)) .product-info {
+            padding: 6px 10px;
+        }
+        /* 四宮格時微調為 15px，兼顧「大字體」與「防擠壓跑版」 */
+        .catalog-grid:has(.product-card:nth-child(3)) .price-wholesale,
+        .catalog-grid:has(.product-card:nth-child(4)) .price-wholesale,
+        .catalog-grid:has(.product-card:nth-child(3)) .price-retail,
+        .catalog-grid:has(.product-card:nth-child(4)) .price-retail {
+            font-size: 15px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <h2 class="panel-title">🔮 1:1 自定義功能圖模組 (紫色版)</h2>
+        
+        <div class="form-group">
+            <label>✦ 圖片大標題 (可任意輸入符號)</label>
+            <input type="text" id="inputMainTitle" placeholder="例如：🔮 限時預購新品 🔮" oninput="syncHeader()">
+        </div>
+
+        <div class="form-group">
+            <label>✦ 收單日期 / 副標題</label>
+            <input type="text" id="inputSubTitle" placeholder="例如：06/01 收單商品" oninput="syncHeader()">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #e9d5ff; margin: 18px 0;">
+
+        <div class="form-group">
+            <label>✦ 商品名稱</label>
+            <input type="text" id="prodName" placeholder="商品名稱">
+        </div>
+        
+        <div class="form-group">
+            <label>✦ 規格 / 敘述 (支援換行)</label>
+            <textarea id="prodSpecs" rows="2" placeholder="規格描述或連線說明"></textarea>
+        </div>
+
+        <div class="price-inputs">
+            <div class="form-group">
+                <label>🏷️ 批發價 (直接打數字即可)</label>
+                <input type="text" id="prodWholesale" placeholder="例如：350">
+            </div>
+            <div class="form-group">
+                <label>✨ 零售價 (直接打數字即可)</label>
+                <input type="text" id="prodRetail" placeholder="例如：580">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>📷 上傳商品照片</label>
+            <input type="file" id="prodImage" accept="image/*">
+        </div>
+
+        <div class="action-buttons">
+            <button type="button" class="btn btn-add" onclick="addProductCard()">＋ 加入方塊</button>
+            <button type="button" class="btn btn-download" onclick="downloadSquareImage()">📷 下載圖片</button>
+        </div>
+    </div>
+
+    <div class="flyer-wrapper">
+        <div id="flyer-area">
+            
+            <div class="flyer-header">
+                <h1 id="displayMainTitle">🔮 限時預購新品 🔮</h1>
+                <p id="displaySubTitle">06/01 收單商品</p>
+            </div>
+            
+            <div class="catalog-grid" id="catalog-grid"></div>
+            
+        </div>
+    </div>
+
+    <script>
+        // 標題與收單日期實時同步
+        function syncHeader() {
+            const mainText = document.getElementById('inputMainTitle').value;
+            const subText = document.getElementById('inputSubTitle').value;
+            
+            document.getElementById('displayMainTitle').innerText = mainText ? mainText : '🔮 限時預購新品 🔮';
+            document.getElementById('displaySubTitle').innerText = subText ? subText : '06/01 收單商品';
+        }
+
+        // 新增商品方塊
+        function addProductCard() {
+            const name = document.getElementById('prodName').value;
+            const specs = document.getElementById('prodSpecs').value;
+            const wholesale = document.getElementById('prodWholesale').value;
+            const retail = document.getElementById('prodRetail').value;
+            const imageInput = document.getElementById('prodImage');
+
+            const currentCards = document.querySelectorAll('.product-card').length;
+            if (currentCards >= 4) {
+                alert('為了維持 1:1 最佳清晰比例，一張圖建議最多放 4 個商品唷！');
+                return;
+            }
+
+            if (!name) {
+                alert('請填寫商品名稱！');
+                return;
+            }
+
+            // 金額前置自動加上 $ 符號處理
+            const wholesaleText = wholesale ? `$${wholesale}` : '--';
+            const retailText = retail ? `$${retail}` : '--';
+
+            let imgSrc = 'https://via.placeholder.com/300?text=New+Arrival'; 
+            if (imageInput.files && imageInput.files[0]) {
+                imgSrc = URL.createObjectURL(imageInput.files[0]);
+            }
+
+            const grid = document.getElementById('catalog-grid');
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            card.innerHTML = `
+                <button type="button" class="delete-btn" data-html2canvas-ignore="true" onclick="this.parentElement.remove()">×</button>
+                <div class="product-image-container">
+                    <img src="${imgSrc}">
+                </div>
+                <div class="product-info">
+                    <div class="product-title">🧸 ${name}</div>
+                    <div class="product-specs">${specs ? specs : '新品特惠上架'}</div>
+                    <div class="price-tag-box">
+                        <div class="price-line">
+                            <span class="price-label">批發:</span>
+                            <span class="price-wholesale">${wholesaleText}</span>
+                        </div>
+                        <div class="price-line">
+                            <span class="price-label">零售:</span>
+                            <span class="price-retail">${retailText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            grid.appendChild(card);
+
+            // 清空欄位以便下一筆輸入
+            document.getElementById('prodName').value = '';
+            document.getElementById('prodSpecs').value = '';
+            document.getElementById('prodWholesale').value = '';
+            document.getElementById('prodRetail').value = '';
+            document.getElementById('prodImage').value = '';
+        }
+
+        // 打包下載 1:1 圖片
+        function downloadSquareImage() {
+            const flyer = document.getElementById('flyer-area');
+            if (document.querySelectorAll('.product-card').length === 0) {
+                alert('畫布上還沒有商品，請先填寫資料並點擊「加入方塊」！');
+                return;
+            }
+
+            html2canvas(flyer, {
+                useCORS: true,
+                scale: 2, // 2倍高解析輸出，防糊防壓縮
+                width: 600,
+                height: 600
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '收單商品圖稿_' + new Date().getTime() + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
