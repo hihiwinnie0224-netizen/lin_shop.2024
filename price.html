@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B廠 商品定價工具</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#e8548a;
+  --pink-light:#fce8f2;
+  --pink-mid:#f4b8d4;
+  --pink-dark:#b83870;
+  --bg:#fafafa;
+  --surface:#ffffff;
+  --surface2:#f5f5f7;
+  --border:#e8e8ec;
+  --text:#1a1a2e;
+  --text2:#6b6b80;
+  --text3:#a0a0b0;
+  --green:#2da06a;
+  --green-bg:#eaf7f1;
+  --amber:#d4820a;
+  --amber-bg:#fef5e4;
+  --blue:#1a6fc4;
+  --blue-bg:#e8f1fd;
+  --red:#c4392a;
+  --red-bg:#fdecea;
+  --radius:10px;
+  --radius-lg:16px;
+}
+html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans TC',sans-serif;font-size:15px;line-height:1.6;color:var(--text);background:var(--bg)}
+body{min-height:100vh}
+
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--text)}
+.logo-dot{width:28px;height:28px;background:var(--pink);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800}
+.header-badge{font-size:11px;background:var(--pink-light);color:var(--pink-dark);padding:3px 10px;border-radius:20px;font-weight:500}
+
+/* Layout */
+.main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;display:grid;grid-template-columns:380px 1fr;gap:1.5rem;align-items:start}
+@media(max-width:800px){.main{grid-template-columns:1fr;padding:1rem}}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.card-title svg{width:15px;height:15px;opacity:.7}
+
+/* Form */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;font-size:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);transition:border-color .15s;outline:none;font-family:inherit}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(232,84,138,.1)}
+.field textarea{resize:vertical;min-height:68px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* Sliders */
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.slider-row label{font-size:12px;color:var(--text2);width:74px;flex-shrink:0}
+.slider-row input[type=range]{flex:1;height:4px;accent-color:var(--pink)}
+.slider-val{font-size:13px;font-weight:600;color:var(--text);min-width:46px;text-align:right}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s;font-family:inherit}
+.btn:hover{background:var(--surface2)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--pink);color:#fff;border-color:var(--pink);width:100%;font-size:15px;padding:12px}
+.btn-primary:hover{background:var(--pink-dark);border-color:var(--pink-dark)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-ghost{border-color:transparent;background:transparent}
+.btn-ghost:hover{background:var(--surface2)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.metric{background:var(--surface2);border-radius:var(--radius);padding:1rem;text-align:center}
+.metric-label{font-size:11px;color:var(--text3);margin-bottom:3px}
+.metric-val{font-size:20px;font-weight:700;color:var(--text);line-height:1}
+.metric-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.metric.highlight{background:var(--pink-light);border:1px solid var(--pink-mid)}
+.metric.highlight .metric-val{color:var(--pink-dark)}
+
+/* Price cards */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.price-card{border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;background:var(--surface)}
+.price-card.ws{border-color:#b8d4f5;background:#eef5fd}
+.price-card.rt{border-color:var(--pink-mid);background:var(--pink-light)}
+.price-card.official{border-color:#c5e8d4;background:var(--green-bg)}
+.price-card-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.price-card.ws .price-card-label{color:var(--blue)}
+.price-card.rt .price-card-label{color:var(--pink-dark)}
+.price-card.official .price-card-label{color:var(--green)}
+.price-card-val{font-size:22px;font-weight:800;color:var(--text);line-height:1}
+.price-card-profit{font-size:11px;color:var(--text2);margin-top:4px}
+
+/* Tags */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:5px}
+.tag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500;cursor:default}
+.tag-main{background:var(--pink-light);color:var(--pink-dark)}
+.tag-cat{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+
+/* Category badge */
+.cat-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:14px;font-weight:600}
+
+/* Cost breakdown */
+.breakdown{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.br-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-size:13px;border-bottom:1px solid var(--border)}
+.br-row:last-child{border-bottom:none;font-weight:700;background:var(--surface2)}
+.br-key{color:var(--text2)}
+.br-val{color:var(--text);font-weight:500}
+
+/* Web price results */
+.web-results{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.web-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;gap:10px}
+.web-item:last-child{border-bottom:none}
+.web-item-src{font-size:11px;color:var(--text3);margin-top:2px}
+.web-item-name{flex:1;min-width:0}
+.web-item-name p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.web-price{font-weight:700;color:var(--pink-dark);white-space:nowrap}
+.web-price-tw{font-size:11px;color:var(--text2);text-align:right}
+
+/* Loading */
+.loading{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);padding:14px}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Status */
+.status-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;border-radius:var(--radius);font-size:13px;margin-bottom:1rem}
+.status-bar.info{background:var(--blue-bg);color:var(--blue)}
+.status-bar.success{background:var(--green-bg);color:var(--green)}
+.status-bar.warn{background:var(--amber-bg);color:var(--amber)}
+.status-bar.error{background:var(--red-bg);color:var(--red)}
+
+/* Empty state */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty svg{width:48px;height:48px;margin:0 auto 12px;display:block;opacity:.3}
+.empty p{font-size:14px}
+
+/* Section divider */
+.divider{height:1px;background:var(--border);margin:1rem 0}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;z-index:999;opacity:0;transform:translateY(10px);transition:all .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* API key banner */
+.api-banner{background:var(--amber-bg);border:1px solid #f0c97a;border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;font-size:13px;color:var(--amber)}
+.api-banner a{color:var(--amber);font-weight:600;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-dot">B</div>
+    <span>商品定價工具</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="header-badge">代購賣家專用</span>
+    <button class="btn btn-sm" id="settingsBtn" onclick="toggleSettings()">⚙ 設定 API Key</button>
+  </div>
+</div>
+
+<div id="settingsPanel" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 2rem">
+  <div style="max-width:600px;margin:0 auto">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:8px">輸入 Anthropic API Key 以啟用自動搜尋網路價格功能（<a href="https://console.anthropic.com" target="_blank" style="color:var(--pink)">取得 API Key</a>）</p>
+    <div style="display:flex;gap:8px">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;font-family:inherit">
+      <button class="btn btn-sm" onclick="saveApiKey()" style="background:var(--pink);color:#fff;border-color:var(--pink)">儲存</button>
+      <button class="btn btn-sm" onclick="clearApiKey()" style="color:var(--red)">清除</button>
+    </div>
+    <p id="keyStatus" style="font-size:11px;color:var(--text3);margin-top:6px"></p>
+  </div>
+</div>
+
+<div class="main">
+<!-- LEFT: Input Panel -->
+<div>
+  <div class="card">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      商品資訊
+    </div>
+    <div class="field">
+      <label>商品名稱 *</label>
+      <input type="text" id="name" placeholder="例：牛仔闊腿褲 女款顯瘦版型" oninput="onNameInput()">
+    </div>
+    <div class="field">
+      <label>商品描述（關鍵字、材質、品牌）</label>
+      <textarea id="desc" placeholder="例：棉質、女裝、韓國風格、顯瘦..."></textarea>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>商品成本（TWD $）</label>
+        <input type="number" id="cost" placeholder="50" min="0" step="1" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>人民幣匯率（選填）</label>
+        <input type="number" id="rate" placeholder="4.5" min="1" step="0.1" value="4.5" oninput="recalc()">
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>預估重量（公斤）</label>
+        <input type="number" id="weight" placeholder="自動估算" min="0.1" step="0.1" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>運費（$ / 公斤）</label>
+        <input type="number" id="freight" value="70" min="0" step="5" oninput="recalc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      利潤設定
+    </div>
+    <div class="slider-row">
+      <label>零售加成</label>
+      <input type="range" id="r-retail" min="10" max="300" step="5" value="80" oninput="updateSlider('retail');recalc()">
+      <span class="slider-val" id="v-retail">80%</span>
+    </div>
+    <div class="slider-row">
+      <label>批發加成</label>
+      <input type="range" id="r-wholesale" min="5" max="150" step="5" value="30" oninput="updateSlider('wholesale');recalc()">
+      <span class="slider-val" id="v-wholesale">30%</span>
+    </div>
+    <div class="slider-row">
+      <label>官網加成</label>
+      <input type="range" id="r-official" min="20" max="500" step="10" value="150" oninput="updateSlider('official');recalc()">
+      <span class="slider-val" id="v-official">150%</span>
+    </div>
+    <div class="slider-row">
+      <label>最低利潤</label>
+      <input type="range" id="r-min" min="0" max="100" step="5" value="20" oninput="updateSlider('min');recalc()">
+      <span class="slider-val" id="v-min">$20</span>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <label style="font-size:12px;color:var(--text2)">參考網路市場價格調整</label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:var(--text2)">
+        <input type="checkbox" id="useMarketRef" style="accent-color:var(--pink);width:auto"> 啟用市場參考
+      </label>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="mainBtn" onclick="runAll()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
+    自動分類 + 搜尋市場價格 + 計算定價
+  </button>
+  <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">需要 API Key 才能搜尋網路價格；無 Key 仍可分類與計算</p>
+</div>
+
+<!-- RIGHT: Results Panel -->
+<div id="results">
+  <div class="empty" id="emptyState">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><path d="M9 12h6M9 16h4"/></svg>
+    <p>填入商品資訊後點擊計算</p>
+  </div>
+
+  <div id="mainResults" style="display:none">
+
+    <!-- Status -->
+    <div id="statusBar" style="display:none"></div>
+
+    <!-- Category -->
+    <div class="card" id="catCard">
+      <div class="card-title">判斷分類</div>
+      <div id="catDisplay"></div>
+    </div>
+
+    <!-- Web Price Search -->
+    <div class="card" id="webCard">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div class="card-title" style="margin-bottom:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          市場參考價格
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="searchWebPrice()" id="reSearchBtn" style="font-size:12px">🔄 重新搜尋</button>
+      </div>
+      <div id="webPriceArea"><div style="font-size:13px;color:var(--text3);padding:8px 0">點擊計算以搜尋網路市場價格</div></div>
+    </div>
+
+    <!-- Cost Breakdown -->
+    <div class="card">
+      <div class="card-title">成本拆解</div>
+      <div class="breakdown" id="costRows"></div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="card">
+      <div class="card-title">定價建議</div>
+      <div class="price-grid" id="priceGrid"></div>
+      <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:4px" id="priceNote"></div>
+    </div>
+
+    <!-- Tags -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div class="card-title" style="margin-bottom:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          建議貼文標籤
+        </div>
+        <div style="display:flex;gap:6px">
+          <span id="tagCount" style="font-size:11px;color:var(--text3);align-self:center"></span>
+          <button class="btn btn-sm" onclick="copyTags()">📋 複製</button>
+        </div>
+      </div>
+      <div class="tags-wrap" id="suggestTags"></div>
+      <div style="margin-top:10px">
+        <div id="tagGroupsContainer"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── API KEY ───────────────────────────────────────────────
+function getKey(){return localStorage.getItem('anthropic_key')||'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'}
+function saveApiKey(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  if(!k){showToast('請輸入 API Key');return}
+  localStorage.setItem('anthropic_key',k);
+  document.getElementById('keyStatus').textContent='✓ 已儲存';
+  showToast('API Key 已儲存');
+}
+function clearApiKey(){
+  localStorage.removeItem('anthropic_key');
+  document.getElementById('apiKeyInput').value='';
+  document.getElementById('keyStatus').textContent='已清除';
+  showToast('API Key 已清除');
+}
+function toggleSettings(){
+  const p=document.getElementById('settingsPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block'){
+    const k=getKey();
+    if(k)document.getElementById('apiKeyInput').value=k;
+    document.getElementById('keyStatus').textContent=k?'✓ 已設定 API Key':'尚未設定';
+  }
+}
+
+// ─── CATEGORIES ───────────────────────────────────────────
+const CATS=[
+  {id:'food',name:'螺螄粉｜食品',color:'#2da06a',bg:'#eaf7f1',
+   keywords:['螺螄粉','李子柒','好歡螺','孫姐螺','臭寶','螺霸王','人類快樂','小楊哥','義大利麵','空刻','辣條','魔芋','魔芋爽','螺','粉','麵','餅乾','糖果','巧克力','雪Q餅','馬卡龍','生巧','芒果乾','草莓凍乾','韓國零食','海苔','豬肉條','奶茶','奶昔','下飯','安慕希','爆搖','巧口','亞力士','食物','飲料','零嘴','乾','凍','醬','湯','自熱火鍋','自熱米飯','代餐','衛龍','食族人','三隻松鼠','良品鋪子','百草味']},
+  {id:'clothing_f',name:'女生服飾',color:'#c4396a',bg:'#fce8f2',
+   keywords:['女套裝','女外套','女睡衣','短袖','長袖','馬甲','罩衫','抹胸','吊帶背心','女襯衫','女長褲','女短褲','長裙','短裙','連衣裙','洋裝','女裝','上衣','帽t','大學t','衛衣','打底','半身裙','JK','洛麗塔','防曬衣','冰絲衫','闊腿褲','煙管褲','鯊魚褲','芭比褲','喇叭褲','兩件套','三件套','吊帶','打底衫','打底褲']},
+  {id:'clothing_m',name:'男生服飾',color:'#1a6fc4',bg:'#e8f1fd',
+   keywords:['男套裝','男外套','男睡衣','tshire','大學t','男馬甲','男襯衫','背心','男長褲','男短褲','男裝','男生','男款','男上衣']},
+  {id:'shoes',name:'鞋子｜襪子｜雨具',color:'#5a5a6a',bg:'#f1f0f8',
+   keywords:['拖鞋','棉鞋','短靴','長靴','皮鞋','休閒鞋','洞洞鞋','長襪','中襪','短襪','雨衣','雨傘','涼鞋','板鞋','運動鞋','靴子','帆布鞋','跟鞋','童鞋','雨鞋','包鞋']},
+  {id:'bag',name:'包包｜配件',color:'#b06014',bg:'#fef2e4',
+   keywords:['包包','痛包','娃包','錢包','長夾','短夾','眼鏡','墨鏡','帽子','單肩包','雙肩包','手提包','化妝包','斜挎包','零錢包','皮帶','手提','斜背']},
+  {id:'jewelry',name:'配飾｜穿戴甲',color:'#6c3ac4',bg:'#f0ebff',
+   keywords:['鯊魚夾','髮夾','抓夾','髮帶','髮箍','髮梳','髮圈','手鍊','腳鏈','項鍊','戒指','耳環','耳針','腿環','胸針','耳夾轉換器','穿戴甲','髮飾','飾品','手錶','釵','手環','頸鍊','耳夾','耳骨']},
+  {id:'cosmetic',name:'化妝品｜美妝',color:'#c4396a',bg:'#fce8f2',
+   keywords:['唇釉','唇膏','眼影盤','高光','臉部裝飾','UNNYCLUB','PRAMY','PinkBear','ERSHIQI','隱形眼鏡','定妝','唇泥','口紅','腮紅','修容','粉底','眼線','假睫毛','卸妝','防曬','美瞳','彩妝','橘朵','酵色','花知曉','珂拉琪','卡姿蘭','薇諾娜','臥蠶筆','氣墊','高光','眼線筆']},
+  {id:'daily',name:'日常用品',color:'#0f7a5a',bg:'#e4f5ef',
+   keywords:['香水','香片','身體乳','護手霜','防曬霜','香氛噴霧','乾洗噴霧','卸妝油','固態牙膏','杯子','水壺','杯袋','碗盤','餐具','吸管','電熱鍋','收納','紙袋','鏡子','梳子','垃圾桶','手機支架','牙刷','毯子','指甲剪','衛生紙','洗臉巾','乾髮帽','浴巾','毛巾','擦手巾','沐浴球','嬌潤泉','吹風機','電動牙刷','捲髮棒','樂扣','洗髮','護髮','沐浴','洗澡']},
+  {id:'phone',name:'3C｜手機周邊',color:'#1a6fc4',bg:'#e8f1fd',
+   keywords:['蘋果殼','耳機殼','iXIN','iwalk','lapo','WINI','副廠耳機','行動電源','保護殼','藍芽','充電','手機殼','平板','充電線','保護貼','鏡頭貼','音響','耳機','手機','藍牙','充電器','標籤機','滑鼠墊']},
+  {id:'stationery',name:'文具｜辦公',color:'#6c3ac4',bg:'#f0ebff',
+   keywords:['PP夾','資料夾','便利貼','便簽本','筆記本','立可帶','美工刀','鉛筆盒','訂書機','筆筒','筆類','書籤','桌墊','滑鼠墊','卡片','卡冊','卡磚','筆袋','計算機','橡皮擦','紙膠帶','修正帶','文件夾','手帳','點點膠','旋轉立牌']},
+  {id:'diy',name:'DIY｜手作',color:'#2da06a',bg:'#eaf7f1',
+   keywords:['數字油畫','鑽石貼畫','扭扭棒','風琴相冊','手工毛線','貼紙','布貼','蝴蝶結','壓克力片','亮片','照片代印','小卡代印','客製化','積木拼圖','許願瓶','水畫本','打印筆','DIY','手作','手工']},
+  {id:'cute',name:'可愛小物｜佈置',color:'#d4820a',bg:'#fef5e4',
+   keywords:['玩具','印章','娃衣配件','紋身貼','捏捏樂','立牌','蠟燭','相框','布條','掛飾','桌曆','杯墊','小夜燈','展示櫃','存錢筒','小物','鬧鐘','掛件','擺件','手辦','撲克牌','搖搖樂','玩偶','娃娃','捏捏']},
+  {id:'anime',name:'追星｜動漫周邊',color:'#c4396a',bg:'#fce8f2',
+   keywords:['明星徽章','明星立牌','明星小卡','動漫徽章','動漫立牌','動漫小卡','動漫吊飾','吧唧','盲盒','公仔','谷子','盲袋','周邊','徽章','小卡','史迪奇','蠟筆小新','三麗鷗','草莓熊','三眼怪','米老鼠','維尼熊','醜魚','星黛露','拉布布','吉伊卡哇','暴力熊','卡皮巴拉','達菲熊','掌門狗','帕恰狗']},
+  {id:'phone_acc',name:'手機吊飾｜掛件',color:'#b06014',bg:'#fef2e4',
+   keywords:['卡套','吧唧包','吊飾','吊牌','娃娃吊飾','手機吊飾','手機掛繩','手機墊片','抱枕','掛繩','手機掛件']},
+  {id:'packaging',name:'賣家包材',color:'#5a5a6a',bg:'#f1f0f8',
+   keywords:['封口貼','雪梨紙','飛機盒','破壞袋','自封袋','自黏袋','包裝袋','氣泡袋','包裝盒','賣家用品','賣家小禮物','膠帶','氣泡膜','珍珠棉','束口袋','卡頭','刮刮樂','卡膜','卷卷貼','贈品貼','包材']},
+  {id:'pet',name:'寵物用品',color:'#2da06a',bg:'#eaf7f1',
+   keywords:['寵物衣','寵物兜','寵物帽','寵物配件','寵物碗','寵物窩','寵物','貓狗']},
+  {id:'kids',name:'兒童｜童裝',color:'#c4396a',bg:'#fce8f2',
+   keywords:['女童裝','男童裝','女童鞋','男童鞋','兒童','童裝','幼兒','嬰兒','寶寶','奶瓶','固齒器','親子裝','包屁衣','連體衣','童鞋','童']},
+  {id:'ip',name:'各國連線｜代購',color:'#1a6fc4',bg:'#e8f1fd',
+   keywords:['日本連線','韓國連線','泰國連線','限時快閃','長期代購','精品代購','專櫃精品','正版三麗鷗','日本官方','韓國長期','日本長期','泰國長期','香港','代購','連線','限時']}
+];
+
+const WEIGHT_HINTS={food:0.5,clothing_f:0.3,clothing_m:0.4,shoes:0.5,bag:0.5,jewelry:0.1,cosmetic:0.2,daily:0.3,phone:0.2,stationery:0.15,diy:0.3,cute:0.2,anime:0.15,phone_acc:0.1,packaging:1.0,pet:0.3,kids:0.35,ip:0.3};
+
+// Tag groups per post (max 20 tags)
+const TAG_GROUPS={
+  food:['#搜尋B廠','#螺螄粉','#食品','#零食','#李子柒黃','#好歡螺系列','#螺霸王','#人類快樂','#小楊哥螺螄粉','#空刻義大利麵','#糖果','#餅乾','#巧克力','#韓國零食','#魔芋系列','#辣條系列'],
+  clothing_f:['#搜尋B廠','#女生專區','#女套裝','#女外套','#女睡衣','#短袖','#長袖','#馬甲','#吊帶背心','#女長褲','#女短褲','#長裙','#短裙','#連衣裙','#大學t','#女裝'],
+  clothing_m:['#搜尋B廠','#男生專區','#男套裝','#男外套','#男睡衣','#大學t','#男馬甲','#男襯衫','#背心','#男長褲','#男短褲','#男裝'],
+  shoes:['#搜尋B廠','#鞋子','#長襪','#中襪','#短襪','#拖鞋','#短靴','#長靴','#皮鞋','#休閒鞋','#洞洞鞋','#雨衣','#雨傘','#板鞋','#運動鞋','#帆布鞋'],
+  bag:['#搜尋B廠','#包包','#痛包','#娃包','#錢包','#長夾','#短夾','#眼鏡','#墨鏡','#帽子','#單肩包','#雙肩包','#化妝包','#斜挎包','#零錢包','#皮帶'],
+  jewelry:['#搜尋B廠','#配飾','#穿戴甲','#鯊魚夾','#髮夾','#髮帶','#髮箍','#髮圈','#手鍊','#腳鏈','#項鍊','#戒指','#耳環','#胸針','#耳夾轉換器','#手工穿戴甲'],
+  cosmetic:['#搜尋B廠','#化妝品','#臉部裝飾','#唇釉','#唇膏','#眼影盤','#高光','#隱形眼鏡','#美瞳','#定妝噴霧','#彩妝','#卸妝','#防曬','#假睫毛','#粉底','#腮紅'],
+  daily:['#搜尋B廠','#日常用品','#香水','#身體乳','#護手霜','#杯子','#水壺','#碗盤','#收納','#鏡子','#梳子','#嬌潤泉系列','#無葉吹風機','#聲波電動牙刷','#樂扣杯','#生活小物'],
+  phone:['#搜尋B廠','#保護殼','#行充','#副廠','#蘋果殼','#耳機殼','#藍芽音響','#行動電源','#充電線','#保護貼','#平板保護套','#副廠耳機','#手機殼','#藍牙耳機','#充電器','#手機支架'],
+  stationery:['#搜尋B廠','#文具','#PP夾','#資料夾','#便利貼','#筆記本','#卡片','#卡冊','#桌墊','#滑鼠墊','#紙膠帶','#手帳工具','#筆類','#筆袋','#書籤','#修正帶'],
+  diy:['#搜尋B廠','#DIY','#客製化','#數字油畫','#鑽石貼畫','#扭扭棒','#貼紙','#布貼','#蝴蝶結','#壓克力片','#亮片','#照片代印','#小卡代印','#手工毛線','#積木拼圖','#許願瓶'],
+  cute:['#搜尋B廠','#可愛小物','#佈置','#玩具','#印章','#捏捏樂','#立牌','#蠟燭','#相框','#掛飾','#桌曆','#小夜燈','#存錢筒','#娃衣配件','#娃娃','#擺件'],
+  anime:['#搜尋B廠','#追星','#動漫','#明星徽章','#明星立牌','#明星小卡','#動漫徽章','#動漫立牌','#動漫小卡','#動漫吊飾','#盲盒','#公仔','#谷子','#吧唧','#三麗鷗','#吉伊卡哇'],
+  phone_acc:['#搜尋B廠','#卡套','#吊飾','#吊牌','#娃娃吊飾','#手機吊飾','#手機掛繩','#手機墊片','#抱枕','#吧唧包','#掛件'],
+  packaging:['#搜尋B廠','#賣家用品','#包材','#封口貼','#雪梨紙','#飛機盒','#破壞袋','#自封袋','#自黏袋','#包裝袋','#氣泡袋','#包裝盒','#賣家小禮物','#膠帶','#氣泡膜','#束口袋'],
+  pet:['#搜尋B廠','#寵物用品','#寵物衣','#寵物兜','#寵物帽','#寵物配件','#寵物碗','#寵物窩'],
+  kids:['#搜尋B廠','#兒童專區','#女童裝','#男童裝','#女童鞋','#男童鞋','#童裝','#親子裝'],
+  ip:['#搜尋B廠','#各國連線','#限時預購','#長期代購','#日本連線','#韓國連線','#泰國連線','#精品代購','#正版周邊','#美瞳專區']
+};
+
+// ─── STATE ───────────────────────────────────────────────
+let currentCat=null;
+let webPrices=[];
+
+// ─── SLIDER UPDATES ───────────────────────────────────────
+function updateSlider(type){
+  const v=document.getElementById('r-'+type).value;
+  const el=document.getElementById('v-'+type);
+  if(type==='min') el.textContent='$'+v;
+  else el.textContent=v+'%';
+}
+
+// ─── CLASSIFY ─────────────────────────────────────────────
+function classify(name,desc){
+  const text=(name+' '+desc).toLowerCase();
+  const scores={};
+  CATS.forEach(c=>{
+    scores[c.id]=0;
+    c.keywords.forEach(k=>{
+      if(text.includes(k.toLowerCase())){scores[c.id]+=k.length>=4?3:1;}
+    });
+  });
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0);
+  return sorted.length?CATS.find(c=>c.id===sorted[0][0]):null;
+}
+
+function onNameInput(){
+  const name=document.getElementById('name').value.trim();
+  const desc=document.getElementById('desc').value.trim();
+  if(name.length>2){
+    const cat=classify(name,desc);
+    if(cat&&!document.getElementById('weight').value){
+      document.getElementById('weight').placeholder=WEIGHT_HINTS[cat.id]||0.3+' (自動估算)';
+    }
+  }
+}
+
+// ─── CALCULATE ────────────────────────────────────────────
+function calcPrices(){
+  const cost=parseFloat(document.getElementById('cost').value)||0;
+  const freight=parseFloat(document.getElementById('freight').value)||70;
+  const retailPct=parseInt(document.getElementById('r-retail').value)||80;
+  const wsPct=parseInt(document.getElementById('r-wholesale').value)||30;
+  const officialPct=parseInt(document.getElementById('r-official').value)||150;
+  const minProfit=parseInt(document.getElementById('r-min').value)||20;
+
+  let weight=parseFloat(document.getElementById('weight').value);
+  if(!weight||isNaN(weight)) weight=currentCat?WEIGHT_HINTS[currentCat.id]||0.3:0.3;
+  const weightRounded=Math.max(0.1,Math.ceil(weight*10)/10);
+  const shipping=Math.round(weightRounded*freight);
+  const total=cost+shipping;
+
+  const retail=Math.max(total*(1+retailPct/100), total+minProfit);
+  const wholesale=Math.max(total*(1+wsPct/100), total+Math.round(minProfit*0.5));
+  const official=Math.max(total*(1+officialPct/100), total+minProfit*2);
+
+  return {cost,shipping,total,retail,wholesale,official,weight:weightRounded};
+}
+
+function recalc(){
+  if(document.getElementById('mainResults').style.display==='none') return;
+  renderPrices();
+}
+
+// ─── RENDER PRICES ────────────────────────────────────────
+function renderPrices(){
+  const p=calcPrices();
+  document.getElementById('costRows').innerHTML=`
+    <div class="br-row"><span class="br-key">商品成本</span><span class="br-val">$${p.cost.toFixed(0)}</span></div>
+    <div class="br-row"><span class="br-key">預估重量</span><span class="br-val">${p.weight.toFixed(1)} 公斤</span></div>
+    <div class="br-row"><span class="br-key">國際運費（$${document.getElementById('freight').value}/kg）</span><span class="br-val">$${p.shipping}</span></div>
+    <div class="br-row"><span class="br-key">總到手成本</span><span class="br-val" style="font-size:16px;color:var(--pink-dark)">$${p.total.toFixed(0)}</span></div>
+  `;
+  document.getElementById('priceGrid').innerHTML=`
+    <div class="price-card ws">
+      <div class="price-card-label">批發價</div>
+      <div class="price-card-val">$${Math.round(p.wholesale)}</div>
+      <div class="price-card-profit">利潤 +$${Math.round(p.wholesale)-p.total} (${document.getElementById('r-wholesale').value}%)</div>
+    </div>
+    <div class="price-card rt">
+      <div class="price-card-label">零售價</div>
+      <div class="price-card-val">$${Math.round(p.retail)}</div>
+      <div class="price-card-profit">利潤 +$${Math.round(p.retail)-p.total} (${document.getElementById('r-retail').value}%)</div>
+    </div>
+    <div class="price-card official">
+      <div class="price-card-label">官網定價</div>
+      <div class="price-card-val">$${Math.round(p.official)}</div>
+      <div class="price-card-profit">利潤 +$${Math.round(p.official)-p.total} (${document.getElementById('r-official').value}%)</div>
+    </div>
+  `;
+  if(webPrices.length){
+    const avgMarket=webPrices.reduce((a,b)=>a+b.twd,0)/webPrices.length;
+    document.getElementById('priceNote').textContent=`市場均價約 $${Math.round(avgMarket)}｜你的零售價比市場${Math.round(p.retail)>avgMarket?'高':'低'} $${Math.abs(Math.round(p.retail)-Math.round(avgMarket))}`;
+  }
+}
+
+// ─── WEB PRICE SEARCH ─────────────────────────────────────
+async function searchWebPrice(){
+  const name=document.getElementById('name').value.trim();
+  const key=getKey();
+  if(!key){
+    setWebPriceArea(`<div class="status-bar warn"><span>⚠</span> 需要設定 API Key 才能搜尋市場價格</div>`);
+    return;
+  }
+  setWebPriceArea(`<div class="loading"><div class="spinner"></div>正在搜尋市場參考價格...</div>`);
+
+  try{
+    const rate=parseFloat(document.getElementById('rate').value)||4.5;
+    const prompt=`你是一個台灣代購商品定價分析師。請幫我搜尋「${name}」在以下平台的市場價格：
+1. 拼多多/淘寶（人民幣）
+2. 蝦皮台灣（新台幣）
+3. 露天/Yahoo台灣（新台幣）
+
+請以JSON格式回覆，格式如下，只回傳JSON不要其他文字：
+{
+  "items": [
+    {"platform": "淘寶/拼多多", "name": "商品簡短描述", "price_cny": 數字或null, "price_twd": 數字或null, "url_hint": "搜尋連結提示"},
+    {"platform": "蝦皮台灣", "name": "商品簡短描述", "price_cny": null, "price_twd": 數字或null, "url_hint": "搜尋連結提示"},
+    {"platform": "台灣市場均價", "name": "市場平均", "price_cny": null, "price_twd": 數字或null, "url_hint": ""}
+  ],
+  "summary": "一句話市場分析"
+}
+匯率參考：1 CNY = ${rate} TWD。price_twd如果是人民幣請換算成台幣。`;
+
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json();
+      throw new Error(err.error?.message||'API 錯誤 '+resp.status);
+    }
+
+    const data=await resp.json();
+    const textContent=data.content.filter(c=>c.type==='text').map(c=>c.text).join('');
+    
+    let parsed=null;
+    try{
+      const clean=textContent.replace(/```json|```/g,'').trim();
+      const jsonMatch=clean.match(/\{[\s\S]*\}/);
+      if(jsonMatch) parsed=JSON.parse(jsonMatch[0]);
+    }catch(e){}
+
+    if(parsed&&parsed.items){
+      webPrices=parsed.items.map(i=>({
+        platform:i.platform,name:i.name,
+        twd:i.price_twd||Math.round((i.price_cny||0)*rate),
+        cny:i.price_cny
+      })).filter(i=>i.twd>0);
+
+      let html='';
+      if(parsed.summary){
+        html+=`<div class="status-bar info"><span>💡</span>${parsed.summary}</div>`;
+      }
+      if(webPrices.length){
+        html+='<div class="web-results">';
+        webPrices.forEach(i=>{
+          html+=`<div class="web-item">
+            <div class="web-item-name">
+              <p>${i.name}</p>
+              <div class="web-item-src">${i.platform}</div>
+            </div>
+            <div>
+              <div class="web-price">$${Math.round(i.twd)}</div>
+              ${i.cny?`<div class="web-price-tw">≈ ¥${i.cny}</div>`:''}
+            </div>
+          </div>`;
+        });
+        html+='</div>';
+      } else {
+        html+=`<div style="font-size:13px;color:var(--text3);padding:8px 0">未找到市場參考價格，請手動輸入成本</div>`;
+      }
+      setWebPriceArea(html);
+      renderPrices();
+    } else {
+      setWebPriceArea(`<div class="status-bar warn">⚠ 無法解析搜尋結果，請手動參考定價</div>`);
+    }
+  }catch(err){
+    let msg=err.message||'搜尋失敗';
+    if(msg.includes('401')) msg='API Key 無效，請重新設定';
+    if(msg.includes('429')) msg='API 請求過多，請稍後再試';
+    setWebPriceArea(`<div class="status-bar error">❌ ${msg}</div>`);
+  }
+}
+
+function setWebPriceArea(html){
+  document.getElementById('webPriceArea').innerHTML=html;
+}
+
+// ─── TAGS ─────────────────────────────────────────────────
+function renderTags(cat){
+  const tags=cat?(TAG_GROUPS[cat.id]||['#搜尋B廠']).slice(0,20):['#搜尋B廠'];
+  const name=document.getElementById('name').value.trim();
+  const nameExtra=name.split(/[\s，,、]/).filter(w=>w.length>=2).map(w=>'#'+w);
+  const allTags=[...new Set([...tags,...nameExtra])].slice(0,20);
+
+  document.getElementById('suggestTags').innerHTML=allTags.map(t=>{
+    const isMain=t==='#搜尋B廠';
+    return `<span class="tag ${isMain?'tag-main':'tag-cat'}">${t}</span>`;
+  }).join('');
+  document.getElementById('tagCount').textContent=`${allTags.length}/20 個標籤`;
+}
+
+function copyTags(){
+  const tags=[...document.querySelectorAll('#suggestTags .tag')].map(el=>el.textContent).join(' ');
+  navigator.clipboard.writeText(tags).then(()=>showToast('標籤已複製！'));
+}
+
+// ─── MAIN RUN ─────────────────────────────────────────────
+async function runAll(){
+  const name=document.getElementById('name').value.trim();
+  if(!name){
+    document.getElementById('name').focus();
+    showToast('請輸入商品名稱');
+    return;
+  }
+
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('mainResults').style.display='block';
+  document.getElementById('mainBtn').disabled=true;
+  document.getElementById('mainBtn').innerHTML='<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></div> 處理中...';
+
+  // Classify
+  const desc=document.getElementById('desc').value.trim();
+  currentCat=classify(name,desc);
+
+  // Render category
+  const catEl=document.getElementById('catDisplay');
+  if(currentCat){
+    catEl.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="cat-badge" style="background:${currentCat.bg};color:${currentCat.color}">${currentCat.name}</span>
+      <span style="font-size:12px;color:var(--text3)">預估重量：${WEIGHT_HINTS[currentCat.id]||0.3} 公斤</span>
+    </div>`;
+    if(!document.getElementById('weight').value){
+      document.getElementById('weight').placeholder=(WEIGHT_HINTS[currentCat.id]||0.3).toString();
+    }
+  } else {
+    catEl.innerHTML=`<span style="color:var(--amber);font-size:13px">⚠️ 無法自動判斷分類，請確認商品名稱或描述</span>`;
+  }
+
+  // Render prices immediately
+  renderPrices();
+  renderTags(currentCat);
+
+  // Search web prices
+  await searchWebPrice();
+
+  document.getElementById('mainBtn').disabled=false;
+  document.getElementById('mainBtn').innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>自動分類 + 搜尋市場價格 + 計算定價`;
+}
+
+// ─── TOAST ────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Init slider labels
+['retail','wholesale','official'].forEach(k=>updateSlider(k));
+document.getElementById('v-min').textContent='$'+document.getElementById('r-min').value;
+</script>
+</body>
+</html>
