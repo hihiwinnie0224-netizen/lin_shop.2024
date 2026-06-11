@@ -8,7 +8,7 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --pink: #f472b6; --pink-light: #fdf2f8; --pink-mid: #fbcfe8;
-    --purple: #a78bfa; --purple-light: #f5f3ff;
+    --purple-light: #f5f3ff;
     --text: #3b2a3a; --text-muted: #8b6a85;
     --border: #e9d5e6; --bg: #fff9fd; --card-bg: #ffffff;
     --radius: 14px; --radius-sm: 8px;
@@ -36,29 +36,21 @@
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
 
-  .api-card { background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
-  .api-card .section-label { color: #d97706; }
+  .api-card { background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+  .api-card .section-label { color: #16a34a; }
   .api-row { display: flex; gap: 10px; align-items: flex-end; }
   .api-row .field { flex: 1; margin-bottom: 0; }
-  .api-row input { background: #fffbeb; border-color: #fde68a; }
-  .api-row input:focus { border-color: #f59e0b; }
-  .toggle-btn {
-    padding: 10px 14px; font-size: 13px; white-space: nowrap;
-    background: #fff; border: 1.5px solid #fde68a; border-radius: var(--radius-sm);
-    cursor: pointer; color: #92400e; height: 42px;
-  }
-  .toggle-btn:hover { background: #fef3c7; }
-  .api-note { font-size: 12px; color: #92400e; margin-top: 8px; line-height: 1.6; }
-  .api-note a { color: #d97706; }
+  .api-row input { background: #f0fdf4; border-color: #bbf7d0; }
+  .api-row input:focus { border-color: #4ade80; }
+  .toggle-btn { padding: 10px 14px; font-size: 13px; white-space: nowrap; background: #fff; border: 1.5px solid #bbf7d0; border-radius: var(--radius-sm); cursor: pointer; color: #15803d; height: 42px; }
+  .toggle-btn:hover { background: #dcfce7; }
+  .api-note { font-size: 12px; color: #15803d; margin-top: 8px; line-height: 1.7; }
+  .api-note a { color: #16a34a; font-weight: 600; }
   .api-saved { display: inline-block; font-size: 11px; color: #059669; background: #d1fae5; border-radius: 99px; padding: 2px 10px; margin-left: 8px; }
 
-  .gen-btn {
-    width: 100%; padding: 14px; font-size: 15px; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%);
-    border: none; border-radius: var(--radius); cursor: pointer;
-    letter-spacing: 0.03em; transition: opacity 0.2s, transform 0.1s;
-    box-shadow: 0 4px 18px rgba(244,114,182,0.3);
-  }
+  .free-badge { display: inline-block; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; border: 1px solid #bbf7d0; margin-left: 8px; vertical-align: middle; }
+
+  .gen-btn { width: 100%; padding: 14px; font-size: 15px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%); border: none; border-radius: var(--radius); cursor: pointer; letter-spacing: 0.03em; transition: opacity 0.2s, transform 0.1s; box-shadow: 0 4px 18px rgba(244,114,182,0.3); }
   .gen-btn:hover { opacity: 0.9; transform: translateY(-1px); }
   .gen-btn:active { transform: translateY(0); }
   .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -70,11 +62,11 @@
   .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
   .output-title { font-size: 13px; font-weight: 600; color: var(--pink); }
   .output-text { white-space: pre-wrap; font-size: 14px; line-height: 2; color: var(--text); word-break: break-word; }
-  .copy-btn { padding: 7px 16px; font-size: 12px; font-weight: 600; color: var(--pink); background: var(--pink-light); border: 1.5px solid var(--pink-mid); border-radius: 99px; cursor: pointer; transition: background 0.15s; }
+  .copy-btn { padding: 7px 16px; font-size: 12px; font-weight: 600; color: var(--pink); background: var(--pink-light); border: 1.5px solid var(--pink-mid); border-radius: 99px; cursor: pointer; }
   .copy-btn:hover { background: var(--pink-mid); }
   .divider { border: none; border-top: 1px dashed var(--border); margin: 1rem 0; }
   .tip { font-size: 12px; color: var(--text-muted); background: var(--purple-light); border: 1px solid #ddd6fe; border-radius: var(--radius-sm); padding: 8px 12px; margin-top: 10px; }
-  .error { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-top: 10px; display: none; }
+  .error { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-top: 10px; display: none; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -86,23 +78,23 @@
     <p>輸入商品資訊，一鍵產出高 SEO × aesthetic 可愛風格文案 𐙚</p>
   </div>
 
-  <!-- API Key 區塊 -->
   <div class="api-card">
-    <p class="section-label">🔑 Anthropic API Key</p>
+    <p class="section-label">🔑 Google Gemini API Key <span class="free-badge">免費</span></p>
     <div class="api-row">
       <div class="field">
-        <label>你的 API Key <span id="savedBadge" class="api-saved" style="display:none">✓ 已儲存</span></label>
-        <input type="password" id="apiKey" placeholder="sk-ant-api03-..." oninput="saveKey()" />
+        <label>你的 Gemini API Key <span id="savedBadge" class="api-saved" style="display:none">✓ 已儲存</span></label>
+        <input type="password" id="apiKey" placeholder="AIza..." oninput="saveKey()" />
       </div>
-      <button class="toggle-btn" onclick="toggleKey()">👁 顯示</button>
+      <button class="toggle-btn" onclick="toggleKey(this)">👁 顯示</button>
     </div>
     <p class="api-note">
-      🔐 Key 只存在你的瀏覽器本機（localStorage），不會上傳任何地方。<br>
-      還沒有 Key？前往 <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> 申請。
+      🔐 Key 只存在你瀏覽器本機，不會上傳任何地方。<br>
+      還沒有 Key？前往
+      <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>
+      免費申請，登入 Google 帳號即可，每天有大量免費額度 ✨
     </p>
   </div>
 
-  <!-- 商品資訊 -->
   <div class="card">
     <p class="section-label">✦ 商品基本資訊</p>
     <div class="field">
@@ -121,17 +113,10 @@
       <div class="field">
         <label>🏷️ 商品類別</label>
         <select id="category">
-          <option value="生活雜貨">生活雜貨</option>
-          <option value="美妝保養">美妝保養</option>
-          <option value="服飾配件">服飾配件</option>
-          <option value="食品飲料">食品飲料</option>
-          <option value="家居寢具">家居寢具</option>
-          <option value="文具禮品">文具禮品</option>
-          <option value="3C電子">3C電子</option>
-          <option value="寵物用品">寵物用品</option>
-          <option value="運動健身">運動健身</option>
-          <option value="嬰幼童">嬰幼童</option>
-          <option value="其他">其他</option>
+          <option>生活雜貨</option><option>美妝保養</option><option>服飾配件</option>
+          <option>食品飲料</option><option>家居寢具</option><option>文具禮品</option>
+          <option>3C電子</option><option>寵物用品</option><option>運動健身</option>
+          <option>嬰幼童</option><option>其他</option>
         </select>
       </div>
     </div>
@@ -149,7 +134,7 @@
   <div class="output-card" id="outputCard">
     <div class="output-header">
       <span class="output-title">🎀 生成結果</span>
-      <button class="copy-btn" id="copyBtn" onclick="copyOutput()">複製全部</button>
+      <button class="copy-btn" onclick="copyOutput()">複製全部</button>
     </div>
     <hr class="divider" />
     <div class="output-text" id="output"></div>
@@ -157,9 +142,8 @@
 
 </div>
 <script>
-// 載入已存的 key
 window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('anthropic_key');
+  const saved = localStorage.getItem('gemini_key');
   if (saved) {
     document.getElementById('apiKey').value = saved;
     document.getElementById('savedBadge').style.display = 'inline-block';
@@ -169,17 +153,16 @@ window.addEventListener('DOMContentLoaded', () => {
 function saveKey() {
   const key = document.getElementById('apiKey').value.trim();
   if (key) {
-    localStorage.setItem('anthropic_key', key);
+    localStorage.setItem('gemini_key', key);
     document.getElementById('savedBadge').style.display = 'inline-block';
   } else {
-    localStorage.removeItem('anthropic_key');
+    localStorage.removeItem('gemini_key');
     document.getElementById('savedBadge').style.display = 'none';
   }
 }
 
-function toggleKey() {
+function toggleKey(btn) {
   const input = document.getElementById('apiKey');
-  const btn = event.target;
   if (input.type === 'password') {
     input.type = 'text';
     btn.textContent = '🙈 隱藏';
@@ -191,7 +174,7 @@ function toggleKey() {
 
 function showError(msg) {
   const box = document.getElementById('errorBox');
-  box.textContent = msg;
+  box.innerHTML = msg;
   box.style.display = 'block';
 }
 function hideError() {
@@ -200,15 +183,14 @@ function hideError() {
 
 async function generate() {
   hideError();
-  const apiKey = document.getElementById('apiKey').value.trim();
-  const name = document.getElementById('name').value.trim();
-  const desc = document.getElementById('desc').value.trim();
-  const cost = document.getElementById('cost').value.trim();
+  const apiKey  = document.getElementById('apiKey').value.trim();
+  const name    = document.getElementById('name').value.trim();
+  const desc    = document.getElementById('desc').value.trim();
+  const cost    = document.getElementById('cost').value.trim();
   const category = document.getElementById('category').value;
-  const target = document.getElementById('target').value.trim();
+  const target  = document.getElementById('target').value.trim();
 
-  if (!apiKey) { showError('⚠️ 請先輸入你的 Anthropic API Key！'); return; }
-  if (!apiKey.startsWith('sk-ant-')) { showError('⚠️ API Key 格式不對，應該以 sk-ant- 開頭'); return; }
+  if (!apiKey) { showError('⚠️ 請先輸入你的 Gemini API Key！<br>前往 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#16a34a">aistudio.google.com/apikey</a> 免費申請'); return; }
   if (!name || !desc) { showError('⚠️ 請填入商品名稱和描述！'); return; }
 
   const btn = document.getElementById('genBtn');
@@ -223,9 +205,9 @@ async function generate() {
 
   const costNum = parseFloat(cost) || 0;
 
-  const prompt = `你是一位專業的台灣電商文案撰寫師，擅長寫高SEO搜尋率、高曝光度的商品文案，風格可愛、aesthetic，大量使用顏文字和裝飾符號（如 ✨🧡🎀💖ʚ🍓ɞ𐙚୨୧⋆˙⟡🌸☁️🍮꒱ ꒰ᐢ. .ᐢ꒱ ˚₊· 等）。
+  const prompt = `你是一位專業的台灣電商文案撰寫師，擅長寫高SEO搜尋率、高曝光度的商品文案，風格可愛、aesthetic，大量使用顏文字和裝飾符號（如 ✨🧡🎀💖ʚɞ𐙚୨୧⋆˙⟡🌸☁️🍮꒱꒰ᐢ. .ᐢ꒱˚₊· 等）。
 
-請根據以下資訊，參考台灣電商（蝦皮、Pinkoi、MOMO、生活市集）上同類型商品的市場行情價，並產出完整商品文案：
+請根據以下資訊，參考台灣電商（蝦皮、Pinkoi、MOMO、生活市集）同類商品市場行情，用繁體中文產出完整商品文案：
 
 商品名稱：${name}
 商品類別：${category}
@@ -233,10 +215,10 @@ async function generate() {
 成本價：NT$${costNum > 0 ? costNum : '未提供'}
 目標客群：${target || '一般消費者'}
 
-請用繁體中文，按照以下格式輸出，每個區塊之間空一行：
+請按照以下格式輸出，每個區塊之間空一行：
 
 🧡 商品名稱
-（寫出優化後的吸引人商品名稱，中英文混搭，含關鍵字）
+（優化後的吸引人商品名稱，中英文混搭，含關鍵字）
 
 🔍 SEO-Title
 （60字以內，含高搜尋量關鍵字，用 | 分隔）
@@ -262,43 +244,41 @@ async function generate() {
   （2-3點使用/購買注意）
 
 🎀 建議售價
-（根據成本${costNum > 0 ? `NT$${costNum}` : '（未提供，請根據市場行情估算）'}及市場行情，給出合理建議售價範圍，並說明定價邏輯）
+（根據成本${costNum > 0 ? `NT$${costNum}` : '（未提供）'}及市場行情，給出合理建議售價範圍，並說明定價邏輯）
 
 💖 團購優惠價
-（建議團購/批量優惠方案，例如3件、5件、10件的折扣價）
+（建議3件、5件、10件的折扣優惠方案）
 
 請務必讓整體文案充滿可愛的顏文字裝飾符號和aesthetic風格！`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.8 }
+        })
+      }
+    );
 
-    const data = await response.json();
+    const data = await res.json();
 
     if (data.error) {
-      showError('❌ API 錯誤：' + data.error.message);
+      if (data.error.status === 'INVALID_ARGUMENT' || data.error.status === 'UNAUTHENTICATED') {
+        showError('❌ API Key 無效，請確認 Key 是否正確複製（以 AIza 開頭）');
+      } else {
+        showError('❌ API 錯誤：' + data.error.message);
+      }
     } else {
-      const fullText = data.content
-        .map(item => item.type === "text" ? item.text : "")
-        .filter(Boolean)
-        .join("\n");
-      output.textContent = fullText || "（生成失敗，請再試一次）";
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '（生成失敗，請再試一次）';
+      output.textContent = text;
       outputCard.style.display = 'block';
     }
   } catch (err) {
-    showError('❌ 連線錯誤：' + err.message + '\n請確認網路連線正常，且 API Key 正確。');
+    showError('❌ 連線錯誤：' + err.message + '<br>請確認網路連線正常。');
   }
 
   btn.disabled = false;
@@ -308,7 +288,7 @@ async function generate() {
 function copyOutput() {
   const text = document.getElementById('output').textContent;
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copyBtn');
+    const btn = event.target;
     const orig = btn.textContent;
     btn.textContent = '✓ 已複製！';
     setTimeout(() => btn.textContent = orig, 1800);
