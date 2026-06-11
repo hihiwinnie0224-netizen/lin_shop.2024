@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>✨ 商品文案 AI 生成器</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink: #f472b6;
+    --pink-light: #fdf2f8;
+    --pink-mid: #fbcfe8;
+    --purple: #a78bfa;
+    --purple-light: #f5f3ff;
+    --coral: #fb923c;
+    --text: #3b2a3a;
+    --text-muted: #8b6a85;
+    --border: #e9d5e6;
+    --bg: #fff9fd;
+    --card-bg: #ffffff;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 16px rgba(244,114,182,0.10);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .header h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #be185d;
+    letter-spacing: 0.01em;
+    margin-bottom: 6px;
+  }
+  .header p {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .deco { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.25rem;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pink);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+
+  .field { margin-bottom: 1rem; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px 13px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--pink-light);
+    border: 1.5px solid var(--pink-mid);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--pink);
+  }
+  textarea { min-height: 90px; line-height: 1.6; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+
+  .gen-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 4px 18px rgba(244,114,182,0.3);
+  }
+  .gen-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .loading {
+    display: none;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 1.2rem 0;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .output-card {
+    display: none;
+    background: var(--card-bg);
+    border: 1.5px solid var(--pink-mid);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-top: 1.25rem;
+  }
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .output-title { font-size: 13px; font-weight: 600; color: var(--pink); }
+
+  .output-text {
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 2;
+    color: var(--text);
+    word-break: break-word;
+  }
+
+  .copy-btn {
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pink);
+    background: var(--pink-light);
+    border: 1.5px solid var(--pink-mid);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: var(--pink-mid); }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 1rem 0; }
+
+  .tip {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--purple-light);
+    border: 1px solid #ddd6fe;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <span class="deco">🎀✨💖</span>
+    <h1>商品文案 AI 生成器</h1>
+    <p>輸入商品資訊，一鍵產出高 SEO × aesthetic 可愛風格文案 𐙚</p>
+  </div>
+
+  <div class="card">
+    <p class="section-label">✦ 商品基本資訊</p>
+
+    <div class="field">
+      <label>🧡 商品名稱</label>
+      <input type="text" id="name" placeholder="例：韓國香草拿鐵手工蠟燭" />
+    </div>
+
+    <div class="field">
+      <label>📝 商品內容描述 <span style="font-weight:400;color:var(--text-muted)">（越詳細越好）</span></label>
+      <textarea id="desc" placeholder="材質、顏色、用途、特色、尺寸、重量、成分、包裝方式…等"></textarea>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>💰 成本價格（NT$）</label>
+        <input type="number" id="cost" placeholder="例：150" min="0" />
+      </div>
+      <div class="field">
+        <label>🏷️ 商品類別</label>
+        <select id="category">
+          <option value="生活雜貨">生活雜貨</option>
+          <option value="美妝保養">美妝保養</option>
+          <option value="服飾配件">服飾配件</option>
+          <option value="食品飲料">食品飲料</option>
+          <option value="家居寢具">家居寢具</option>
+          <option value="文具禮品">文具禮品</option>
+          <option value="3C電子">3C電子</option>
+          <option value="寵物用品">寵物用品</option>
+          <option value="運動健身">運動健身</option>
+          <option value="嬰幼童">嬰幼童</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>✨ 目標客群 / 賣點重點</label>
+      <input type="text" id="target" placeholder="例：喜歡日系風格、25-35歲女性、送禮首選、質感生活" />
+    </div>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()">✨ 一鍵生成商品文案</button>
+
+  <div class="tip">💡 AI 會自動搜尋台灣電商市場行情（蝦皮、Pinkoi、MOMO），幫你定出合理售價與團購方案</div>
+
+  <div class="loading" id="loading">🌸 AI 正在幫你寫可愛文案，請稍候 ˚₊·</div>
+
+  <div class="output-card" id="outputCard">
+    <div class="output-header">
+      <span class="output-title">🎀 生成結果</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyOutput()">複製全部</button>
+    </div>
+    <hr class="divider" />
+    <div class="output-text" id="output"></div>
+  </div>
+
+</div>
+
+<script>
+async function generate() {
+  const name = document.getElementById('name').value.trim();
+  const desc = document.getElementById('desc').value.trim();
+  const cost = document.getElementById('cost').value.trim();
+  const category = document.getElementById('category').value;
+  const target = document.getElementById('target').value.trim();
+
+  if (!name || !desc) {
+    alert('請至少填入商品名稱和描述！');
+    return;
+  }
+
+  const btn = document.getElementById('genBtn');
+  const loading = document.getElementById('loading');
+  const outputCard = document.getElementById('outputCard');
+  const output = document.getElementById('output');
+  const copyBtn = document.getElementById('copyBtn');
+
+  btn.disabled = true;
+  loading.style.display = 'block';
+  outputCard.style.display = 'none';
+  output.textContent = '';
+
+  const costNum = parseFloat(cost) || 0;
+
+  const prompt = `你是一位專業的台灣電商文案撰寫師，擅長寫高SEO搜尋率、高曝光度的商品文案，風格可愛、aesthetic，大量使用顏文字和裝飾符號（如 ✨🧡🎀💖ʚ🍓ɞ𐙚୨୧⋆˙⟡🌸☁️🍮꒱ ꒰ᐢ. .ᐢ꒱ ˚₊· 等）。
+
+請根據以下資訊，搜尋台灣電商（蝦皮、Pinkoi、MOMO、生活市集）上同類型商品的市場行情價，並產出完整商品文案：
+
+商品名稱：${name}
+商品類別：${category}
+商品描述：${desc}
+成本價：NT$${costNum > 0 ? costNum : '未提供'}
+目標客群：${target || '一般消費者'}
+
+請用繁體中文，按照以下格式輸出，每個區塊之間空一行：
+
+🧡 商品名稱
+（寫出優化後的吸引人商品名稱，中英文混搭，含關鍵字）
+
+🔍 SEO-Title
+（60字以內，含高搜尋量關鍵字，用 | 分隔）
+
+✨ SEO-Description
+（150字以內，自然帶入關鍵字，吸引點擊）
+
+⏳ 預購提示
+（50字以內，製造緊迫感，可愛風格）
+
+𐙚 商品摘要
+（3-5點，每點用可愛符號開頭，簡潔highlight重點）
+
+୨୧ 商品描述
+
+  ✨ 商品特色
+  （3-5點詳細特色說明，aesthetic可愛文風）
+
+  📏 商品資訊
+  （規格、尺寸、材質、重量、顏色等）
+
+  ⚠️ 注意事項
+  （2-3點使用/購買注意）
+
+🎀 建議售價
+（根據成本${costNum > 0 ? `NT$${costNum}` : '（未提供，請根據市場行情估算）'}及市場行情，給出合理建議售價範圍，並說明定價邏輯）
+
+💖 團購優惠價
+（建議團購/批量優惠方案，例如3件、5件、10件的折扣價）
+
+請務必讓整體文案充滿可愛的顏文字裝飾符號和aesthetic風格！`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const fullText = data.content
+      .map(item => item.type === "text" ? item.text : "")
+      .filter(Boolean)
+      .join("\n");
+
+    output.textContent = fullText || "（生成失敗，請再試一次）";
+    outputCard.style.display = 'block';
+  } catch (err) {
+    output.textContent = "⚠️ 發生錯誤，請重新嘗試：" + err.message;
+    outputCard.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  loading.style.display = 'none';
+}
+
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ 已複製！';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+</script>
+</body>
+</html>
