@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品卡片產生器</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    gap: 0;
+  }
+
+  /* ── LEFT EDITOR PANEL ── */
+  #editor {
+    width: 420px;
+    min-width: 380px;
+    background: #fff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+  }
+
+  #editor-header {
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    color: #fff;
+    padding: 20px 24px 16px;
+    flex-shrink: 0;
+  }
+  #editor-header h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  #editor-header p  { font-size: 12px; opacity: 0.8; }
+
+  #editor-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-group label { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .5px; }
+
+  input[type="text"], textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color .2s;
+    resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus { outline: none; border-color: #1a73e8; }
+
+  /* image upload area */
+  #img-upload-area {
+    border: 2px dashed #c0c9d6;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    position: relative;
+  }
+  #img-upload-area:hover { border-color: #1a73e8; background: #f4f8ff; }
+  #img-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  #img-upload-area .icon { font-size: 32px; margin-bottom: 8px; }
+  #img-upload-area p { font-size: 13px; color: #888; }
+  #img-upload-area.has-image { border-color: #34a853; background: #f0faf4; }
+  #img-upload-area.has-image p { color: #34a853; font-weight: 600; }
+
+  /* flavor tags */
+  #flavors-container { display: flex; flex-direction: column; gap: 8px; }
+  .flavor-row { display: flex; gap: 8px; align-items: center; }
+  .flavor-row input { flex: 1; }
+  .flavor-row input.flavor-name { max-width: 90px; }
+  .rm-btn {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd;
+    background: #fff; cursor: pointer; font-size: 16px; color: #999;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background .15s;
+  }
+  .rm-btn:hover { background: #ffe0e0; color: #d32f2f; }
+
+  #add-flavor-btn {
+    align-self: flex-start;
+    background: none; border: 1px dashed #1a73e8; border-radius: 8px;
+    color: #1a73e8; font-size: 13px; padding: 6px 14px; cursor: pointer;
+    transition: background .15s;
+  }
+  #add-flavor-btn:hover { background: #f0f6ff; }
+
+  /* bullet features */
+  #features-container { display: flex; flex-direction: column; gap: 6px; }
+  .feature-row { display: flex; gap: 8px; align-items: center; }
+  .feature-row input { flex: 1; }
+
+  #add-feature-btn {
+    align-self: flex-start;
+    background: none; border: 1px dashed #1a73e8; border-radius: 8px;
+    color: #1a73e8; font-size: 13px; padding: 6px 14px; cursor: pointer;
+    transition: background .15s;
+  }
+  #add-feature-btn:hover { background: #f0f6ff; }
+
+  /* generate btn */
+  #generate-btn {
+    margin: 4px 0 8px;
+    background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    width: 100%;
+  }
+  #generate-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+  /* AI improve btn */
+  #ai-btn {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity .2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  #ai-btn:hover { opacity: .88; }
+  #ai-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .ai-spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  #ai-btn.loading .ai-spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RIGHT PREVIEW PANEL ── */
+  #preview-area {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 32px;
+    overflow-y: auto;
+  }
+
+  /* ── PRODUCT CARD (mirrors the LINE shop style) ── */
+  #card {
+    background: #f8f9fa;
+    width: 390px;
+    border-radius: 0;
+    overflow: hidden;
+    font-family: 'Noto Sans TC', 'PingFang TC', sans-serif;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+  }
+
+  /* product image */
+  #card-image-wrap {
+    width: 100%;
+    background: #e8f0fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 280px;
+  }
+  #card-image-wrap img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  #card-image-placeholder {
+    color: #aaa;
+    font-size: 14px;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  /* card body */
+  #card-body {
+    padding: 0 16px 24px;
+    background: #f8f9fa;
+  }
+
+  /* title bar */
+  #card-title-bar {
+    background: #fff;
+    margin: 0 -16px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 14px;
+  }
+  #card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #222;
+    line-height: 1.5;
+  }
+
+  /* section */
+  .card-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .section-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-label::before { content: '§'; color: #1a73e8; font-size: 14px; }
+
+  /* flavor list */
+  .flavor-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .flavor-item:last-child { border-bottom: none; }
+  .flavor-dot { width: 6px; height: 6px; border-radius: 50%; background: #1a73e8; flex-shrink: 0; }
+  .flavor-name-c { font-weight: 600; min-width: 40px; }
+  .flavor-sep { color: #bbb; }
+  .flavor-desc-c { color: #666; }
+
+  /* description */
+  #card-desc {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+
+  /* features */
+  .feature-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 5px 0;
+    font-size: 14px; color: #333;
+  }
+  .feature-dot { color: #1a73e8; flex-shrink: 0; margin-top: 1px; }
+
+  /* download btn */
+  #download-btn {
+    margin-top: 20px;
+    background: #34a853;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    transition: opacity .2s;
+  }
+  #download-btn:hover { opacity: .88; }
+
+  /* responsive */
+  @media (max-width: 820px) {
+    body { flex-direction: column; }
+    #editor { width: 100%; min-width: unset; height: auto; position: static; }
+    #preview-area { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── EDITOR ── -->
+<aside id="editor">
+  <div id="editor-header">
+    <h1>🛒 商品卡片產生器</h1>
+    <p>上傳圖片 + 填寫資訊，即時預覽商品卡片</p>
+  </div>
+
+  <div id="editor-body">
+
+    <!-- Image upload -->
+    <div class="field-group">
+      <label>商品圖片</label>
+      <div id="img-upload-area">
+        <input type="file" accept="image/*" id="img-input">
+        <div class="icon">🖼️</div>
+        <p id="img-hint">點擊或拖曳上傳圖片</p>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="field-group">
+      <label>商品標題</label>
+      <input type="text" id="title-input" placeholder="例：日本Kabaya 鹽分糖｜電解質補給神器 81g">
+    </div>
+
+    <!-- Flavors -->
+    <div class="field-group">
+      <label>口味選擇</label>
+      <div id="flavors-container"></div>
+      <button id="add-flavor-btn">＋ 新增口味</button>
+    </div>
+
+    <!-- Description -->
+    <div class="field-group">
+      <label>商品介紹</label>
+      <textarea id="desc-input" rows="4" placeholder="例：日本超人氣 No.1 鹽分補給品牌 ♡
+專為運動、戶外、流汗族設計的電解質補給糖"></textarea>
+    </div>
+
+    <!-- Features -->
+    <div class="field-group">
+      <label>商品特色</label>
+      <div id="features-container"></div>
+      <button id="add-feature-btn">＋ 新增特色</button>
+    </div>
+
+    <!-- AI Improve -->
+    <button id="ai-btn">
+      <span class="ai-spinner"></span>
+      ✨ AI 優化內容
+    </button>
+
+    <!-- Generate -->
+    <button id="generate-btn">🔄 更新預覽</button>
+
+  </div>
+</aside>
+
+<!-- ── PREVIEW ── -->
+<main id="preview-area">
+  <div>
+    <div id="card">
+      <div id="card-image-wrap">
+        <div id="card-image-placeholder">
+          <div style="font-size:48px;margin-bottom:8px">📷</div>
+          <p>上傳圖片後顯示於此</p>
+        </div>
+      </div>
+      <div id="card-body">
+        <div id="card-title-bar">
+          <div id="card-title">商品標題將顯示於此</div>
+        </div>
+        <div class="card-section" id="sec-flavors">
+          <div class="section-label">口味選擇</div>
+          <div id="card-flavors"></div>
+        </div>
+        <div class="card-section" id="sec-desc">
+          <div class="section-label">商品介紹</div>
+          <div id="card-desc"></div>
+        </div>
+        <div class="card-section" id="sec-features">
+          <div class="section-label">商品特色</div>
+          <div id="card-features"></div>
+        </div>
+      </div>
+    </div>
+    <button id="download-btn">⬇️ 下載商品卡片 (PNG)</button>
+  </div>
+</main>
+
+<!-- html2canvas for screenshot -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+// ── State ──
+let uploadedImageDataUrl = null;
+
+// ── Default content ──
+const defaultData = {
+  title: '日本Kabaya 鹽分糖｜電解質補給神器 81g',
+  flavors: [
+    { name: '原味', desc: '經典補給款' },
+    { name: '檸檬', desc: '清爽解渴款 🍋' },
+    { name: '梅子', desc: '酸甜提神款' },
+  ],
+  desc: `日本超人氣 No.1 鹽分補給品牌 ♡\n專為運動、戶外、流汗族設計的電解質補給糖\n流汗後快速補充鹽分與礦物質⚡\n讓體力不容易掉線，隨時維持狀態！`,
+  features: [
+    '快速補充電解質與流失鹽分',
+    '小顆設計，方便攜帶隨時補充',
+    '三種人氣口味選擇',
+    '適合登山 / 健行 / 運動 / 戶外活動',
+    '夏天高溫流汗必備補給品',
+  ],
+};
+
+// ── Init editor with defaults ──
+document.getElementById('title-input').value = defaultData.title;
+document.getElementById('desc-input').value = defaultData.desc;
+
+defaultData.flavors.forEach(f => addFlavor(f.name, f.desc));
+defaultData.features.forEach(f => addFeature(f));
+
+renderCard();
+
+// ── Image upload ──
+const imgInput = document.getElementById('img-input');
+const imgArea  = document.getElementById('img-upload-area');
+const imgHint  = document.getElementById('img-hint');
+
+imgInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedImageDataUrl = ev.target.result;
+    imgArea.classList.add('has-image');
+    imgHint.textContent = '✅ ' + file.name;
+    renderCard();
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── Flavor rows ──
+function addFlavor(name = '', desc = '') {
+  const container = document.getElementById('flavors-container');
+  const row = document.createElement('div');
+  row.className = 'flavor-row';
+  row.innerHTML = `
+    <input type="text" class="flavor-name" placeholder="名稱" value="${name}">
+    <input type="text" class="flavor-desc" placeholder="描述" value="${desc}">
+    <button class="rm-btn" title="刪除">×</button>
+  `;
+  row.querySelector('.rm-btn').addEventListener('click', () => { row.remove(); renderCard(); });
+  row.querySelectorAll('input').forEach(i => i.addEventListener('input', renderCard));
+  container.appendChild(row);
+  renderCard();
+}
+
+document.getElementById('add-flavor-btn').addEventListener('click', () => addFlavor());
+
+// ── Feature rows ──
+function addFeature(text = '') {
+  const container = document.getElementById('features-container');
+  const row = document.createElement('div');
+  row.className = 'feature-row';
+  row.innerHTML = `
+    <input type="text" placeholder="商品特色描述" value="${text}">
+    <button class="rm-btn" title="刪除">×</button>
+  `;
+  row.querySelector('.rm-btn').addEventListener('click', () => { row.remove(); renderCard(); });
+  row.querySelector('input').addEventListener('input', renderCard);
+  container.appendChild(row);
+  renderCard();
+}
+
+document.getElementById('add-feature-btn').addEventListener('click', () => addFeature());
+
+// ── Live render ──
+document.getElementById('title-input').addEventListener('input', renderCard);
+document.getElementById('desc-input').addEventListener('input', renderCard);
+document.getElementById('generate-btn').addEventListener('click', renderCard);
+
+function renderCard() {
+  // image
+  const wrap = document.getElementById('card-image-wrap');
+  if (uploadedImageDataUrl) {
+    wrap.innerHTML = `<img src="${uploadedImageDataUrl}" alt="product">`;
+  } else {
+    wrap.innerHTML = `<div id="card-image-placeholder"><div style="font-size:48px;margin-bottom:8px">📷</div><p>上傳圖片後顯示於此</p></div>`;
+  }
+
+  // title
+  document.getElementById('card-title').textContent =
+    document.getElementById('title-input').value || '商品標題';
+
+  // flavors
+  const flavorRows = document.querySelectorAll('.flavor-row');
+  const cardFlavors = document.getElementById('card-flavors');
+  cardFlavors.innerHTML = '';
+  flavorRows.forEach(row => {
+    const nm = row.querySelector('.flavor-name').value.trim();
+    const ds = row.querySelector('.flavor-desc').value.trim();
+    if (!nm && !ds) return;
+    const el = document.createElement('div');
+    el.className = 'flavor-item';
+    el.innerHTML = `<span class="flavor-dot"></span><span class="flavor-name-c">${nm}</span><span class="flavor-sep">｜</span><span class="flavor-desc-c">${ds}</span>`;
+    cardFlavors.appendChild(el);
+  });
+  document.getElementById('sec-flavors').style.display = cardFlavors.children.length ? '' : 'none';
+
+  // desc
+  document.getElementById('card-desc').textContent =
+    document.getElementById('desc-input').value;
+
+  // features
+  const featureRows = document.querySelectorAll('.feature-row');
+  const cardFeatures = document.getElementById('card-features');
+  cardFeatures.innerHTML = '';
+  featureRows.forEach(row => {
+    const txt = row.querySelector('input').value.trim();
+    if (!txt) return;
+    const el = document.createElement('div');
+    el.className = 'feature-item';
+    el.innerHTML = `<span class="feature-dot">✓</span><span>${txt}</span>`;
+    cardFeatures.appendChild(el);
+  });
+  document.getElementById('sec-features').style.display = cardFeatures.children.length ? '' : 'none';
+}
+
+// ── AI improve ──
+document.getElementById('ai-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('ai-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const title   = document.getElementById('title-input').value;
+  const desc    = document.getElementById('desc-input').value;
+  const flavors = [...document.querySelectorAll('.flavor-row')].map(r => ({
+    name: r.querySelector('.flavor-name').value,
+    desc: r.querySelector('.flavor-desc').value,
+  }));
+  const features = [...document.querySelectorAll('.feature-row')].map(r =>
+    r.querySelector('input').value
+  );
+
+  const prompt = `你是一位台灣電商文案專家，幫我優化以下商品資訊，讓它更吸睛、口語化，適合 LINE 購物或蝦皮商品頁。
+請回傳 JSON，格式：
+{
+  "title": "...",
+  "desc": "...",
+  "flavors": [{"name":"...","desc":"..."}, ...],
+  "features": ["...", ...]
+}
+只回傳 JSON，不要其他文字。
+
+原始資料：
+標題：${title}
+介紹：${desc}
+口味：${JSON.stringify(flavors)}
+特色：${JSON.stringify(features)}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const data = await res.json();
+    const text = data.content.map(b => b.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    document.getElementById('title-input').value = parsed.title || title;
+    document.getElementById('desc-input').value  = parsed.desc  || desc;
+
+    // update flavors
+    if (parsed.flavors) {
+      document.getElementById('flavors-container').innerHTML = '';
+      parsed.flavors.forEach(f => addFlavor(f.name, f.desc));
+    }
+    // update features
+    if (parsed.features) {
+      document.getElementById('features-container').innerHTML = '';
+      parsed.features.forEach(f => addFeature(f));
+    }
+
+    renderCard();
+  } catch(e) {
+    alert('AI 優化失敗，請稍後再試。\n' + e.message);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+});
+
+// ── Download ──
+document.getElementById('download-btn').addEventListener('click', async () => {
+  const card = document.getElementById('card');
+  const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#f8f9fa' });
+  const link = document.createElement('a');
+  link.download = 'product-card.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+</script>
+</body>
+</html>
