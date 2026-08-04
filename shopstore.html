@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文案生成器 ⋆⋅☆⋅⋆ 商品上架小幫手</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF6F2;
+    --surface:#FFFFFF;
+    --surface-soft:#F4ECE5;
+    --text:#3A2E2C;
+    --text-soft:#96837D;
+    --accent:#C99A93;
+    --accent-deep:#A97D74;
+    --accent-line:#E6D6CE;
+    --shadow: 0 8px 30px rgba(154,120,110,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:300;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:48px 28px 80px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:44px;
+  }
+  .eyebrow{
+    font-family:'Cormorant Garamond', serif;
+    letter-spacing:0.35em;
+    font-size:12px;
+    color:var(--accent-deep);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Noto Serif TC', serif;
+    font-weight:600;
+    font-size:30px;
+    margin:0 0 12px;
+    letter-spacing:0.02em;
+  }
+  .divider{
+    color:var(--accent);
+    font-family:'Cormorant Garamond', serif;
+    font-size:15px;
+    letter-spacing:0.25em;
+    opacity:0.85;
+  }
+  .sub{
+    color:var(--text-soft);
+    font-size:13px;
+    margin-top:14px;
+    letter-spacing:0.03em;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--surface);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:28px 26px;
+    border:1px solid var(--accent-line);
+  }
+  .panel-title{
+    font-family:'Noto Serif TC', serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 4px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel-title .mark{ color:var(--accent); font-size:13px; }
+  .panel-desc{
+    font-size:12.5px;
+    color:var(--text-soft);
+    margin-bottom:18px;
+    line-height:1.7;
+  }
+
+  label{
+    display:block;
+    font-size:12px;
+    color:var(--text-soft);
+    margin:16px 0 6px;
+    letter-spacing:0.04em;
+  }
+  label:first-of-type{ margin-top:0; }
+
+  textarea{
+    width:100%;
+    min-height:260px;
+    resize:vertical;
+    border:1px solid var(--accent-line);
+    border-radius:12px;
+    padding:14px 16px;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:13.5px;
+    line-height:1.75;
+    color:var(--text);
+    background:#FCFAF8;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  textarea:focus{ border-color:var(--accent); }
+
+  select{
+    width:100%;
+    padding:11px 14px;
+    border-radius:12px;
+    border:1px solid var(--accent-line);
+    background:#FCFAF8 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23A97D74' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 14px center;
+    background-size:14px;
+    appearance:none;
+    -webkit-appearance:none;
+    font-family:'Noto Sans TC', sans-serif;
+    font-size:13.5px;
+    color:var(--text);
+    cursor:pointer;
+  }
+
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  .btn{
+    margin-top:22px;
+    width:100%;
+    padding:14px 20px;
+    border:none;
+    border-radius:999px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color:#fff;
+    font-family:'Noto Serif TC', serif;
+    font-size:14.5px;
+    letter-spacing:0.12em;
+    cursor:pointer;
+    box-shadow:0 10px 24px rgba(169,125,116,0.28);
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); box-shadow:0 14px 28px rgba(169,125,116,0.34); }
+  .btn:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+
+  .btn-ghost{
+    background:transparent;
+    border:1px solid var(--accent-line);
+    color:var(--accent-deep);
+    box-shadow:none;
+    font-family:'Noto Sans TC', sans-serif;
+    letter-spacing:0.04em;
+    padding:9px 16px;
+    font-size:12.5px;
+  }
+  .btn-ghost:hover{ background:var(--surface-soft); box-shadow:none; }
+
+  .error{
+    margin-top:14px;
+    font-size:12.5px;
+    color:#B85C5C;
+    background:#FBEDEC;
+    border:1px solid #F0D3D1;
+    padding:10px 14px;
+    border-radius:10px;
+    line-height:1.6;
+  }
+
+  /* output */
+  .empty-state{
+    text-align:center;
+    padding:70px 20px;
+    color:var(--text-soft);
+  }
+  .empty-state .glyph{
+    font-family:'Cormorant Garamond', serif;
+    font-size:22px;
+    letter-spacing:0.3em;
+    color:var(--accent);
+    margin-bottom:14px;
+  }
+  .empty-state p{ font-size:13px; line-height:1.9; }
+
+  .loading{
+    text-align:center;
+    padding:70px 20px;
+  }
+  .loading .glyph{
+    font-family:'Cormorant Garamond', serif;
+    font-size:20px;
+    letter-spacing:0.3em;
+    color:var(--accent);
+    animation:breathe 1.6s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{ opacity:0.35; letter-spacing:0.3em; }
+    50%{ opacity:1; letter-spacing:0.45em; }
+  }
+  .loading p{ margin-top:14px; font-size:12.5px; color:var(--text-soft); }
+
+  .field{
+    border-top:1px solid var(--accent-line);
+    padding:20px 0;
+  }
+  .field:first-child{ border-top:none; padding-top:4px; }
+
+  .field-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .field-label{
+    font-family:'Noto Serif TC', serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--accent-deep);
+    letter-spacing:0.04em;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .field-label .n{ font-family:'Cormorant Garamond', serif; font-style:italic; color:var(--accent); font-size:13px; }
+
+  .copy-btn{
+    border:none;
+    background:var(--surface-soft);
+    color:var(--accent-deep);
+    font-size:11px;
+    padding:5px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    letter-spacing:0.04em;
+    transition:background .15s ease;
+  }
+  .copy-btn:hover{ background:var(--accent-line); }
+  .copy-btn.copied{ background:var(--accent); color:#fff; }
+
+  .field-value{
+    font-size:13px;
+    line-height:1.85;
+    white-space:pre-wrap;
+    color:var(--text);
+  }
+  .field-value.mono{
+    font-family:'Noto Sans TC', sans-serif;
+    background:#FCFAF8;
+    border:1px solid var(--accent-line);
+    border-radius:10px;
+    padding:16px 18px;
+  }
+
+  .output-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:52px;
+    color:var(--text-soft);
+    font-size:11.5px;
+    letter-spacing:0.06em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Product Copy Studio</div>
+    <h1>商品文案生成器</h1>
+    <div class="divider">⋆⋅☆⋅⋆</div>
+    <div class="sub">貼上一大串商品資訊，自動整理成上架欄位與質感文案</div>
+  </header>
+
+  <div class="grid">
+
+    <!-- LEFT: input -->
+    <section class="panel">
+      <p class="panel-title"><span class="mark">˚｡⋆</span> 原始資料</p>
+      <p class="panel-desc">把商品的所有資訊（名稱、特色、材質、尺寸、收單資訊⋯）整段貼上即可，不需要先整理格式。</p>
+
+      <label>貼上商品原始文字</label>
+      <textarea id="rawInput" placeholder="例如：QUNCLE 海綿寶寶矽膠眼鏡盒，正版授權，矽膠材質，可收納眼鏡/AirPods/充電線，附提繩，尺寸16.2×4.4×8.6cm，8/6收單⋯"></textarea>
+
+      <div class="row2">
+        <div>
+          <label>文案風格</label>
+          <select id="styleSelect">
+            <option value="minimal">網美／韓系質感線條 · Minimalist &amp; Delicate</option>
+            <option value="coquette">蝴蝶結復古少女感 · Coquette &amp; Ribbon</option>
+            <option value="sparkle">閃耀魔法夢幻氛圍 · Sparkles &amp; Dreamy</option>
+            <option value="botanical">復古手作花草氛圍 · Vintage &amp; Botanical</option>
+            <option value="simple">簡約分隔線 · Clean Divider Lines</option>
+          </select>
+        </div>
+        <div>
+          <label>語氣強度</label>
+          <select id="toneSelect">
+            <option value="soft">柔和內斂</option>
+            <option value="normal" selected>自然日常（如範例）</option>
+            <option value="excited">熱情有感染力</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn" id="generateBtn">⋆ 生成商品文案 ⋆</button>
+      <div id="errorBox"></div>
+    </section>
+
+    <!-- RIGHT: output -->
+    <section class="panel">
+      <div class="output-top">
+        <p class="panel-title" style="margin-bottom:0;"><span class="mark">✧</span> 產出欄位</p>
+        <button class="btn-ghost" id="copyAllBtn" style="display:none;">複製整份文案</button>
+      </div>
+      <div id="outputArea">
+        <div class="empty-state">
+          <div class="glyph">⋆ ｡ﾟ☆</div>
+          <p>貼上資料並按下生成後<br>結果會顯示在這裡</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>QUNCLE STUDIO ⋆⋅☆⋅⋆ Copy Generator</footer>
+</div>
+
+<script>
+const STYLE_LIBRARY = {
+  minimal: {
+    label: "網美/韓系質感線條與點綴 (Minimalist & Delicate)",
+    dividers: ["─── ⋆⋅☆⋅⋆ ───", "─── ･ ｡ﾟ☆: .☽ . :☆ﾟ. ───", "✧──── ꒰ ♡ ꒱ ────✧", "┈─➤", "─── ⋆ ˚｡⋆୨୧˚", "─── ⋆⋅☆⋅⋆ ───", "─── ౨ৎ ───"]
+  },
+  coquette: {
+    label: "蝴蝶結與復古少女感 (Coquette & Ribbon)",
+    dividers: ["୨୧┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈୨୧", "˚₊‧꒰ 𐦍 ꒱‧₊˚", "୨୧ ⊹ ˚.", "┈┈┈ ୨୧ ┈┈┈", "♡ ─── ୨୧ ─── ♡", "‧₊˚ ☁️⋅♡ 𓂃 ୨୧", "─── 𐦍 ───"]
+  },
+  sparkle: {
+    label: "閃耀魔法與夢幻氛圍 (Sparkles & Dreamy)",
+    dividers: ["✧｡٩(ˊᗜˋ)و✧｡", "✦•┈••✦ ✦••┈•✦", "˚ ༘♡ ⋆｡˚ ❀", "⋆⁺₊⋆ ☾ ⋆⁺₊⋆", "✧˖°.", "✦ ˚ ✦ ˚ ✦", "✦˚₊‧✩‧₊˚✦"]
+  },
+  botanical: {
+    label: "復古手作與花草氛圍 (Vintage & Botanical)",
+    dividers: ["❀ ─── ❀ ─── ❀", "✿.｡.:* ☆::.", "─── 𖤣𖥧𖥣｡ ───", "𖧷 ┈ 𖧷 ┈ 𖧷", "✦•┈┈┈┈┈┈┈┈┈•✦", "─── 𓆸 ───", "✾ ────── ✾"]
+  },
+  simple: {
+    label: "簡約分隔線 (Divider Lines)",
+    dividers: ["─── ⋆⋅☆⋅⋆ ───", "┈─┈─┈─┈─┈─┈─┈", "✧────────────────✧", "•┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈•", "⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯", "─── ⋆ ˚｡⋆୨୧˚ ───", "═───═───═───═"]
+  }
+};
+
+const BRACKETS = ["﹝ ﹞", "【 】", "⟦ ⟧", "₍ ₎", "꒰ ꒱", "❮ ❯", "⌈ ⌋", "≪ ≫", "⟨ ⟩", "｢ ｣"];
+
+const TONE_LABEL = {
+  soft: "柔和內斂、少驚嘆號、語句簡短",
+  normal: "自然日常、口語親切，如範例語氣",
+  excited: "熱情有感染力、多用語助詞與驚嘆號、像在跟閨蜜安利"
+};
+
+// key -> [label, marker]
+const FIELD_ORDER = [
+  ["goods_name",       "商品名稱",              "[[GOODS_NAME]]"],
+  ["category",         "商品分類",              "[[CATEGORY]]"],
+  ["seo_title",        "商品 SEO-Title",        "[[SEO_TITLE]]"],
+  ["seo_description",  "商品 SEO-Description",  "[[SEO_DESCRIPTION]]"],
+  ["summary",          "商品摘要",              "[[SUMMARY]]"],
+  ["description",      "商品描述（純文字版）",   "[[DESCRIPTION]]"],
+  ["is_preorder",      "是否為預購商品",         "[[IS_PREORDER]]"],
+  ["preorder_note",    "商品預購提示",           "[[PREORDER_NOTE]]"]
+];
+
+function buildSystemPrompt(styleKey, toneKey){
+  const style = STYLE_LIBRARY[styleKey];
+  return `你是一位電商平台的商品文案編輯，專長是把雜亂的商品原始資料整理成制式上架欄位，並寫出「${style.label}」風格的質感文案。
+
+【輸出格式規則 —— 非常重要，務必嚴格遵守】
+不要輸出 JSON、不要用 markdown code fence（不要用 \`\`\`）、不要任何前言或結尾說明文字。
+只能依序輸出以下 8 個區塊，每個區塊用「[[標記]]」開頭另起一行，標記後面直接接該欄位的內容（可以有多行），內容裡絕對不要再出現方括號標記文字本身。8 個標記與順序固定如下，一個都不能少、也不能重複：
+
+[[GOODS_NAME]]
+（商品名稱內容）
+[[CATEGORY]]
+（商品分類內容）
+[[SEO_TITLE]]
+（SEO 標題內容）
+[[SEO_DESCRIPTION]]
+（SEO 描述內容）
+[[SUMMARY]]
+（商品摘要內容）
+[[DESCRIPTION]]
+（商品描述內容）
+[[IS_PREORDER]]
+（只能填 Y 或 N）
+[[PREORDER_NOTE]]
+（預購提示內容，若非預購則這裡留空白）
+
+【各欄位內容規則】
+- GOODS_NAME：商品名稱。可在前面加一個裝飾括號當前綴（從下方括號庫挑一組），例如「【 正版授權 】品牌 商品名稱｜賣點」。若原文有品牌/系列/認證字樣要保留，單行輸出。
+- CATEGORY：商品分類，格式如「⋆ 分類一 ／ 分類二 ⋆」，用一個裝飾符號包住，精簡兩個關鍵分類詞即可，單行輸出。
+- SEO_TITLE：30字內，品牌+商品核心賣點，不加裝飾符號，純文字單行。
+- SEO_DESCRIPTION：45-60字以內，濃縮品牌＋核心賣點＋主要用途，適合搜尋引擎，不加裝飾符號，純文字一段，越精簡越好，不要堆砌形容詞。
+- SUMMARY：4-6條重點，每條獨立一行、開頭用「˚｡⋆」，語氣精簡有畫面感。
+- DESCRIPTION：完整商品描述純文字版，多行輸出，需包含：
+  1. 開頭用裝飾括號包住的標題（如 ﹝ 商品名 ﹞ 或 【 商品名 】）
+  2. 一段吸睛的開場文案（2-4句，符合「${TONE_LABEL[toneKey]}」的語氣）
+  3. 用分隔線區隔的「商品亮點」段落（分隔線從下方分隔線庫挑選，整份文案風格要一致，重複使用同一組或同系列的2-3種符號）
+  4. 用分隔線區隔的「商品資訊」段落（規格條列，每行用 ▪ 或相似符號開頭，例如品牌、材質、尺寸等，依原文有的資訊列出，沒有的不要編造）
+  5. 用分隔線區隔的「注意事項」段落，固定包含這句（可微調用詞但意思不變）：「⚠️ 商品運送過程中，外盒可能因物流碰撞而有些微擠壓、凹痕，屬正常情況，不影響商品本體使用，完美主義者請斟酌下單」
+  6. 段落間保留空行讓版面呼吸，但整體長度盡量精簡（總長度控制在600字以內）
+- IS_PREORDER：只能填 Y 或 N。若原文出現「收單」「預購」「#日期收單商品」等字樣則填 Y，否則填 N。
+- PREORDER_NOTE：若 IS_PREORDER 為 Y，格式參考「【 8/6 收單 】交期預計4-6週，實際到貨時間依廠商出貨為準」，收單日期抓原文出現的日期；若原文沒寫交期週數，預設寫「交期預計4-6週，實際到貨時間依廠商出貨為準」。若 IS_PREORDER 為 N，這個區塊留空白（[[PREORDER_NOTE]] 後面不寫任何字）。
+
+【裝飾符號庫（本次風格：${style.label}）】
+分隔線（可挑選其中2-3種交替使用，維持整體一致性）：
+${style.dividers.map(d => "- " + d).join("\n")}
+
+裝飾括號庫（用於標題、規格前綴等）：
+${BRACKETS.join(" ／ ")}
+
+【重要】
+- 不要編造原文完全沒提到的規格數字（例如沒寫材質就不要寫材質）。
+- 不要使用範例以外的品牌宣稱（如未授權卻寫「正版授權」）。
+- 保持商品本身的口吻和賣點，只是重新排版、補齊欄位。
+- 直接從 [[GOODS_NAME]] 開始輸出，前面不要加任何文字。`;
+}
+
+function esc(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Parse the marker-delimited response into a {key: value} map.
+// Returns null if fewer than half the markers were found (treated as a failed generation).
+function parseMarkerResponse(text){
+  const positions = [];
+  FIELD_ORDER.forEach(([key, label, marker]) => {
+    const idx = text.indexOf(marker);
+    if(idx !== -1){
+      positions.push({ key, marker, idx, contentStart: idx + marker.length });
+    }
+  });
+
+  if(positions.length < Math.ceil(FIELD_ORDER.length / 2)){
+    return null;
+  }
+
+  positions.sort((a, b) => a.idx - b.idx);
+
+  const result = {};
+  positions.forEach((p, i) => {
+    const end = (i + 1 < positions.length) ? positions[i + 1].idx : text.length;
+    let value = text.substring(p.contentStart, end);
+    value = value.replace(/^\r?\n/, '').trim();
+    result[p.key] = value;
+  });
+
+  FIELD_ORDER.forEach(([key]) => {
+    if(!(key in result)) result[key] = '';
+  });
+
+  return result;
+}
+
+async function callModel(systemPrompt, raw){
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        { role: "user", content: raw }
+      ]
+    })
+  });
+
+  if(!response.ok){
+    let detail = '';
+    try{ const errJson = await response.json(); detail = errJson?.error?.message || ''; }catch(e){}
+    throw new Error("API 回應錯誤（狀態碼 " + response.status + "）" + (detail ? "：" + detail : ""));
+  }
+
+  const data = await response.json();
+  const textBlock = (data.content || []).map(b => b.text || "").join("");
+  if(!textBlock.trim()){
+    throw new Error("模型沒有回傳任何內容，請再試一次。");
+  }
+  return textBlock;
+}
+
+async function generate(){
+  const raw = document.getElementById('rawInput').value.trim();
+  const errorBox = document.getElementById('errorBox');
+  const outputArea = document.getElementById('outputArea');
+  const copyAllBtn = document.getElementById('copyAllBtn');
+  errorBox.innerHTML = '';
+
+  if(!raw){
+    errorBox.innerHTML = '<div class="error">請先貼上商品原始資料再生成。</div>';
+    return;
+  }
+
+  const styleKey = document.getElementById('styleSelect').value;
+  const toneKey = document.getElementById('toneSelect').value;
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.textContent = '⋆ 生成中 ⋆';
+  copyAllBtn.style.display = 'none';
+
+  outputArea.innerHTML = `
+    <div class="loading">
+      <div class="glyph">⋆ ｡ﾟ☆ ｡ﾟ⋆</div>
+      <p>正在整理欄位與撰寫文案⋯</p>
+    </div>`;
+
+  const systemPrompt = buildSystemPrompt(styleKey, toneKey);
+  const MAX_ATTEMPTS = 2;
+  let lastError = null;
+
+  for(let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++){
+    try{
+      if(attempt > 1){
+        outputArea.innerHTML = `
+          <div class="loading">
+            <div class="glyph">⋆ ｡ﾟ☆ ｡ﾟ⋆</div>
+            <p>格式不太完整，重新生成一次⋯</p>
+          </div>`;
+      }
+      const textBlock = await callModel(systemPrompt, raw);
+      const parsed = parseMarkerResponse(textBlock);
+
+      if(!parsed){
+        lastError = new Error("生成結果格式不完整，請再試一次。");
+        continue;
+      }
+
+      renderOutput(parsed);
+      copyAllBtn.style.display = 'inline-block';
+      copyAllBtn.onclick = () => copyAll(parsed);
+      lastError = null;
+      break;
+
+    }catch(err){
+      lastError = err;
+    }
+  }
+
+  if(lastError){
+    outputArea.innerHTML = `
+      <div class="empty-state">
+        <div class="glyph">⋆ ｡ﾟ☆</div>
+        <p>生成失敗，請再試一次</p>
+      </div>`;
+    errorBox.innerHTML = `<div class="error">${esc(lastError.message || String(lastError))}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⋆ 生成商品文案 ⋆';
+}
+
+function renderOutput(parsed){
+  const outputArea = document.getElementById('outputArea');
+  let html = '';
+  FIELD_ORDER.forEach(([key, label], idx) => {
+    let value = parsed[key];
+    if(value === undefined || value === null) value = '';
+    const isBlock = (key === 'summary' || key === 'description');
+    html += `
+      <div class="field">
+        <div class="field-head">
+          <span class="field-label"><span class="n">${String(idx+1).padStart(2,'0')}</span> ${esc(label)}</span>
+          <button class="copy-btn" data-field="${key}">複製</button>
+        </div>
+        <div class="field-value ${isBlock ? 'mono' : ''}" id="val-${key}">${esc(String(value)) || '<span style="color:var(--text-soft)">（無）</span>'}</div>
+      </div>`;
+  });
+  outputArea.innerHTML = html;
+
+  outputArea.querySelectorAll('.copy-btn').forEach(b => {
+    b.addEventListener('click', async () => {
+      const key = b.getAttribute('data-field');
+      const text = document.getElementById('val-' + key).textContent;
+      const ok = await copyText(text);
+      b.textContent = ok ? '已複製' : '複製失敗';
+      b.classList.toggle('copied', ok);
+      setTimeout(() => { b.textContent = '複製'; b.classList.remove('copied'); }, 1500);
+    });
+  });
+}
+
+async function copyAll(parsed){
+  const lines = FIELD_ORDER.map(([key, label]) => {
+    let value = parsed[key];
+    if(value === undefined || value === null) value = '';
+    return `${label}\n${value}`;
+  });
+  const full = lines.join('\n\n');
+  const btn = document.getElementById('copyAllBtn');
+  const old = btn.textContent;
+  const ok = await copyText(full);
+  btn.textContent = ok ? '已複製整份 ✓' : '複製失敗，請手動選取';
+  setTimeout(() => { btn.textContent = old; }, 1800);
+}
+
+// Robust clipboard copy: tries the async Clipboard API first (needs a secure
+// context + user gesture), then falls back to a hidden textarea + execCommand
+// for iframes/browsers where the Clipboard API is blocked or unavailable.
+async function copyText(text){
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    try{
+      await navigator.clipboard.writeText(text);
+      return true;
+    }catch(e){
+      // fall through to legacy method
+    }
+  }
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.left = '-1000px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const success = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return success;
+  }catch(e){
+    return false;
+  }
+}
+
+document.getElementById('generateBtn').addEventListener('click', generate);
+</script>
+</body>
+</html>
