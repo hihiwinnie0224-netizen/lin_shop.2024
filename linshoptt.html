@@ -87,7 +87,7 @@
     // 門市專用 4 位數密碼（可自行修改）
     const STORE_PIN = "8888"; 
     
-    // 已自動填入你的 Google Apps Script Web App 網址
+    // Google Apps Script 最新部署網址
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxPwwNdKRm2jtaxv9m_sOpWQ8-KZAdoHR1CLuiVtSFvNTAieKiYZSjHobaTCCIagG7s/exec"; 
     
     let inputPin = "";
@@ -100,7 +100,7 @@
         })
         .catch((err) => {
           console.error("LIFF Init Error", err);
-          checkStatus(); // LIFF 載入失敗時仍進行狀態檢查
+          checkStatus();
         });
     };
 
@@ -111,27 +111,28 @@
         return;
       }
 
-      // 2. 向 Google 試算表查詢總發放量是否還有額度
+      // 2. 查詢 Google 試算表限量額度
       fetch(`${GAS_API_URL}?action=check`)
         .then(res => res.json())
         .then(data => {
           if (data.available) {
-            document.getElementById('statusDesc').innerText = "出示此畫面給店員，由店員輸入門市密碼即可完成現場核銷。";
-            const btn = document.getElementById('useBtn');
-            btn.innerText = "請店員點擊核銷";
-            btn.disabled = false;
+            enableUseButton();
           } else {
             showSoldOutScreen();
           }
         })
         .catch(err => {
-          console.error(err);
-          // 若網路延遲，預設先允許開啟輸入框
-          document.getElementById('statusDesc').innerText = "出示此畫面給店員，由店員輸入門市密碼即可完成現場核銷。";
-          const btn = document.getElementById('useBtn');
-          btn.innerText = "請店員點擊核銷";
-          btn.disabled = false;
+          console.error("Fetch Check Error:", err);
+          // 若檢查遇到 CORS 限制，預設允許現場核銷
+          enableUseButton();
         });
+    }
+
+    function enableUseButton() {
+      document.getElementById('statusDesc').innerText = "出示此畫面給店員，由店員輸入門市密碼即可完成現場核銷。";
+      const btn = document.getElementById('useBtn');
+      btn.innerText = "請店員點擊核銷";
+      btn.disabled = false;
     }
 
     function openKeypad() {
@@ -177,22 +178,19 @@
       if (inputPin === STORE_PIN) {
         closeKeypad();
         
-        // 密碼正確，向 Google 試算表發送 +1 紀錄
-        fetch(`${GAS_API_URL}?action=use`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              localStorage.setItem("lin_shop_coupon_used", "true");
-              showSuccessScreen();
-            } else {
-              showSoldOutScreen();
-            }
-          })
-          .catch(() => {
-            // 即便 API 異常也先標記本地已用，確保現場核銷順利
-            localStorage.setItem("lin_shop_coupon_used", "true");
-            showSuccessScreen();
-          });
+        // 雙重保險觸發：1. no-cors fetch + 2. Image Beacon 避開 CORS 攔截
+        const targetUrl = `${GAS_API_URL}?action=use&t=${new Date().getTime()}`;
+        
+        // 方法 1: no-cors 模式發送
+        fetch(targetUrl, { mode: 'no-cors' }).catch(err => console.log(err));
+        
+        // 方法 2: 用圖片網址下載方式強制喚醒 GAS
+        const img = new Image();
+        img.src = targetUrl;
+
+        // 寫入手機標記並顯示核銷成功
+        localStorage.setItem("lin_shop_coupon_used", "true");
+        showSuccessScreen();
       } else {
         document.getElementById('errorMsg').innerText = "密碼錯誤，請重新輸入";
         inputPin = "";
