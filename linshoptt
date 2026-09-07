@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lin Shop 優惠券核銷</title>
+  <!-- LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    body { background-color: #f5f5f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 380px; padding: 24px; text-align: center; }
+    .badge { background: #e8f5e9; color: #2e7d32; font-size: 13px; font-weight: bold; padding: 4px 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px; }
+    h2 { font-size: 20px; color: #333; margin-bottom: 8px; }
+    p.desc { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+    
+    /* 警語 */
+    .warning-box { background: #fff3e0; border: 1px solid #ffe0b2; color: #e65100; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; }
+    
+    /* 按鈕 */
+    .btn-main { width: 100%; background: #06C755; color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    
+    /* Modal 彈窗 */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: flex-end; z-index: 1000; }
+    .modal-content { background: white; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; padding: 24px; text-align: center; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    
+    /* PIN 碼顯示圈圈 */
+    .pin-display { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+    .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #ccc; }
+    .pin-dot.active { background: #06C755; border-color: #06C755; }
+    
+    /* 數字鍵盤 */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+    .key { background: #f0f0f0; border: none; padding: 16px; font-size: 20px; font-weight: bold; border-radius: 12px; cursor: pointer; color: #333; }
+    .key:active { background: #e0e0e0; }
+    
+    .error-msg { color: #d32f2f; font-size: 13px; height: 18px; margin-top: 8px; }
+    .success-icon { font-size: 48px; color: #06C755; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="couponCard">
+    <span class="badge">LIN SHOP 專屬優惠</span>
+    <h2>全館商品 9 折優惠券</h2>
+    <p class="desc">出示此畫面給店員，由店員輸入門市密碼即可完成現場核銷。</p>
+    
+    <div class="warning-box">
+      ⚠️ 警語：請勿自行核銷，若誤按導致優惠券無效，恕不補發。
+    </div>
+    
+    <button class="btn-main" onclick="openKeypad()">請店員點擊核銷</button>
+  </div>
+
+  <!-- 數字鍵盤彈窗 -->
+  <div class="modal-overlay" id="keypadModal">
+    <div class="modal-content">
+      <h3>店員身份核銷</h3>
+      <p style="font-size: 13px; color: #888; margin-top: 4px;">請店員輸入門市專用 4 位數 PIN 碼</p>
+      
+      <div class="pin-display">
+        <div class="pin-dot" id="dot-0"></div>
+        <div class="pin-dot" id="dot-1"></div>
+        <div class="pin-dot" id="dot-2"></div>
+        <div class="pin-dot" id="dot-3"></div>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="keypad">
+        <button class="key" onclick="pressKey('1')">1</button>
+        <button class="key" onclick="pressKey('2')">2</button>
+        <button class="key" onclick="pressKey('3')">3</button>
+        <button class="key" onclick="pressKey('4')">4</button>
+        <button class="key" onclick="pressKey('5')">5</button>
+        <button class="key" onclick="pressKey('6')">6</button>
+        <button class="key" onclick="pressKey('7')">7</button>
+        <button class="key" onclick="pressKey('8')">8</button>
+        <button class="key" onclick="pressKey('9')">9</button>
+        <button class="key" onclick="closeKeypad()" style="font-size:14px; background:#fff; border:1px solid #ccc;">取消</button>
+        <button class="key" onclick="pressKey('0')">0</button>
+        <button class="key" onclick="deleteKey()" style="font-size:14px;">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 預設門市 4 位數密碼（請自訂修改）
+    const STORE_PIN = "8888";
+    let inputPin = "";
+
+    // LIFF 初始化
+    window.onload = function() {
+      // 替換成你的 LIFF ID
+      liff.init({ liffId: "2011481122-w9TOizic" })
+        .then(() => { console.log("LIFF Initialized"); })
+        .catch((err) => { console.error("LIFF Init Error", err); });
+    };
+
+    function openKeypad() {
+      inputPin = "";
+      updatePinDisplay();
+      document.getElementById('errorMsg').innerText = "";
+      document.getElementById('keypadModal').style.display = 'flex';
+    }
+
+    function closeKeypad() {
+      document.getElementById('keypadModal').style.display = 'none';
+    }
+
+    function pressKey(num) {
+      if (inputPin.length < 4) {
+        inputPin += num;
+        updatePinDisplay();
+      }
+      if (inputPin.length === 4) {
+        setTimeout(verifyPin, 100);
+      }
+    }
+
+    function deleteKey() {
+      if (inputPin.length > 0) {
+        inputPin = inputPin.substring(0, inputPin.length - 1);
+        updatePinDisplay();
+      }
+    }
+
+    function updatePinDisplay() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        if (i < inputPin.length) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      }
+    }
+
+    function verifyPin() {
+      if (inputPin === STORE_PIN) {
+        closeKeypad();
+        // 兌換成功畫面
+        document.getElementById('couponCard').innerHTML = `
+          <div class="success-icon">✓</div>
+          <h2 style="color:#06C755;">核銷成功</h2>
+          <p class="desc" style="margin-top:8px;">本優惠券已完成使用。</p>
+          <p style="font-size:12px; color:#999; margin-top:20px;">核銷時間：${new Date().toLocaleString()}</p>
+        `;
+      } else {
+        document.getElementById('errorMsg').innerText = "密碼錯誤，請重新輸入";
+        inputPin = "";
+        updatePinDisplay();
+      }
+    }
+  </script>
+</body>
+</html>
