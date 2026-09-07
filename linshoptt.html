@@ -86,15 +86,20 @@
   </div>
 
   <script>
-    // 預設門市 4 位數密碼（請自訂修改）
+    // 預設門市 4 位數密碼（可自訂修改）
     const STORE_PIN = "8888";
     let inputPin = "";
 
-    // LIFF 初始化
+    // 頁面載入時先初始化 LIFF 並檢查是否已兌換過
     window.onload = function() {
-      // 替換成你的 LIFF ID
       liff.init({ liffId: "2011481122-w9TOizic" })
-        .then(() => { console.log("LIFF Initialized"); })
+        .then(() => {
+          console.log("LIFF Initialized");
+          // 檢查瀏覽器快取紀錄
+          if (localStorage.getItem("lin_shop_coupon_used") === "true") {
+            showAlreadyUsedScreen();
+          }
+        })
         .catch((err) => { console.error("LIFF Init Error", err); });
     };
 
@@ -140,18 +145,32 @@
     function verifyPin() {
       if (inputPin === STORE_PIN) {
         closeKeypad();
-        // 兌換成功畫面
-        document.getElementById('couponCard').innerHTML = `
-          <div class="success-icon">✓</div>
-          <h2 style="color:#06C755;">核銷成功</h2>
-          <p class="desc" style="margin-top:8px;">本優惠券已完成使用。</p>
-          <p style="font-size:12px; color:#999; margin-top:20px;">核銷時間：${new Date().toLocaleString()}</p>
-        `;
+        // 寫入已兌換紀錄到手機本地端
+        localStorage.setItem("lin_shop_coupon_used", "true");
+        
+        showSuccessScreen();
       } else {
         document.getElementById('errorMsg').innerText = "密碼錯誤，請重新輸入";
         inputPin = "";
         updatePinDisplay();
       }
+    }
+
+    function showSuccessScreen() {
+      document.getElementById('couponCard').innerHTML = `
+        <div class="success-icon">✓</div>
+        <h2 style="color:#06C755;">核銷成功</h2>
+        <p class="desc" style="margin-top:8px;">本優惠券已完成使用。</p>
+        <p style="font-size:12px; color:#999; margin-top:20px;">核銷時間：${new Date().toLocaleString()}</p>
+      `;
+    }
+
+    function showAlreadyUsedScreen() {
+      document.getElementById('couponCard').innerHTML = `
+        <div style="font-size:48px; color:#999; margin-bottom:12px;">🚫</div>
+        <h2 style="color:#666;">優惠券已使用</h2>
+        <p class="desc" style="margin-top:8px;">每一個 LINE 帳號限使用一次，您先前已完成兌換。</p>
+      `;
     }
   </script>
 </body>
